@@ -221,8 +221,9 @@
     </script>
   </div>
   <script>
-    const GH_USERNAME = "alian69";
-    const GH_REPO = "Minecraft-pack";
+    // <<<<<<<<<<<< Username & Repo >>>>>>>>>>>
+    const GH_USERNAME = "sifat8668";
+    const GH_REPO = "M-packs";
     const API_URL = `https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/`;
     const RAW_URL = `https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/`;
 
@@ -358,7 +359,11 @@
     // Download logic with progress bar, lock close, ad, and cancel for large files
     function startDownload(file) {
       downloadingScreen.style.display = 'flex';
-      downloadFileName.textContent = file.name + " (" + humanFileSize(file.size) + ")";
+      // --------- Always force ".mcpack" extension ---------
+      let baseName = file.name.replace(/\.[^\.]+$/, ''); // remove last extension
+      let downloadName = baseName + '.mcpack';
+      // ----------------------------------------------------
+      downloadFileName.textContent = downloadName + " (" + humanFileSize(file.size) + ")";
       progressBar.style.width = "0";
       progressText.textContent = "Starting download...";
       downloadCancelBtn.style.display = "none";
@@ -395,7 +400,7 @@
                 let url = URL.createObjectURL(blob);
                 let a = document.createElement('a');
                 a.href = url;
-                a.download = file.name;
+                a.download = downloadName; // <<<< forced .mcpack extension here
                 document.body.appendChild(a);
                 a.click();
                 setTimeout(() => {

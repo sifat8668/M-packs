@@ -38,34 +38,35 @@
     }
     .file{
       display:flex; 
-      flex-direction:row;
+      flex-direction:column;
       align-items:center; 
       justify-content: flex-start; 
       padding:16px 0 10px 0; 
       border-bottom:1px solid #333; 
       position:relative;
-      gap: 20px;
+      gap: 12px;
     }
     .meta{
       display:flex; 
       align-items:center; 
       gap:10px; 
+justify-content:center;
       margin-top: 10px;
     }
     .thumbnail{
-      width:64px;
-      height:64px;
-      border-radius:10px;
+      width:200px;
+      height:150px;
+      border-radius:12px;
       object-fit:cover;
       background:#232338;
-      border:2px solid var(--accent);
-      margin-right:8px;
+      border:4px solid var(--accent);
+      margin-right:2px;
     }
     .name{
       font-weight:700; 
       color:var(--accent);
       word-break: break-all;
-      text-align:left;
+      text-align:center;
       font-size: 1.13em;
     }
     .actions{display:flex; gap:6px; justify-content:center; margin-top:8px;}
@@ -78,6 +79,14 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+    }
+    .loadingVideoContainer {
+      width: 420px;
+      height: 240px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     #downloadingScreen {
       position: fixed;
@@ -160,9 +169,21 @@
       justify-content: center;
       box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
     }
+    .funVideoWrapper {
+      width: 420px;
+      margin: 0 auto 10px auto;
+      display: none;
+      position: relative;
+      z-index: 10;
+    }
+    .funVideoWrapper video {
+      width: 100%;
+      border-radius: 14px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.17);
+    }
     @media (max-width: 600px){
       .container{padding: 12px;}
-      #downloadBar, #adsContainerTop, #adsContainerBottom {width: 98vw;}
+      #downloadBar, #adsContainerTop, #adsContainerBottom, .loadingVideoContainer, .funVideoWrapper {width: 98vw;}
     }
   </style>
   <!-- Google AdSense (replace with your ad IDs) -->
@@ -171,22 +192,50 @@
 <body>
   <header><h1>Minecraft packs</h1></header>
   <div class="container">
-    <div style="text-align:center; padding: 20px; border: 2px dashed #7f5af0; border-radius: 12px;">
-      <p style="margin: 0;">Files are loaded automatically from this repository.</p>
-      <p style="font-size: 0.9em; margin: 5px 0 0;">Just add your .mcpack or .mcworld files to the repo!<br>Thumbnails (same name + .png) will show automatically.</p>
+    <div class="funVideoWrapper" id="funVideoWrapper">
+      <video id="funVideo" controls preload="auto"></video>
     </div>
-    <input type="text" id="searchInput" placeholder="Search packs..." style="padding:8px; border-radius:6px; border:1px solid #666;">
-    <div class="files" id="fileList"></div>
-  </div>
-  <div id="loadingOverlay">
-    <div id="loadingSpinner"></div>
-    <div id="loadingText">Loading files from GitHub...</div>
-  </div>
-  <!-- Downloading Screen -->
-  <div id="downloadingScreen">
-    <div id="adsContainerTop">
-      <!-- Google AdSense ad slot (TOP) -->
-      <!-- There is your ad code -->
+    <div style="text-align:center; padding: 5px; border: 2px dashed #7f5af0; border-radius: 12px;">
+      <h1>⚠️⚠So Important⚠⚠️</h1>
+      <p style="margin: 0;">get an app by this <a href="https://example.com" style="color:green;">Visit My Website</a></p>
+      <p style="font-size: 0.9em; margin: 5px 0 0;"><br>Rename packs. for example, packname.mcpack.txt → packname.mcpack. Just remove .txt</p>
+    </div>
+    <div>
+      <input type="text" id="searchInput" placeholder="Search packs..." style="background-color:#FFFFFF; padding:8px; width:450px; border-radius:6px; border:1px solid #666;">
+      <div class="files" id="fileList"></div>
+    </div>
+    <div id="loadingOverlay">
+      <div class="loadingVideoContainer" id="loadingVideoContainer">
+        <!-- Loading screen video, inserted by JS -->
+      </div>
+      <div id="loadingSpinner"></div>
+      <div id="loadingText">Loading packs...</div>
+    </div>
+    <!-- Downloading Screen -->
+    <div id="downloadingScreen">
+      <div id="adsContainerTop">
+        <!-- Google AdSense ad slot (TOP) -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="there is your ad id"
+             data-ad-slot="there is your ad code"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
+      <div id="downloadBar">
+        <div id="downloadFileName"></div>
+        <div id="progressBarContainer">
+          <div id="progressBar"></div>
+        </div>
+        <div id="progressText"></div>
+        <button id="downloadCancelBtn">Cancel Download</button>
+      </div>
+    </div>
+    <!-- Banner ads bottom -->
+    <div id="adsContainerBottom">
       <ins class="adsbygoogle"
            style="display:block"
            data-ad-client="there is your ad id"
@@ -197,53 +246,65 @@
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
-    <div id="downloadBar">
-      <div id="downloadFileName"></div>
-      <div id="progressBarContainer">
-        <div id="progressBar"></div>
-      </div>
-      <div id="progressText"></div>
-      <button id="downloadCancelBtn">Cancel Download</button>
-    </div>
-  </div>
-  <!-- Banner ads bottom -->
-  <div id="adsContainerBottom">
-    <!-- Google AdSense ad slot (BOTTOM) -->
-    <!-- There is your ad code -->
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="there is your ad id"
-         data-ad-slot="there is your ad code"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
-  </div>
-  <script>
-    // <<<<<<<<<<<< UPDATE: Username & Repo >>>>>>>>>>>
-    const GH_USERNAME = "sifat8668";
-    const GH_REPO = "M-packs";
-    const API_URL = `https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/`;
-    const RAW_URL = `https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/`;
-    // <<<<<<<<<<<< END UPDATE >>>>>>>>>>>>
+<script>
+// Simple JS firewall for GitHub Pages
 
-    const fileList = document.getElementById('fileList');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const searchInput = document.getElementById('searchInput');
+// 1. Block known malicious bots by User-Agent
+const blockedAgents = ["sqlmap", "nikto", "curl", "wget", "fuzz", "acunetix"];
+const ua = navigator.userAgent.toLowerCase();
+if (blockedAgents.some(bot => ua.includes(bot))) {
+    document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px;'>Access Denied</h1>";
+    throw new Error("Blocked User-Agent");
+}
 
-    const downloadingScreen = document.getElementById('downloadingScreen');
-    const downloadFileName = document.getElementById('downloadFileName');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const downloadCancelBtn = document.getElementById('downloadCancelBtn');
+// 2. Prevent suspicious query parameters
+const badPatterns = [/(\.\.\/|<script|%3Cscript|\/etc\/passwd)/i];
+const urlParams = new URLSearchParams(window.location.search);
+for (const [key, value] of urlParams) {
+    if (badPatterns.some(rx => rx.test(value))) {
+        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px;'>Suspicious Activity Detected</h1>";
+        throw new Error("Blocked suspicious query");
+    }
+}
+</script>
+<script>
+  // <<<<<<<<<<<< UPDATE: Username & Repo >>>>>>>>>>>
+  const GH_USERNAME = "sifat8668";
+  const GH_REPO = "M-packs";
+  const API_URL = `https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/`;
+  const RAW_URL = `https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/`;
+  // <<<<<<<<<<<< END UPDATE >>>>>>>>>>>>
 
-    let allFiles = [];
-    let allThumbs = {};
-    let currentDownload = null;
+  const fileList = document.getElementById('fileList');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const loadingVideoContainer = document.getElementById('loadingVideoContainer');
+  const searchInput = document.getElementById('searchInput');
 
-    // Recursively get all files (packs and images) from repo
-    async function fetchAllFiles(apiUrl = API_URL, prefix = '') {
+  const downloadingScreen = document.getElementById('downloadingScreen');
+  const downloadFileName = document.getElementById('downloadFileName');
+  const progressBar = document.getElementById('progressBar');
+  const progressText = document.getElementById('progressText');
+  const downloadCancelBtn = document.getElementById('downloadCancelBtn');
+
+  // Fun video logic
+  const funVideoWrapper = document.getElementById('funVideoWrapper');
+  const funVideo = document.getElementById('funVideo');
+  const FUN_VIDEO_LINK = "there is your fun video google drive link";
+  let funVideoTimeout = null;
+
+  let allFiles = [];
+  let allThumbs = {};
+  let currentDownload = null;
+
+  // Loading videos
+  const LOADING_VIDEOS = [
+    "there is you opening loading screen link 1",
+    "there is you opening loading screen link 2"
+  ];
+
+  // Recursively get all files (packs and images) from repo (no error, always load)
+  async function fetchAllFiles(apiUrl = API_URL, prefix = '') {
+    try {
       const response = await fetch(apiUrl);
       if (!response.ok) throw new Error('Failed to fetch repository contents.');
       const data = await response.json();
@@ -256,219 +317,284 @@
         }
       }
       return files;
+    } catch (e) {
+      // Instead of error, try to load whatever partially available, or return empty
+      return [];
     }
+  }
 
-    async function fetchFiles(limit = 13) {
-      loadingOverlay.style.display = 'flex';
-      try {
-        const data = await fetchAllFiles();
-        // Sort alphabetically for consistency
-        const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
-        // Collect thumbnails (case-insensitive, use full path)
-        allThumbs = {};
-        sorted.forEach(file => {
-          if (file.name.toLowerCase().endsWith('.png')) {
-            // Key is lowercased base name (without extension)
-            const base = file.name.replace(/\.png$/i, '').toLowerCase();
-            allThumbs[base] = RAW_URL + file.path;
-          }
-        });
-
-        // Only show strict .mcpack or .mcworld files, not .mcpack.txt etc
-        const mcFiles = sorted.filter(file =>
-          file.name.match(/\.mcpack$/i) || file.name.match(/\.mcworld$/i)
-        ).map(file => ({
-          name: file.name,
-          download_url: RAW_URL + file.path,
-          size: file.size,
-          thumb: allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null
-        }));
-
-        // Store for search use
-        allFiles = mcFiles;
-
-        // Show 13 random packs
-        const randomFiles = mcFiles.sort(() => Math.random() - 0.5).slice(0, limit);
-        renderFiles(randomFiles);
-      } catch (error) {
-        fileList.innerHTML = `<div style="text-align:center;color:#ff5470;font-weight:bold;">Error: ${error.message}</div>`;
-      } finally {
-        loadingOverlay.style.display = 'none';
+  async function fetchFiles(limit = 13) {
+    loadingOverlay.style.display = 'flex';
+    showRandomLoadingVideo();
+    try {
+      let data = await fetchAllFiles();
+      // If slow or failed, keep trying every 2s until some files (at least one .mcpack/.mcworld) loaded
+      let tryCount = 0;
+      while ((data.length === 0 || !data.some(f => f.name.match(/\.mcpack$|\.mcworld$/i))) && tryCount < 20) {
+        await new Promise(r => setTimeout(r, 2000));
+        data = await fetchAllFiles();
+        tryCount++;
       }
-    }
-
-    function renderFiles(filesToRender) {
-      fileList.innerHTML = "";
-      if (filesToRender.length === 0) {
-        fileList.innerHTML = '<div style="text-align:center;color:#888">No .mcpack or .mcworld files found in the repository.</div>';
-        return;
-      }
-      filesToRender.forEach(file => {
-        let div = document.createElement('div');
-        div.className = 'file';
-
-        // Thumbnail
-        let thumb = document.createElement('img');
-        thumb.className = 'thumbnail';
-        thumb.src = file.thumb || 'https://minecraft.wiki/images/5/5e/Grass_Block.png?20230819204953';
-        thumb.alt = "Thumbnail";
-        thumb.onerror = function() {
-          thumb.src = 'https://minecraft.wiki/images/5/5e/Grass_Block.png?20230819204953';
-        };
-        div.appendChild(thumb);
-
-        // File name
-        let name = document.createElement('div');
-        name.className = 'name';
-        name.textContent = file.name;
-        div.appendChild(name);
-
-        // Download button
-        let actions = document.createElement('div');
-        actions.className = 'actions';
-        let dl = document.createElement('button');
-        dl.className = 'btn';
-        dl.textContent = 'Download';
-        dl.onclick = () => startDownload(file);
-        actions.appendChild(dl);
-        div.appendChild(actions);
-        fileList.appendChild(div);
+      // Sort alphabetically
+      const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
+      // Collect thumbnails (case-insensitive, use full path)
+      allThumbs = {};
+      sorted.forEach(file => {
+        if (file.name.toLowerCase().endsWith('.png')) {
+          const base = file.name.replace(/\.png$/i, '').toLowerCase();
+          allThumbs[base] = RAW_URL + file.path;
+        }
       });
-    }
 
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.trim().toLowerCase();
-      if (query === "") {
-        // Show random 13 again
-        const randomFiles = allFiles.sort(() => Math.random() - 0.5).slice(0, 13);
-        renderFiles(randomFiles);
-      } else {
-        const mcFiles = allFiles.filter(file =>
-          file.name.toLowerCase().includes(query)
-        );
-        renderFiles(mcFiles);
-      }
+      const mcFiles = sorted.filter(file =>
+        file.name.match(/\.mcpack$/i) || file.name.match(/\.mcworld$/i)
+      ).map(file => ({
+        name: file.name,
+        download_url: RAW_URL + file.path,
+        size: file.size,
+        thumb: allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null
+      }));
+
+      // Store for search use
+      allFiles = mcFiles;
+
+      // Show 13 random packs
+      const randomFiles = mcFiles.sort(() => Math.random() - 0.5).slice(0, limit);
+      renderFiles(randomFiles);
+    } finally {
+      loadingOverlay.style.display = 'none';
+      hideLoadingVideo();
+    }
+  }
+
+  function renderFiles(filesToRender) {
+    fileList.innerHTML = "";
+    if (filesToRender.length === 0) {
+      fileList.innerHTML = '<div style="text-align:center;color:#888">No .mcpack or .mcworld files found in the repository.</div>';
+      return;
+    }
+    filesToRender.forEach(file => {
+      let div = document.createElement('div');
+      div.className = 'file';
+
+      // Thumbnail
+      let thumb = document.createElement('img');
+      thumb.className = 'thumbnail';
+      thumb.src = file.thumb || 'https://minecraft.wiki/images/5/5e/Grass_Block.png?20230819204953';
+      thumb.alt = "Thumbnail";
+      thumb.onerror = function() {
+        thumb.src = 'https://minecraft.wiki/images/5/5e/Grass_Block.png?20230819204953';
+      };
+      div.appendChild(thumb);
+
+      // File name
+      let name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = file.name;
+      div.appendChild(name);
+
+      // Download button
+      let actions = document.createElement('div');
+      actions.className = 'actions';
+      let dl = document.createElement('button');
+      dl.className = 'btn';
+      dl.textContent = 'Download';
+      dl.onclick = () => startDownload(file);
+      actions.appendChild(dl);
+      div.appendChild(actions);
+      fileList.appendChild(div);
     });
+  }
 
-    function humanFileSize(size) {
-      if (size < 1024) return size + " B";
-      if (size < 1024 * 1024) return (size/1024).toFixed(1) + " KB";
-      if (size < 1024 * 1024 * 1024) return (size/1024/1024).toFixed(1) + " MB";
-      return (size/1024/1024/1024).toFixed(2) + " GB";
+  searchInput.addEventListener('input', () => {
+    const query = searchInput.value.trim().toLowerCase();
+    if (query === "") {
+      const randomFiles = allFiles.sort(() => Math.random() - 0.5).slice(0, 13);
+      renderFiles(randomFiles);
+    } else {
+      const mcFiles = allFiles.filter(file =>
+        file.name.toLowerCase().includes(query)
+      );
+      renderFiles(mcFiles);
     }
+  });
 
-    // Download logic with progress bar, lock close, ad, and cancel for large files
-    function startDownload(file) {
-      downloadingScreen.style.display = 'flex';
-      // --------- Force download extension logic ---------
-      let downloadName;
-      if (file.name.match(/\.mcpack$/i)) {
-        // Always force .mcpack extension
-        downloadName = file.name.replace(/(\.mcpack)?(\.txt)?$/i, '') + '.mcpack';
-      } else if (file.name.match(/\.mcworld$/i)) {
-        downloadName = file.name.replace(/(\.mcworld)?(\.txt)?$/i, '') + '.mcworld';
-      } else {
-        downloadName = file.name; // fallback
+  function humanFileSize(size) {
+    if (size < 1024) return size + " B";
+    if (size < 1024 * 1024) return (size/1024).toFixed(1) + " KB";
+    if (size < 1024 * 1024 * 1024) return (size/1024/1024).toFixed(1) + " MB";
+    return (size/1024/1024/1024).toFixed(2) + " GB";
+  }
+
+  // Download logic with progress bar, lock close, ad, and cancel for large files
+  function startDownload(file) {
+    downloadingScreen.style.display = 'flex';
+    let downloadName;
+    if (file.name.match(/\.mcpack$/i)) {
+      downloadName = file.name.replace(/(\.mcpack)?(\.txt)?$/i, '') + '.mcpack';
+    } else if (file.name.match(/\.mcworld$/i)) {
+      downloadName = file.name.replace(/(\.mcworld)?(\.txt)?$/i, '') + '.mcworld';
+    } else {
+      downloadName = file.name;
+    }
+    downloadFileName.textContent = downloadName + " (" + humanFileSize(file.size) + ")";
+    progressBar.style.width = "0";
+    progressText.textContent = "Starting download...";
+    downloadCancelBtn.style.display = "none";
+    let downloadedBytes = 0;
+    let allowClose = false;
+    let canCancel = false;
+    let controller = new AbortController();
+    currentDownload = controller;
+
+    function beforeUnloadHandler(e) {
+      if (!allowClose) {
+        e.preventDefault();
+        e.returnValue = '';
       }
-      // --------------------------------------------------
-      downloadFileName.textContent = downloadName + " (" + humanFileSize(file.size) + ")";
-      progressBar.style.width = "0";
-      progressText.textContent = "Starting download...";
-      downloadCancelBtn.style.display = "none";
-      let downloadedBytes = 0;
-      let allowClose = false;
-      let canCancel = false;
-      let controller = new AbortController();
-      currentDownload = controller;
+    }
+    window.addEventListener('beforeunload', beforeUnloadHandler);
 
-      function beforeUnloadHandler(e) {
-        if (!allowClose) {
-          e.preventDefault();
-          e.returnValue = '';
-        }
-      }
-      window.addEventListener('beforeunload', beforeUnloadHandler);
+    const FILE_UNLOCK_SIZE = 30 * 1024 * 1024;
+    const SLOW_SIZE = 5 * 1024 * 1024;
 
-      const FILE_UNLOCK_SIZE = 30 * 1024 * 1024;
-      const SLOW_SIZE = 5 * 1024 * 1024;
-
-      fetch(file.download_url, {signal: controller.signal})
-        .then(response => {
-          if (!response.ok) throw new Error("Failed to download file.");
-          const total = file.size || parseInt(response.headers.get('content-length')) || 0;
-          let reader = response.body.getReader();
-          let chunks = [];
-          function read() {
-            return reader.read().then(async ({done, value}) => {
-              if (done) {
-                window.removeEventListener('beforeunload', beforeUnloadHandler);
-                downloadingScreen.style.display = 'none';
-                currentDownload = null;
-                let blob = new Blob(chunks);
-                let url = URL.createObjectURL(blob);
-                let a = document.createElement('a');
-                a.href = url;
-                a.download = downloadName; // <<<< forced extension here
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(() => {
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }, 500);
-                return;
-              }
-              chunks.push(value);
-              downloadedBytes += value.length;
-              let percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
-              progressBar.style.width = percent + "%";
-              progressText.textContent = 
-                `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
-
-              if (total <= SLOW_SIZE) {
-                await new Promise(r => setTimeout(r, 100));
-              }
-
-              if (total > FILE_UNLOCK_SIZE && downloadedBytes >= FILE_UNLOCK_SIZE && !allowClose) {
-                allowClose = true;
-                canCancel = true;
-                downloadCancelBtn.style.display = "";
-                progressText.textContent += "\nYou can now safely close the page or cancel download.";
-              }
-              read();
-            }).catch(err => {
-              if (controller.signal.aborted) {
-                progressText.textContent = "Download cancelled.";
-              } else {
-                progressText.textContent = "Error during download.";
-              }
-              downloadingScreen.style.display = 'none';
+    fetch(file.download_url, {signal: controller.signal})
+      .then(response => {
+        if (!response.ok) throw new Error("Failed to download file.");
+        const total = file.size || parseInt(response.headers.get('content-length')) || 0;
+        let reader = response.body.getReader();
+        let chunks = [];
+        function read() {
+          return reader.read().then(async ({done, value}) => {
+            if (done) {
               window.removeEventListener('beforeunload', beforeUnloadHandler);
+              downloadingScreen.style.display = 'none';
               currentDownload = null;
-            });
-          }
-          read();
-        }).catch(err => {
-          progressText.textContent = "Error: " + err.message;
-          downloadingScreen.style.display = 'none';
-          window.removeEventListener('beforeunload', beforeUnloadHandler);
-          currentDownload = null;
-        });
+              let blob = new Blob(chunks);
+              let url = URL.createObjectURL(blob);
+              let a = document.createElement('a');
+              a.href = url;
+              a.download = downloadName;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }, 500);
+              return;
+            }
+            chunks.push(value);
+            downloadedBytes += value.length;
+            let percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
+            progressBar.style.width = percent + "%";
+            progressText.textContent = 
+              `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
 
-      downloadCancelBtn.onclick = function() {
-        if (canCancel && currentDownload) {
-          controller.abort();
-          downloadCancelBtn.style.display = "none";
-        }
-      };
+            if (total <= SLOW_SIZE) {
+              await new Promise(r => setTimeout(r, 100));
+            }
 
-      window.onunload = () => {
-        if (currentDownload && !allowClose) {
-          controller.abort();
+            if (total > FILE_UNLOCK_SIZE && downloadedBytes >= FILE_UNLOCK_SIZE && !allowClose) {
+              allowClose = true;
+              canCancel = true;
+              downloadCancelBtn.style.display = "";
+              progressText.textContent += "\nYou can now safely close the page or cancel download.";
+            }
+            read();
+          }).catch(err => {
+            if (controller.signal.aborted) {
+              progressText.textContent = "Download cancelled.";
+            } else {
+              progressText.textContent = "Error during download.";
+            }
+            downloadingScreen.style.display = 'none';
+            window.removeEventListener('beforeunload', beforeUnloadHandler);
+            currentDownload = null;
+          });
         }
-      };
+        read();
+      }).catch(err => {
+        progressText.textContent = "Error: " + err.message;
+        downloadingScreen.style.display = 'none';
+        window.removeEventListener('beforeunload', beforeUnloadHandler);
+        currentDownload = null;
+      });
+
+    downloadCancelBtn.onclick = function() {
+      if (canCancel && currentDownload) {
+        controller.abort();
+        downloadCancelBtn.style.display = "none";
+      }
+    };
+
+    window.onunload = () => {
+      if (currentDownload && !allowClose) {
+        controller.abort();
+      }
+    };
+  }
+
+  // Loading video functions
+  function showRandomLoadingVideo() {
+    loadingVideoContainer.innerHTML = '';
+    const videoUrl = LOADING_VIDEOS[Math.random() < 0.5 ? 0 : 1];
+    const video = document.createElement('video');
+    video.src = videoUrl;
+    video.autoplay = true;
+    video.muted = true;
+    video.loop = false;
+    video.playsInline = true;
+    video.style.width = '100%';
+    video.style.borderRadius = '13px';
+    video.style.boxShadow = '0 4px 32px rgba(0,0,0,0.15)';
+    loadingVideoContainer.appendChild(video);
+  }
+  function hideLoadingVideo() {
+    loadingVideoContainer.innerHTML = '';
+  }
+
+  // Fun video logic: randomly summon video between 1 to 10 min, play above "so important", hide after end
+  function scheduleFunVideo() {
+    if (!FUN_VIDEO_LINK) return;
+    // Random time from 1 to 10 min (in ms)
+    const ms = (60 + Math.floor(Math.random() * 9 * 60)) * 1000;
+    funVideoTimeout = setTimeout(() => {
+      showFunVideo();
+    }, ms);
+  }
+  function showFunVideo() {
+    funVideoWrapper.style.display = 'block';
+    funVideo.src = FUN_VIDEO_LINK;
+    funVideo.autoplay = true;
+    funVideo.muted = false;
+    funVideo.loop = false;
+    funVideo.playsInline = true;
+    funVideo.onended = () => {
+      funVideoWrapper.style.display = 'none';
+      scheduleFunVideo(); // schedule next summon
+    };
+    // Hide after video ends (or error)
+    funVideo.onerror = () => {
+      funVideoWrapper.style.display = 'none';
+      scheduleFunVideo();
+    };
+  }
+
+  // Only play fun video if user internet is not slow (detected after initial load)
+  function isInternetFast() {
+    // crude: if files loaded in <8s, consider fast
+    return window._repoLoadTime && window._repoLoadTime < 8000;
+  }
+
+  // On load
+  let startRepoLoad = Date.now();
+  fetchFiles().then(() => {
+    window._repoLoadTime = Date.now() - startRepoLoad;
+    if (isInternetFast()) {
+      scheduleFunVideo();
     }
+  });
 
-    fetchFiles();
-  </script>
+</script>
 </body>
 </html>

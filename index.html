@@ -189,43 +189,99 @@ justify-content:center;
       border-radius: 14px;
       box-shadow: 0 4px 32px rgba(0,0,0,0.17);
     }
-    /* --- Added footer styles --- */
-    .footer-sections {
-      width: 100vw;
-      background: #18181b;
+    /* --- Modal styles (for About, Privacy, Contact) --- */
+    .footer-buttons-container {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin: 36px 0 0 0;
+      flex-wrap: wrap;
+    }
+    .footer-btn {
+      background: linear-gradient(90deg,#232338,#7f5af0);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 10px 30px;
+      font-weight: 700;
+      font-size: 1.08em;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .footer-btn:hover {
+      background: linear-gradient(90deg,#7f5af0,#232338);
+    }
+    .footer-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(22,22,32,0.93);
+      z-index: 9999999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: fadeInModal 0.2s;
+    }
+    @keyframes fadeInModal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .footer-modal-content {
+      background: #232338;
       color: #f8fafc;
-      padding: 40px 6vw 90px 6vw;
-      box-sizing: border-box;
+      border-radius: 18px;
+      max-width: 95vw;
+      width: 370px;
+      padding: 32px 16px 32px 16px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.28);
       display: flex;
       flex-direction: column;
-      gap: 24px;
-      margin-top: 70px;
-      font-size: 1em;
-      z-index: 999999;
+      gap: 17px;
+      align-items: center;
       position: relative;
+      text-align: left;
+      font-size: 1em;
     }
     .footer-section-title {
-      font-size: 1.18em;
+      font-size: 1.23em;
       font-weight: 700;
       color: var(--accent);
       margin-bottom: 7px;
       letter-spacing: 1px;
+      text-align: center;
     }
     .footer-section-content {
       color: #d4d6e0;
       line-height: 1.6;
       font-size: 1em;
       margin-bottom: 2px;
+      word-break: break-word;
     }
     .footer-contact-link {
       color: var(--primary);
       text-decoration: underline;
       font-weight: 700;
+      word-break: break-all;
+    }
+    .footer-modal-back {
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      background: linear-gradient(90deg,#ff5470,#ff96c0);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      font-weight: 700;
+      padding: 7px 15px;
+      cursor: pointer;
+      font-size: 1em;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.14);
     }
     @media (max-width: 600px){
       .container{padding: 12px;}
       #downloadBar, #adsContainerTop, #adsContainerBottom, .loadingVideoContainer, .funVideoWrapper {width: 98vw;}
-      .footer-sections {padding: 28px 2vw 90px 2vw;}
+      .footer-modal-content {width: 98vw; max-width: 98vw; padding: 21px 6px;}
+      .footer-buttons-container {padding: 6px 2vw 0 2vw;}
     }
   </style>
   <!-- Google AdSense (replace with your ad IDs) -->
@@ -289,25 +345,17 @@ justify-content:center;
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
-  </div>
-  <!-- === Footer sections: About, Privacy Policy, Contact === -->
-  <div class="footer-sections">
-    <div>
-      <div class="footer-section-title">About</div>
-      <div class="footer-section-content">
-        Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). curated for your gameplay experience. We aim to provide a simple, and secure way for the Minecraft community to discover new content. Good luck with your pack!
-      </div>
+    <!-- === Footer: Modal buttons for About, Privacy Policy, Contact (no overflow) === -->
+    <div class="footer-buttons-container">
+      <button class="footer-btn" id="aboutBtn">About</button>
+      <button class="footer-btn" id="privacyBtn">Privacy Policy</button>
+      <button class="footer-btn" id="contactBtn">Contact</button>
     </div>
-    <div>
-      <div class="footer-section-title">Privacy Policy</div>
-      <div class="footer-section-content">
-        Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.
-      </div>
-    </div>
-    <div>
-      <div class="footer-section-title">Contact</div>
-      <div class="footer-section-content">
-        Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. Good luck!
+    <!-- Modal popup for footer sections -->
+    <div class="footer-modal" id="footerModal">
+      <div class="footer-modal-content" id="footerModalContent">
+        <!-- Section content injected by JS -->
+        <button class="footer-modal-back" id="footerModalBack">Back</button>
       </div>
     </div>
   </div>
@@ -694,6 +742,65 @@ for (const [key, value] of urlParams) {
     }
   });
 
+  // === Footer modal logic ===
+  const aboutBtn = document.getElementById('aboutBtn');
+  const privacyBtn = document.getElementById('privacyBtn');
+  const contactBtn = document.getElementById('contactBtn');
+  const footerModal = document.getElementById('footerModal');
+  const footerModalContent = document.getElementById('footerModalContent');
+  const footerModalBack = document.getElementById('footerModalBack');
+
+  // Modal section data
+  const FOOTER_SECTIONS = {
+    about: {
+      title: "About",
+      content: `Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). curated for your gameplay experience. We aim to provide a simple, and secure way for the Minecraft community to discover new content. Good luck with your pack!`
+    },
+    privacy: {
+      title: "Privacy Policy",
+      content: `Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.`
+    },
+    contact: {
+      title: "Contact",
+      content: `Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. Good luck!`
+    }
+  };
+
+  function openFooterModal(sectionKey) {
+    const data = FOOTER_SECTIONS[sectionKey];
+    if (!data) return;
+    footerModalContent.querySelectorAll('.footer-section-title,.footer-section-content').forEach(n => n.remove());
+    // Create title
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'footer-section-title';
+    titleDiv.textContent = data.title;
+    footerModalContent.insertBefore(titleDiv, footerModalBack);
+
+    // Create content
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'footer-section-content';
+    contentDiv.innerHTML = data.content;
+    footerModalContent.insertBefore(contentDiv, footerModalBack);
+
+    footerModal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeFooterModal() {
+    footerModal.style.display = 'none';
+    document.body.style.overflow = '';
+    footerModalContent.querySelectorAll('.footer-section-title,.footer-section-content').forEach(n => n.remove());
+  }
+
+  aboutBtn.onclick = () => openFooterModal('about');
+  privacyBtn.onclick = () => openFooterModal('privacy');
+  contactBtn.onclick = () => openFooterModal('contact');
+  footerModalBack.onclick = closeFooterModal;
+
+  // Also close modal if background is clicked
+  footerModal.addEventListener('click', function(e){
+    if(e.target === footerModal) closeFooterModal();
+  });
 </script>
 </body>
 </html>

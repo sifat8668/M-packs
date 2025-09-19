@@ -100,12 +100,14 @@ justify-content:center;
       padding-top: 90px;
     }
     #adsContainerTop {
-      width: 360px;
-      min-height: 60px;
+      width: 260px;
+      height: 195px;
       margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
     }
     #downloadBar {
       width: 360px;
@@ -116,6 +118,12 @@ justify-content:center;
       display: flex;
       flex-direction: column;
       align-items: center;
+    }
+    #downloadingAnimation {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 10px;
+      display: none;
     }
     #progressBarContainer {
       width: 100%;
@@ -181,9 +189,43 @@ justify-content:center;
       border-radius: 14px;
       box-shadow: 0 4px 32px rgba(0,0,0,0.17);
     }
+    /* --- Added footer styles --- */
+    .footer-sections {
+      width: 100vw;
+      background: #18181b;
+      color: #f8fafc;
+      padding: 40px 6vw 90px 6vw;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      margin-top: 70px;
+      font-size: 1em;
+      z-index: 999999;
+      position: relative;
+    }
+    .footer-section-title {
+      font-size: 1.18em;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 7px;
+      letter-spacing: 1px;
+    }
+    .footer-section-content {
+      color: #d4d6e0;
+      line-height: 1.6;
+      font-size: 1em;
+      margin-bottom: 2px;
+    }
+    .footer-contact-link {
+      color: var(--primary);
+      text-decoration: underline;
+      font-weight: 700;
+    }
     @media (max-width: 600px){
       .container{padding: 12px;}
       #downloadBar, #adsContainerTop, #adsContainerBottom, .loadingVideoContainer, .funVideoWrapper {width: 98vw;}
+      .footer-sections {padding: 28px 2vw 90px 2vw;}
     }
   </style>
   <!-- Google AdSense (replace with your ad IDs) -->
@@ -196,9 +238,9 @@ justify-content:center;
       <video id="funVideo" controls preload="auto"></video>
     </div>
     <div style="text-align:center; padding: 5px; border: 2px dashed #7f5af0; border-radius: 12px;">
-      <h1>⚠️⚠So Important⚠⚠️</h1>
-      <p style="margin: 0;">get an app by this <a href="https://example.com" style="color:green;">Visit My Website</a></p>
-      <p style="font-size: 0.9em; margin: 5px 0 0;"><br>Rename packs. for example, packname.mcpack.txt → packname.mcpack. Just remove .txt</p>
+      <h1>⚠️⚠Important⚠⚠️</h1>
+      <p style="margin: 0;">get an app by this <a href="https://sifat8668.github.io/Mpacksapp/" style="color:green;">Mpacks app</a> OR</p>
+      <p style="font-size: 0.9em; margin: 5px 0 0;"><br>Rename packs. for example, packname.mcpack.txt → packname.mcpack , Just remove .txt</p>
     </div>
     <div>
       <input type="text" id="searchInput" placeholder="Search packs..." style="background-color:#FFFFFF; padding:8px; width:450px; border-radius:6px; border:1px solid #666;">
@@ -216,16 +258,17 @@ justify-content:center;
       <div id="adsContainerTop">
         <!-- Google AdSense ad slot (TOP) -->
         <ins class="adsbygoogle"
-             style="display:block"
+             style="display:block;width:260px;height:195px"
              data-ad-client="there is your ad id"
              data-ad-slot="there is your ad code"
              data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
+             data-full-width-responsive="false"></ins>
         <script>
           (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
       </div>
       <div id="downloadBar">
+        <img id="downloadingAnimation" src="https://i.imgur.com/llF5iyg.gif" alt="Downloading...">
         <div id="downloadFileName"></div>
         <div id="progressBarContainer">
           <div id="progressBar"></div>
@@ -246,6 +289,28 @@ justify-content:center;
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
+  </div>
+  <!-- === Footer sections: About, Privacy Policy, Contact === -->
+  <div class="footer-sections">
+    <div>
+      <div class="footer-section-title">About</div>
+      <div class="footer-section-content">
+        Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). curated for your gameplay experience. We aim to provide a simple, and secure way for the Minecraft community to discover new content. Good luck with your pack!
+      </div>
+    </div>
+    <div>
+      <div class="footer-section-title">Privacy Policy</div>
+      <div class="footer-section-content">
+        Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.
+      </div>
+    </div>
+    <div>
+      <div class="footer-section-title">Contact</div>
+      <div class="footer-section-content">
+        Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. Good luck!
+      </div>
+    </div>
+  </div>
 <script>
 // Simple JS firewall for GitHub Pages
 
@@ -285,6 +350,8 @@ for (const [key, value] of urlParams) {
   const progressBar = document.getElementById('progressBar');
   const progressText = document.getElementById('progressText');
   const downloadCancelBtn = document.getElementById('downloadCancelBtn');
+  const adsContainerTop = document.getElementById('adsContainerTop');
+  const downloadingAnimation = document.getElementById('downloadingAnimation');
 
   // Fun video logic
   const funVideoWrapper = document.getElementById('funVideoWrapper');
@@ -318,7 +385,6 @@ for (const [key, value] of urlParams) {
       }
       return files;
     } catch (e) {
-      // Instead of error, try to load whatever partially available, or return empty
       return [];
     }
   }
@@ -328,16 +394,13 @@ for (const [key, value] of urlParams) {
     showRandomLoadingVideo();
     try {
       let data = await fetchAllFiles();
-      // If slow or failed, keep trying every 2s until some files (at least one .mcpack/.mcworld) loaded
       let tryCount = 0;
       while ((data.length === 0 || !data.some(f => f.name.match(/\.mcpack$|\.mcworld$/i))) && tryCount < 20) {
         await new Promise(r => setTimeout(r, 2000));
         data = await fetchAllFiles();
         tryCount++;
       }
-      // Sort alphabetically
       const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
-      // Collect thumbnails (case-insensitive, use full path)
       allThumbs = {};
       sorted.forEach(file => {
         if (file.name.toLowerCase().endsWith('.png')) {
@@ -355,10 +418,7 @@ for (const [key, value] of urlParams) {
         thumb: allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null
       }));
 
-      // Store for search use
       allFiles = mcFiles;
-
-      // Show 13 random packs
       const randomFiles = mcFiles.sort(() => Math.random() - 0.5).slice(0, limit);
       renderFiles(randomFiles);
     } finally {
@@ -377,7 +437,6 @@ for (const [key, value] of urlParams) {
       let div = document.createElement('div');
       div.className = 'file';
 
-      // Thumbnail
       let thumb = document.createElement('img');
       thumb.className = 'thumbnail';
       thumb.src = file.thumb || 'https://minecraft.wiki/images/5/5e/Grass_Block.png?20230819204953';
@@ -387,13 +446,11 @@ for (const [key, value] of urlParams) {
       };
       div.appendChild(thumb);
 
-      // File name
       let name = document.createElement('div');
       name.className = 'name';
       name.textContent = file.name;
       div.appendChild(name);
 
-      // Download button
       let actions = document.createElement('div');
       actions.className = 'actions';
       let dl = document.createElement('button');
@@ -426,9 +483,11 @@ for (const [key, value] of urlParams) {
     return (size/1024/1024/1024).toFixed(2) + " GB";
   }
 
-  // Download logic with progress bar, lock close, ad, and cancel for large files
   function startDownload(file) {
+    // Show UI + animation
     downloadingScreen.style.display = 'flex';
+    downloadingAnimation.style.display = 'block';
+
     let downloadName;
     if (file.name.match(/\.mcpack$/i)) {
       downloadName = file.name.replace(/(\.mcpack)?(\.txt)?$/i, '') + '.mcpack';
@@ -439,7 +498,6 @@ for (const [key, value] of urlParams) {
     }
     downloadFileName.textContent = downloadName + " (" + humanFileSize(file.size) + ")";
     progressBar.style.width = "0";
-    progressText.textContent = "Starting download...";
     downloadCancelBtn.style.display = "none";
     let downloadedBytes = 0;
     let allowClose = false;
@@ -447,16 +505,49 @@ for (const [key, value] of urlParams) {
     let controller = new AbortController();
     currentDownload = controller;
 
-    function beforeUnloadHandler(e) {
-      if (!allowClose) {
-        e.preventDefault();
-        e.returnValue = '';
+    // Ad unlock for current session only
+    let allowFastDownload = false;
+    let adMessageShown = false;
+    function unlockFastDownload() {
+      allowFastDownload = true;
+      if (progressText && downloadingScreen.style.display === 'flex') {
+        progressText.textContent = "Download speed unlocked! Now downloading at normal speed.";
       }
+      adMessageShown = true;
     }
-    window.addEventListener('beforeunload', beforeUnloadHandler);
+    adsContainerTop.onclick = unlockFastDownload;
 
+    const TEN_MB = 10 * 1024 * 1024;
     const FILE_UNLOCK_SIZE = 30 * 1024 * 1024;
     const SLOW_SIZE = 5 * 1024 * 1024;
+    const SLOW_FACTOR = 6; // 6x slower
+
+    // Out warning message
+    if (file.size < TEN_MB && !allowFastDownload) {
+      progressText.textContent =
+        "We made download slower. Click on ads for faster download. Then back if you want.\n";
+    } else {
+      progressText.textContent = "Starting download...";
+    }
+
+    // Cancel download on page leave/tab hide
+    function abortDownloadIfActive() {
+      if (currentDownload && !allowClose) {
+        controller.abort();
+      }
+    }
+    function beforeUnloadHandler(e) {
+      abortDownloadIfActive();
+      e.preventDefault();
+      e.returnValue = '';
+    }
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+    function visibilityChangeHandler() {
+      if (document.visibilityState === "hidden") {
+        abortDownloadIfActive();
+      }
+    }
+    document.addEventListener('visibilitychange', visibilityChangeHandler);
 
     fetch(file.download_url, {signal: controller.signal})
       .then(response => {
@@ -468,7 +559,9 @@ for (const [key, value] of urlParams) {
           return reader.read().then(async ({done, value}) => {
             if (done) {
               window.removeEventListener('beforeunload', beforeUnloadHandler);
+              document.removeEventListener('visibilitychange', visibilityChangeHandler);
               downloadingScreen.style.display = 'none';
+              downloadingAnimation.style.display = 'none';
               currentDownload = null;
               let blob = new Blob(chunks);
               let url = URL.createObjectURL(blob);
@@ -486,12 +579,23 @@ for (const [key, value] of urlParams) {
             chunks.push(value);
             downloadedBytes += value.length;
             let percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
-            progressBar.style.width = percent + "%";
-            progressText.textContent = 
-              `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
-
-            if (total <= SLOW_SIZE) {
-              await new Promise(r => setTimeout(r, 100));
+            // SLOW MODE: if pack < 10MB and not unlocked by ad
+            if (file.size < TEN_MB && !allowFastDownload) {
+              if (!adMessageShown) {
+                progressText.textContent =
+                  "We made download slower. Click on ads for faster download. Then back if you want.\n" +
+                  `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
+              } else {
+                progressText.textContent =
+                  `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
+              }
+              await new Promise(r => setTimeout(r, 600));
+            } else {
+              progressText.textContent =
+                `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
+              if (total <= SLOW_SIZE) {
+                await new Promise(r => setTimeout(r, 100));
+              }
             }
 
             if (total > FILE_UNLOCK_SIZE && downloadedBytes >= FILE_UNLOCK_SIZE && !allowClose) {
@@ -508,7 +612,9 @@ for (const [key, value] of urlParams) {
               progressText.textContent = "Error during download.";
             }
             downloadingScreen.style.display = 'none';
+            downloadingAnimation.style.display = 'none';
             window.removeEventListener('beforeunload', beforeUnloadHandler);
+            document.removeEventListener('visibilitychange', visibilityChangeHandler);
             currentDownload = null;
           });
         }
@@ -516,7 +622,9 @@ for (const [key, value] of urlParams) {
       }).catch(err => {
         progressText.textContent = "Error: " + err.message;
         downloadingScreen.style.display = 'none';
+        downloadingAnimation.style.display = 'none';
         window.removeEventListener('beforeunload', beforeUnloadHandler);
+        document.removeEventListener('visibilitychange', visibilityChangeHandler);
         currentDownload = null;
       });
 
@@ -527,11 +635,7 @@ for (const [key, value] of urlParams) {
       }
     };
 
-    window.onunload = () => {
-      if (currentDownload && !allowClose) {
-        controller.abort();
-      }
-    };
+    window.onunload = abortDownloadIfActive;
   }
 
   // Loading video functions
@@ -556,7 +660,6 @@ for (const [key, value] of urlParams) {
   // Fun video logic: randomly summon video between 1 to 10 min, play above "so important", hide after end
   function scheduleFunVideo() {
     if (!FUN_VIDEO_LINK) return;
-    // Random time from 1 to 10 min (in ms)
     const ms = (60 + Math.floor(Math.random() * 9 * 60)) * 1000;
     funVideoTimeout = setTimeout(() => {
       showFunVideo();
@@ -571,22 +674,18 @@ for (const [key, value] of urlParams) {
     funVideo.playsInline = true;
     funVideo.onended = () => {
       funVideoWrapper.style.display = 'none';
-      scheduleFunVideo(); // schedule next summon
+      scheduleFunVideo();
     };
-    // Hide after video ends (or error)
     funVideo.onerror = () => {
       funVideoWrapper.style.display = 'none';
       scheduleFunVideo();
     };
   }
 
-  // Only play fun video if user internet is not slow (detected after initial load)
   function isInternetFast() {
-    // crude: if files loaded in <8s, consider fast
     return window._repoLoadTime && window._repoLoadTime < 8000;
   }
 
-  // On load
   let startRepoLoad = Date.now();
   fetchFiles().then(() => {
     window._repoLoadTime = Date.now() - startRepoLoad;

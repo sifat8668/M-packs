@@ -5,7 +5,22 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Minecraft File Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-  <style>
+<style>
+  html {
+    font-size: 100%;
+    box-sizing: border-box;
+  }
+  *, *::before, *::after {
+    box-sizing: inherit;
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  body {
+    min-width: 320px; /* stop layout from collapsing */
+  }
+
   :root {
     --primary: #7f5af0;
     --background: #18181b;
@@ -13,7 +28,7 @@
     --accent: #5ffbf1;
     --danger: #ff5470;
     --success: #36f09f;
-    font-family: 'Montserrat', system-ui,Segoe UI,Roboto,Arial;
+    font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
     color: #f8fafc;
     font-size: 16px;
   }
@@ -21,9 +36,11 @@
   body { display:flex; flex-direction:column; min-height:100vh; }
   header { display:flex; justify-content:space-between; padding:20px; background:var(--surface); color:#fff; }
   header h1 { margin:0; font-size:2rem; background:linear-gradient(90deg,#5ffbf1,#7f5af0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .container { flex:1; display:flex; flex-direction:column; padding:50px; max-width:700px; margin:auto; gap:12px; }
-  .btn { background:linear-gradient(90deg,#7f5af0,#5ffbf1); color:#fff; padding:8px 16px; border-radius:8px; border:0; cursor:pointer; font-weight:700; }
-  .btn.danger{background:linear-gradient(90deg,#ff5470,#ff96c0);} .btn.secondary{background:linear-gradient(90deg,#232338,#7f5af0); border:1px solid var(--accent);}
+  .container {overflow-y: auto;
+max-height: [desired height]; bottom: 15%; flex:1; display:flex; flex-direction:column; padding:50px; max-width:700px; width:90%; margin:auto; gap:12px; }
+  .btn { background:linear-gradient(90deg,#7f5af0,#5ffbf1); color:#fff; padding:8px 16px; border-radius:8px; border:0; cursor:pointer; font-weight:700; max-width: 95%; word-wrap: break-word; }
+  .btn.danger{background:linear-gradient(90deg,#ff5470,#ff96c0);} 
+  .btn.secondary{background:linear-gradient(90deg,#232338,#7f5af0); border:1px solid var(--accent);}
   .files{
     background:#232338; 
     padding:12px; 
@@ -50,12 +67,14 @@
     display:flex; 
     align-items:center; 
     gap:10px; 
-justify-content:center;
+    justify-content:center;
     margin-top: 10px;
+    flex-wrap: wrap; /* stops breaking at zoom */
   }
   .thumbnail{
     width:200px;
-    height:150px;
+    max-width: 90%;
+    height:auto;
     border-radius:12px;
     object-fit:cover;
     background:#232338;
@@ -65,11 +84,11 @@ justify-content:center;
   .name{
     font-weight:700; 
     color:var(--accent);
-    word-break: break-all;
+    word-break: break-word;
     text-align:center;
     font-size: 1.13em;
   }
-  .actions{display:flex; gap:6px; justify-content:center; margin-top:8px;}
+  .actions{display:flex; gap:6px; justify-content:center; margin-top:8px; flex-wrap: wrap;}
   #loadingOverlay {
     position: fixed;
     top:0; left:0; right:0; bottom:0;
@@ -82,7 +101,8 @@ justify-content:center;
   }
   .loadingVideoContainer {
     width: 420px;
-    height: 240px;
+    max-width: 95%;
+    height: auto;
     margin-bottom: 18px;
     display: flex;
     align-items: center;
@@ -101,7 +121,8 @@ justify-content:center;
   }
   #adsContainerTop {
     width: 260px;
-    height: 195px;
+    max-width: 95%;
+    height: auto;
     margin-bottom: 24px;
     display: flex;
     align-items: center;
@@ -111,6 +132,7 @@ justify-content:center;
   }
   #downloadBar {
     width: 360px;
+    max-width: 95%;
     background: #232338;
     border-radius: 12px;
     padding: 24px;
@@ -152,6 +174,7 @@ justify-content:center;
     font-weight: 700;
     color: var(--accent);
     margin-bottom: 6px;
+    word-break: break-word;
   }
   #downloadCancelBtn {
     background: linear-gradient(90deg,#ff5470,#ff96c0);
@@ -163,6 +186,7 @@ justify-content:center;
     font-weight: 700;
     margin-top: 18px;
     display: none;
+    max-width: 95%;
   }
   #adsContainerBottom {
     width: 100vw;
@@ -179,6 +203,7 @@ justify-content:center;
   }
   .funVideoWrapper {
     width: 420px;
+    max-width: 95%;
     margin: 0 auto 10px auto;
     display: none;
     position: relative;
@@ -189,28 +214,20 @@ justify-content:center;
     border-radius: 14px;
     box-shadow: 0 4px 32px rgba(0,0,0,0.17);
   }
-  /* --- Modal styles (for About, Privacy, Contact) --- */
   .footer-buttons-container {
     display: flex;
-    gap: 16px;
-    justify-content: center;
-    margin: 36px 0 0 0;
+    gap: 7px;
+    justify-content: left;
+    margin: 0px 0 0 0;
     flex-wrap: wrap;
   }
+.footer-buttons-container {
+    margin-top: 3px; /* or even 0 */
+}
   .footer-btn {
-    background: linear-gradient(90deg,#232338,#7f5af0);
-    color: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 8px;
-    padding: 10px 30px;
-    font-weight: 700;
-    font-size: 1.08em;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .footer-btn:hover {
-    background: linear-gradient(90deg,#7f5af0,#232338);
-  }
+    background: transparent;
+    color: #E6C200;
+    }
   .footer-modal {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -261,7 +278,7 @@ justify-content:center;
     color: var(--primary);
     text-decoration: underline;
     font-weight: 700;
-    word-break: break-all;
+    word-break: break-word;
   }
   .footer-modal-back {
     position: absolute;
@@ -283,23 +300,17 @@ justify-content:center;
     .footer-modal-content {width: 98vw; max-width: 98vw; padding: 21px 6px;}
     .footer-buttons-container {padding: 6px 2vw 0 2vw;}
   }
-
-  /* --- Minimal responsive fixes added --- */
-  html {
-    box-sizing: border-box;
-    font-size: 100%;
-  }
-  *, *::before, *::after {
-    box-sizing: inherit;
-  }
-  img, video {
-    max-width: 100%;
-    height: auto;
-  }
-  body {
-    min-width: 320px;
-  }
-  </style>
+  .footr-btn {
+    background: transparent;
+    color: transparent;
+    }
+.footr-btn {
+  visibility: hidden;
+}
+.footr-btn {
+  display: ;
+}
+</style>
   <!-- Google AdSense (replace with your ad IDs) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
@@ -313,10 +324,32 @@ justify-content:center;
       <h1>⚠️⚠Important⚠⚠️</h1>
       <p style="margin: 0;">get an app by this <a href="https://sifat8668.github.io/Mpacksapp/" style="color:green;">Mpacks app</a> OR</p>
       <p style="font-size: 0.9em; margin: 5px 0 0;"><br>Rename packs. for example, packname.mcpack.txt → packname.mcpack , Just remove .txt</p>
+ <div>
+      <input type="text" id="searchInput" placeholder="Search packs..." style="background-color:#FFFFFF; padding:8px; width:70%; border-radius:6px; border:1px solid #666;">
+    </div>
     </div>
     <div>
-      <input type="text" id="searchInput" placeholder="Search packs..." style="background-color:#FFFFFF; padding:8px; width:450px; border-radius:6px; border:1px solid #666;">
-      <div class="files" id="fileList"></div>
+       <div class="files" id="fileList"></div>
+<div class="footer-buttons-bottom">
+  <button class="footer-btn" id="aboutBtn">About</button>
+  <button class="footer-btn" id="privacyBtn">Privacy Policy</button>
+  <button class="footer-btn" id="contactBtn">Contact</button>
+</div>
+<div class="footr-buttons-bottom">
+  <button class="footr-btn" id="aboutBtn">‌</button>
+  <button class="footr-btn" id="privacyBtn">‌</button>
+  <button class="footr-btn" id="contactBtn">‌</button>
+</div>
+<div class="footr-buttons-bottom">
+  <button class="footr-btn" id="aboutBtn">‌</button>
+  <button class="footr-btn" id="privacyBtn">‌</button>
+  <button class="footr-btn" id="contactBtn">‌</button>
+</div>
+<div class="footr-buttons-bottom">
+  <button class="footr-btn" id="aboutBtn">‌</button>
+  <button class="footr-btn" id="privacyBtn">‌</button>
+  <button class="footr-btn" id="contactBtn">‌</button>
+</div>
     </div>
     <div id="loadingOverlay">
       <div class="loadingVideoContainer" id="loadingVideoContainer">
@@ -360,12 +393,6 @@ justify-content:center;
       <script>
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
-    </div>
-    <!-- === Footer: Modal buttons for About, Privacy Policy, Contact (no overflow) === -->
-    <div class="footer-buttons-container">
-      <button class="footer-btn" id="aboutBtn">About</button>
-      <button class="footer-btn" id="privacyBtn">Privacy Policy</button>
-      <button class="footer-btn" id="contactBtn">Contact</button>
     </div>
     <!-- Modal popup for footer sections -->
     <div class="footer-modal" id="footerModal">
@@ -501,14 +528,16 @@ for (const [key, value] of urlParams) {
       let div = document.createElement('div');
       div.className = 'file';
 
-      let thumb = document.createElement('img');
-      thumb.className = 'thumbnail';
-      thumb.src = file.thumb || 'https://minecraft.wiki/images/5/5e/Grass_Block.png?20230819204953';
-      thumb.alt = "Thumbnail";
-      thumb.onerror = function() {
-        thumb.src = 'https://minecraft.wiki/images/5/5e/Grass_Block.png?20230819204953';
-      };
-      div.appendChild(thumb);
+      if (file.thumb) {
+  let thumb = document.createElement('img');
+  thumb.className = 'thumbnail';
+  thumb.src = file.thumb;
+  thumb.alt = "Thumbnail";
+  thumb.onerror = function() {
+    thumb.style.display = 'none';
+  };
+  div.appendChild(thumb);
+}
 
       let name = document.createElement('div');
       name.className = 'name';

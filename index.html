@@ -1,851 +1,1597 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Minecraft File Manager</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;400&display=swap" rel="stylesheet">
-<style>
-  html {
-    font-size: 100%;
-    box-sizing: border-box;
-  }
-  *, *::before, *::after {
-    box-sizing: inherit;
-  }
-  img, video {
-    max-width: 100%;
-    height: auto;
-  }
-  body {
-    min-width: 320px; /* stop layout from collapsing */
-  }
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #7f5af0;
+      --primary-light: #9374f3;
+      --background: #121212;
+      --surface: #232338;
+      --surface-light: #2d2d44;
+      --accent: #5ffbf1;
+      --accent-dark: #4bd1c8;
+      --danger: #ff5470;
+      --success: #36f09f;
+      --warning: #E6C200;
+      --text-primary: #f8fafc;
+      --text-secondary: #a1a1aa;
+      --radius: 12px;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
 
-  :root {
-    --primary: #7f5af0;
-    --background: #18181b;
-    --surface: #232338;
-    --accent: #5ffbf1;
-    --danger: #ff5470;
-    --success: #36f09f;
-    font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
-    color: #f8fafc;
-    font-size: 16px;
-  }
-  html, body { margin:0; padding:0; min-height:100vh; background: linear-gradient(120deg, #232338 0%, #7f5af0 100%); }
-  body { display:flex; flex-direction:column; min-height:100vh; }
-  header { display:flex; justify-content:space-between; padding:20px; background:var(--surface); color:#fff; }
-  header h1 { margin:0; font-size:2rem; background:linear-gradient(90deg,#5ffbf1,#7f5af0); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-  .container {overflow-y: auto;
-max-height: [desired height]; bottom: 15%; flex:1; display:flex; flex-direction:column; padding:50px; max-width:700px; width:90%; margin:auto; gap:12px; }
-  .btn { background:linear-gradient(90deg,#7f5af0,#5ffbf1); color:#fff; padding:8px 16px; border-radius:8px; border:0; cursor:pointer; font-weight:700; max-width: 95%; word-wrap: break-word; }
-  .btn.danger{background:linear-gradient(90deg,#ff5470,#ff96c0);} 
-  .btn.secondary{background:linear-gradient(90deg,#232338,#7f5af0); border:1px solid var(--accent);}
-  .files{
-    background:#232338; 
-    padding:12px; 
-    border-radius:12px; 
-    min-height:200px; 
-    max-height:660px; 
-    overflow-y:auto; 
-    overflow-x:hidden;
-    display:flex; 
-    flex-direction:column;
-    gap:0;
-  }
-  .file{
-    display:flex; 
-    flex-direction:column;
-    align-items:center; 
-    justify-content: flex-start; 
-    padding:16px 0 10px 0; 
-    border-bottom:1px solid #333; 
-    position:relative;
-    gap: 12px;
-  }
-  .meta{
-    display:flex; 
-    align-items:center; 
-    gap:10px; 
-    justify-content:center;
-    margin-top: 10px;
-    flex-wrap: wrap; /* stops breaking at zoom */
-  }
-  .thumbnail{
-    width:200px;
-    max-width: 90%;
-    height:auto;
-    border-radius:12px;
-    object-fit:cover;
-    background:#232338;
-    border:4px solid var(--accent);
-    margin-right:2px;
-  }
-  .name{
-    font-weight:700; 
-    color:var(--accent);
-    word-break: break-word;
-    text-align:center;
-    font-size: 1.13em;
-  }
-  .actions{display:flex; gap:6px; justify-content:center; margin-top:8px; flex-wrap: wrap;}
-  #loadingOverlay {
-    position: fixed;
-    top:0; left:0; right:0; bottom:0;
-    background: rgba(20,20,30,0.85);
-    z-index: 9999;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-  }
-  .loadingVideoContainer {
-    width: 420px;
-    max-width: 95%;
-    height: auto;
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #downloadingScreen {
-    position: fixed;
-    top:0; left:0; right:0; bottom:0;
-    background: rgba(20,20,30,0.95);
-    z-index: 10000;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: 90px;
-  }
-  #adsContainerTop {
-    width: 260px;
-    max-width: 95%;
-    height: auto;
-    margin-bottom: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    overflow: hidden;
-  }
-  #downloadBar {
-    width: 360px;
-    max-width: 95%;
-    background: #232338;
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  #downloadingAnimation {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 10px;
-    display: none;
-  }
-  #progressBarContainer {
-    width: 100%;
-    background: #191925;
-    border-radius: 8px;
-    margin-top: 12px;
-    height: 22px;
-    overflow: hidden;
-  }
-  #progressBar {
-    background: linear-gradient(90deg,#7f5af0,#5ffbf1);
-    height: 100%;
-    width: 0;
-    transition: width 0.2s;
-  }
-  #progressText {
-    margin-top: 8px;
-    color: var(--accent);
-    font-weight: bold;
-    font-size: 1.1em;
-    text-align: center;
-    white-space: pre-line;
-  }
-  #downloadFileName {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: var(--accent);
-    margin-bottom: 6px;
-    word-break: break-word;
-  }
-  #downloadCancelBtn {
-    background: linear-gradient(90deg,#ff5470,#ff96c0);
-    color: #fff;
-    padding: 8px 16px;
-    border-radius: 8px;
-    border: 0;
-    cursor: pointer;
-    font-weight: 700;
-    margin-top: 18px;
-    display: none;
-    max-width: 95%;
-  }
-  #adsContainerBottom {
-    width: 100vw;
-    position: fixed;
-    left: 0;
-    bottom: 0;
-    z-index: 99999;
-    background: #232338;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
-  }
-  .funVideoWrapper {
-    width: 420px;
-    max-width: 95%;
-    margin: 0 auto 10px auto;
-    display: none;
-    position: relative;
-    z-index: 10;
-  }
-  .funVideoWrapper video {
-    width: 100%;
-    border-radius: 14px;
-    box-shadow: 0 4px 32px rgba(0,0,0,0.17);
-  }
-  .footer-buttons-container {
-    display: flex;
-    gap: 7px;
-    justify-content: left;
-    margin: 0px 0 0 0;
-    flex-wrap: wrap;
-  }
-.footer-buttons-container {
-    margin-top: 3px; /* or even 0 */
-}
-  .footer-btn {
-    background: transparent;
-    color: #E6C200;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-  .footer-modal {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(22,22,32,0.93);
-    z-index: 9999999;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    animation: fadeInModal 0.2s;
-  }
-  @keyframes fadeInModal {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  .footer-modal-content {
-    background: #232338;
-    color: #f8fafc;
-    border-radius: 18px;
-    max-width: 95vw;
-    width: 370px;
-    padding: 32px 16px 32px 16px;
-    box-shadow: 0 6px 32px rgba(0,0,0,0.28);
-    display: flex;
-    flex-direction: column;
-    gap: 17px;
-    align-items: center;
-    position: relative;
-    text-align: left;
-    font-size: 1em;
-  }
-  .footer-section-title {
-    font-size: 1.23em;
-    font-weight: 700;
-    color: var(--accent);
-    margin-bottom: 7px;
-    letter-spacing: 1px;
-    text-align: center;
-  }
-  .footer-section-content {
-    color: #d4d6e0;
-    line-height: 1.6;
-    font-size: 1em;
-    margin-bottom: 2px;
-    word-break: break-word;
-  }
-  .footer-contact-link {
-    color: var(--primary);
-    text-decoration: underline;
-    font-weight: 700;
-    word-break: break-word;
-  }
-  .footer-modal-back {
-    position: absolute;
-    left: 16px;
-    top: 16px;
-    background: linear-gradient(90deg,#ff5470,#ff96c0);
-    color: #fff;
-    border: none;
-    border-radius: 7px;
-    font-weight: 700;
-    padding: 7px 15px;
-    cursor: pointer;
-    font-size: 1em;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.14);
-  }
-  @media (max-width: 600px){
-    .container{padding: 12px;}
-    #downloadBar, #adsContainerTop, #adsContainerBottom, .loadingVideoContainer, .funVideoWrapper {width: 98vw;}
-    .footer-modal-content {width: 98vw; max-width: 98vw; padding: 21px 6px;}
-    .footer-buttons-container {padding: 6px 2vw 0 2vw;}
-  }
-  .footr-btn {
-    background: transparent;
-    color: transparent;
+
+    body {
+      font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
+      background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
     }
-.footr-btn {
-  visibility: hidden;
-}
-.footr-btn {
-  display: ;
-}
-</style>
-  <!-- Google AdSense (replace with your ad IDs) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+    /* Opening Video Styles */
+    #openingVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0c0c1d;
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 1s ease;
+    }
+    
+    .dragon {
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      animation: fly 1s linear forwards;
+      transform-origin: center;
+      transform: rotate(45deg);
+    }
+    
+    .body {
+      width: 100px;
+      height: 40px;
+      background: #1a1a2a;
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+    }
+    
+    .head {
+      width: 40px;
+      height: 30px;
+      background: #1a1a2a;
+      position: absolute;
+      top: -15px;
+      right: -15px;
+      border-radius: 50% 40% 40% 50%;
+      transform: rotate(10deg);
+      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+    }
+    
+    .horn {
+      width: 10px;
+      height: 20px;
+      background: #1a1a2a;
+      position: absolute;
+      top: -15px;
+      right: 15px;
+      border-radius: 40% 40% 0 0;
+      transform: rotate(5deg);
+    }
+    
+    .horn::before {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 15px;
+      background: #1a1a2a;
+      top: -5px;
+      right: 5px;
+      border-radius: 40% 40% 0 0;
+      transform: rotate(5deg);
+    }
+    
+    .eye {
+      width: 8px;
+      height: 8px;
+      background: #ff0051;
+      border-radius: 50%;
+      position: absolute;
+      top: 12px;
+      right: 8px;
+      box-shadow: 0 0 10px #ff0051;
+      animation: blink 1s infinite;
+    }
+    
+    .mouth {
+      width: 12px;
+      height: 5px;
+      background: #ff0051;
+      position: absolute;
+      top: 20px;
+      right: 3px;
+      border-radius: 0 0 5px 5px;
+    }
+    
+    .wing {
+      position: absolute;
+      top: 5px;
+      left: 20px;
+      width: 70px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(45deg, #1a1a2a 50%, transparent 50%);
+      transform: rotate(30deg);
+      transform-origin: left center;
+      animation: flap 0.15s infinite alternate;
+      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+    }
+    
+    .wing::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, transparent 50%, #1a1a2a 50%);
+      border-radius: 50%;
+      transform: rotate(-60deg);
+    }
+    
+    .tail {
+      position: absolute;
+      top: 15px;
+      left: -30px;
+      width: 40px;
+      height: 10px;
+      background: #1a1a2a;
+      border-radius: 50%;
+      transform: rotate(20deg);
+      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+    }
+    
+    .tail::before, .tail::after {
+      content: '';
+      position: absolute;
+      background: #1a1a2a;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
+    }
+    
+    .tail::before {
+      width: 30px;
+      height: 8px;
+      top: 5px;
+      left: -20px;
+      transform: rotate(15deg);
+    }
+    
+    .tail::after {
+      width: 25px;
+      height: 6px;
+      top: 10px;
+      left: -40px;
+      transform: rotate(30deg);
+    }
+    
+    .spike {
+      position: absolute;
+      width: 8px;
+      height: 15px;
+      background: #1a1a2a;
+      border-radius: 40% 40% 0 0;
+    }
+    
+    .spike-1 {
+      top: -5px;
+      left: 20px;
+      transform: rotate(-10deg);
+    }
+    
+    .spike-2 {
+      top: -3px;
+      left: 40px;
+      transform: rotate(-5deg);
+    }
+    
+    .spike-3 {
+      top: -1px;
+      left: 60px;
+    }
+    
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #9d4edd;
+      border-radius: 50%;
+      opacity: 0;
+      animation: particle 1s linear forwards;
+    }
+    
+    .particle::before {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #c77dff;
+      border-radius: 50%;
+      top: -1px;
+      left: -1px;
+      opacity: 0.7;
+    }
+    
+    @keyframes fly {
+      0% {
+        transform: translate(0, 0) rotate(45deg);
+      }
+      100% {
+        transform: translate(100vw, 100vh) rotate(45deg);
+      }
+    }
+    
+    @keyframes flap {
+      0% {
+        transform: rotate(20deg);
+      }
+      100% {
+        transform: rotate(40deg);
+      }
+    }
+    
+    @keyframes blink {
+      0%, 45%, 55%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+    
+    @keyframes particle {
+      0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-20px, -20px) scale(0.5);
+      }
+    }
+
+    /* Fun Video Styles */
+    #funVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      z-index: 9998;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .creeper {
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      background: #1a801a;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      animation: dropDown 0.8s forwards;
+      z-index: 10;
+    }
+    .creeper div { background: #2db82d; }
+    .creeper .dark { background: #0f4d0f; }
+    .creeper .black { background: #000; }
+
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: white;
+      opacity: 0;
+      z-index: 20;
+    }
+    .blast {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff, #ff0, #f80, #000);
+      opacity: 0;
+      transform: translate(-50%, -50%);
+      z-index: 15;
+    }
+    .explosion .blast {
+      animation: explode 0.6s forwards;
+    }
+    .explosion .flash {
+      animation: flashScreen 0.2s;
+    }
+    .explosion {
+      animation: screenShake 0.5s linear;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #1a801a;
+      opacity: 0;
+    }
+
+    @keyframes dropDown {
+      0% { top: -120px; }
+      100% { top: 40%; }
+    }
+    @keyframes explode {
+      0% { width: 0; height: 0; opacity: 1; }
+      100% { width: 400px; height: 400px; opacity: 0; }
+    }
+    @keyframes flashScreen {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    @keyframes particleFly {
+      0% { transform: translate(0,0); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
+    }
+    @keyframes screenShake {
+      0% { transform: translate(0,0); }
+      20% { transform: translate(-10px, 5px); }
+      40% { transform: translate(10px, -5px); }
+      60% { transform: translate(-6px, 3px); }
+      80% { transform: translate(6px, -3px); }
+      100% { transform: translate(0,0); }
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      background: linear-gradient(90deg, var(--accent), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+
+    /* Main content */
+    .main-content {
+      display: flex;
+      gap: 24px;
+      flex: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      flex: 0 0 280px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-container {
+      margin-bottom: 20px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 2px solid var(--surface-light);
+      background: var(--background);
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+
+    .search-container input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .filter-section {
+      margin-bottom: 24px;
+    }
+
+    .filter-title {
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--accent);
+      font-size: 1.1rem;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-option input {
+      width: 18px;
+      height: 18px;
+    }
+
+    .filter-option label {
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .info-box {
+      background: var(--surface-light);
+      padding: 16px;
+      border-radius: var(--radius);
+      margin-top: 20px;
+    }
+
+    .info-box h3 {
+      color: var(--accent);
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+
+    .info-box p {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .info-box a {
+      color: var(--primary-light);
+      text-decoration: none;
+    }
+
+    .info-box a:hover {
+      text-decoration: underline;
+    }
+
+    /* File list */
+    .content-area {
+      flex: 1;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .results-count {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .sort-select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 2px solid var(--surface-light);
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .file-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+    }
+
+    .file-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .thumbnail-container {
+      position: relative;
+      width: 100%;
+      height: 160px;
+      overflow: hidden;
+    }
+
+    .thumbnail {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: var(--surface-light);
+    }
+
+    .file-type-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--primary);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .file-info {
+      padding: 16px;
+    }
+
+    .file-name {
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .file-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+    }
+
+    .file-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      color: white;
+      flex: 1;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(90deg, var(--primary-light), var(--primary));
+      box-shadow: 0 4px 12px rgba(127, 90, 240, 0.4);
+    }
+
+    .btn-secondary {
+      background: var(--surface-light);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--surface);
+    }
+
+    /* Loading overlay */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(18, 18, 18, 0.9);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(95, 251, 241, 0.2);
+      border-top: 5px solid var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Download screen */
+    .download-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(18, 18, 18, 0.95);
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .download-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 24px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+
+    .download-header {
+      margin-bottom: 20px;
+    }
+
+    .download-title {
+      font-size: 1.5rem;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .download-filename {
+      font-size: 1.1rem;
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+
+    .progress-container {
+      width: 100%;
+      background: var(--surface-light);
+      border-radius: 8px;
+      height: 22px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+
+    .download-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      padding: 20px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+
+    .copyright {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover {
+      color: var(--accent);
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(18, 18, 18, 0.9);
+      z-index: 1002;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 32px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: var(--shadow);
+      position: relative;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-title {
+      color: var(--accent);
+      margin-bottom: 16px;
+      font-size: 1.5rem;
+    }
+
+    .modal-body {
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    /* Responsive design */
+    @media (max-width: 900px) {
+      .main-content {
+        flex-direction: column;
+      }
+      
+      .sidebar {
+        flex: 0 0 auto;
+        margin-bottom: 24px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .app-container {
+        padding: 12px;
+      }
+      
+      header {
+        flex-direction: column;
+        text-align: center;
+        gap: 12px;
+      }
+      
+      .files-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      footer {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+      
+      .footer-links {
+        justify-content: center;
+      }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Focus styles for accessibility */
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+  </style>
 </head>
 <body>
-  <header><h1>Minecraft packs</h1></header>
-  <div class="container">
-    <div class="funVideoWrapper" id="funVideoWrapper">
-      <video id="funVideo" controls preload="auto"></video>
-    </div>
-    <div style="text-align:center; padding: 5px; border: 2px dashed #7f5af0; border-radius: 12px;">
-      <h1>⚠️⚠Important⚠⚠️</h1>
-      <p style="margin: 0;">get an app by this <a href="https://sifat8668.github.io/Mpacksapp/" style="color:green;">Mpacks app</a> OR</p>
-      <p style="font-size: 0.9em; margin: 5px 0 0;"><br>Rename packs. for example, packname.mcpack.txt → packname.mcpack , Just remove .txt</p>
- <div>
-      <input type="text" id="searchInput" placeholder="Search packs..." style="background-color:#FFFFFF; padding:8px; width:70%; border-radius:6px; border:1px solid #666;">
-    </div>
-    </div>
-    <div>
-       <div class="files" id="fileList"></div>
-<div class="footer-buttons-bottom">
-  <button class="footer-btn" id="aboutBtn">About</button>
-  <button class="footer-btn" id="privacyBtn">Privacy Policy</button>
-  <button class="footer-btn" id="contactBtn">Contact</button>
-</div>
-<div class="footr-buttons-bottom">
-  <button class="footr-btn" id="aboutBtn">‌</button>
-  <button class="footr-btn" id="privacyBtn">‌</button>
-  <button class="footr-btn" id="contactBtn">‌</button>
-</div>
-<div class="footr-buttons-bottom">
-  <button class="footr-btn" id="aboutBtn">‌</button>
-  <button class="footr-btn" id="privacyBtn">‌</button>
-  <button class="footr-btn" id="contactBtn">‌</button>
-</div>
-<div class="footr-buttons-bottom">
-  <button class="footr-btn" id="aboutBtn">‌</button>
-  <button class="footr-btn" id="privacyBtn">‌</button>
-  <button class="footr-btn" id="contactBtn">‌</button>
-</div>
-    </div>
-    <div id="loadingOverlay">
-      <div class="loadingVideoContainer" id="loadingVideoContainer">
-        <!-- Loading screen video, inserted by JS -->
-      </div>
-      <div id="loadingSpinner"></div>
-      <div id="loadingText">Loading packs...</div>
-    </div>
-    <!-- Downloading Screen -->
-    <div id="downloadingScreen">
-      <div id="adsContainerTop">
-        <!-- Google AdSense ad slot (TOP) -->
-        <ins class="adsbygoogle"
-             style="display:block;width:260px;height:195px"
-             data-ad-client="there is your ad id"
-             data-ad-slot="there is your ad code"
-             data-ad-format="auto"
-             data-full-width-responsive="false"></ins>
-        <script>
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-      </div>
-      <div id="downloadBar">
-        <img id="downloadingAnimation" src="https://i.imgur.com/llF5iyg.gif" alt="Downloading...">
-        <div id="downloadFileName"></div>
-        <div id="progressBarContainer">
-          <div id="progressBar"></div>
+  <!-- Opening Video -->
+  <div id="openingVideo">
+    <div class="dragon">
+      <div class="body">
+        <div class="head">
+          <div class="horn"></div>
+          <div class="eye"></div>
+          <div class="mouth"></div>
         </div>
-        <div id="progressText"></div>
-        <button id="downloadCancelBtn">Cancel Download</button>
-      </div>
-    </div>
-    <!-- Banner ads bottom -->
-    <div id="adsContainerBottom">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="there is your ad id"
-           data-ad-slot="there is your ad code"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-    <!-- Modal popup for footer sections -->
-    <div class="footer-modal" id="footerModal">
-      <div class="footer-modal-content" id="footerModalContent">
-        <!-- Section content injected by JS -->
-        <button class="footer-modal-back" id="footerModalBack">Back</button>
+        <div class="spike spike-1"></div>
+        <div class="spike spike-2"></div>
+        <div class="spike spike-3"></div>
+        <div class="wing"></div>
+        <div class="tail"></div>
       </div>
     </div>
   </div>
-<script>
-// Simple JS firewall for GitHub Pages
 
-// 1. Block known malicious bots by User-Agent
-const blockedAgents = ["sqlmap", "nikto", "curl", "wget", "fuzz", "acunetix"];
-const ua = navigator.userAgent.toLowerCase();
-if (blockedAgents.some(bot => ua.includes(bot))) {
-    document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px;'>Access Denied</h1>";
-    throw new Error("Blocked User-Agent");
-}
+  <!-- Fun Video (Creeper Blast) -->
+  <div id="funVideo">
+    <div class="scene">
+      <div class="creeper">
+        <!-- row 1 -->
+        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+        <!-- row 2 -->
+        <div></div><div></div><div class="black"></div><div class="black"></div><div></div><div class="black"></div><div class="black"></div><div></div>
+        <!-- row 3 -->
+        <div></div><div></div><div class="black"></div><div class="black"></div><div></div><div class="black"></div><div class="black"></div><div></div>
+        <!-- row 4 -->
+        <div></div><div></div><div class="black"></div><div></div><div class="black"></div><div class="black"></div><div></div><div></div>
+        <!-- row 5 -->
+        <div></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div></div>
+        <!-- row 6 -->
+        <div></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div></div>
+        <!-- row 7 -->
+        <div></div><div></div><div></div><div class="black"></div><div class="black"></div><div></div><div></div><div></div>
+        <!-- row 8 -->
+        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+      </div>
+      <div class="flash"></div>
+      <div class="blast"></div>
+    </div>
+  </div>
 
-// 2. Prevent suspicious query parameters
-const badPatterns = [/(\.\.\/|<script|%3Cscript|\/etc\/passwd)/i];
-const urlParams = new URLSearchParams(window.location.search);
-for (const [key, value] of urlParams) {
-    if (badPatterns.some(rx => rx.test(value))) {
-        document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px;'>Suspicious Activity Detected</h1>";
-        throw new Error("Blocked suspicious query");
-    }
-}
-</script>
-<script>
-  // <<<<<<<<<<<< UPDATE: Username & Repo >>>>>>>>>>>
-  const GH_USERNAME = "sifat8668";
-  const GH_REPO = "M-packs";
-  const API_URL = `https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/`;
-  const RAW_URL = `https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/`;
-  // <<<<<<<<<<<< END UPDATE >>>>>>>>>>>>
+  <div class="app-container">
+    <header>
+      <h1>Minecraft File Manager</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="helpBtn">
+          <i class="fas fa-question-circle"></i> Help
+        </button>
+      </div>
+    </header>
 
-  const fileList = document.getElementById('fileList');
-  const loadingOverlay = document.getElementById('loadingOverlay');
-  const loadingVideoContainer = document.getElementById('loadingVideoContainer');
-  const searchInput = document.getElementById('searchInput');
+    <div class="main-content">
+      <aside class="sidebar">
+        <div class="search-container">
+          <input type="text" id="searchInput" placeholder="Search packs..." aria-label="Search packs">
+        </div>
 
-  const downloadingScreen = document.getElementById('downloadingScreen');
-  const downloadFileName = document.getElementById('downloadFileName');
-  const progressBar = document.getElementById('progressBar');
-  const progressText = document.getElementById('progressText');
-  const downloadCancelBtn = document.getElementById('downloadCancelBtn');
-  const adsContainerTop = document.getElementById('adsContainerTop');
-  const downloadingAnimation = document.getElementById('downloadingAnimation');
+        <div class="filter-section">
+          <h3 class="filter-title">File Type</h3>
+          <div class="filter-options">
+            <div class="filter-option">
+              <input type="checkbox" id="filter-mcpack" checked>
+              <label for="filter-mcpack">Resource Packs (.mcpack)</label>
+            </div>
+            <div class="filter-option">
+              <input type="checkbox" id="filter-mcworld" checked>
+              <label for="filter-mcworld">Worlds (.mcworld)</label>
+            </div>
+          </div>
+        </div>
 
-  // Fun video logic
-  const funVideoWrapper = document.getElementById('funVideoWrapper');
-  const funVideo = document.getElementById('funVideo');
-  const FUN_VIDEO_LINK = "there is your fun video google drive link";
-  let funVideoTimeout = null;
+        <div class="filter-section">
+          <h3 class="filter-title">Sort By</h3>
+          <select class="sort-select" id="sortSelect" aria-label="Sort files by">
+            <option value="name">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="size">Size (Smallest First)</option>
+            <option value="size-desc">Size (Largest First)</option>
+          </select>
+        </div>
 
-  let allFiles = [];
-  let allThumbs = {};
-  let currentDownload = null;
+        <div class="info-box">
+          <h3><i class="fas fa-info-circle"></i> Important Information</h3>
+          <p>After downloading, rename files from <code>packname.mcpack.txt</code> to <code>packname.mcpack</code> (remove .txt extension)</p>
+          <p>For easier management, try our <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank">Mpacks app</a></p>
+        </div>
+      </aside>
 
-  // Loading videos
-  const LOADING_VIDEOS = [
-    "there is you opening loading screen link 1",
-    "there is you opening loading screen link 2"
-  ];
+      <main class="content-area">
+        <div class="content-header">
+          <div class="results-count" id="resultsCount">Loading packs...</div>
+          <div class="view-options">
+            <span>View: </span>
+            <button class="btn btn-secondary active" id="viewGridBtn" aria-label="Grid view"><i class="fas fa-th"></i></button>
+            <button class="btn btn-secondary" id="viewListBtn" aria-label="List view"><i class="fas fa-list"></i></button>
+          </div>
+        </div>
 
-  // Recursively get all files (packs and images) from repo (no error, always load)
-  async function fetchAllFiles(apiUrl = API_URL, prefix = '') {
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error('Failed to fetch repository contents.');
-      const data = await response.json();
-      let files = [];
-      for (const file of data) {
-        if (file.type === 'dir') {
-          files = files.concat(await fetchAllFiles(file.url, prefix + file.name + '/'));
-        } else {
-          files.push({ ...file, path: prefix + file.name });
-        }
+        <div class="files-grid" id="fileList">
+          <!-- Files will be loaded here -->
+        </div>
+      </main>
+    </div>
+
+    <footer>
+      <div class="copyright">© 2023 Minecraft File Manager</div>
+      <div class="footer-links">
+        <a href="#" class="footer-link" id="aboutLink">About</a>
+        <a href="#" class="footer-link" id="privacyLink">Privacy</a>
+        <a href="#" class="footer-link" id="contactLink">Contact</a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div id="loadingText">Loading packs...</div>
+  </div>
+
+  <!-- Download Screen -->
+  <div class="download-screen" id="downloadScreen" hidden>
+    <div class="download-card">
+      <div class="download-header">
+        <h2 class="download-title">Downloading</h2>
+        <div class="download-filename" id="downloadFileName"></div>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      
+      <div class="progress-text" id="progressText">Starting download...</div>
+      
+      <div class="download-actions">
+        <button class="btn btn-primary" id="downloadOpenBtn" hidden>
+          <i class="fas fa-folder-open"></i> Open Folder
+        </button>
+        <button class="btn btn-secondary" id="downloadCancelBtn">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose" aria-label="Close modal">&times;</button>
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const GH_USERNAME = "sifat8668";
+    const GH_REPO = "M-packs";
+    const API_URL = `https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/`;
+    const RAW_URL = `https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/`;
+    
+    // State
+    let allFiles = [];
+    let filteredFiles = [];
+    let currentDownload = null;
+    let downloadBlob = null;
+    
+    // DOM Elements
+    const fileListElement = document.getElementById('fileList');
+    const resultsCountElement = document.getElementById('resultsCount');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const downloadScreen = document.getElementById('downloadScreen');
+    const downloadFileName = document.getElementById('downloadFileName');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const downloadCancelBtn = document.getElementById('downloadCancelBtn');
+    const downloadOpenBtn = document.getElementById('downloadOpenBtn');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const modalClose = document.getElementById('modalClose');
+    const openingVideo = document.getElementById('openingVideo');
+    const funVideo = document.getElementById('funVideo');
+    
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show opening video first
+      showOpeningVideo();
+      
+      initializeEventListeners();
+      
+      // Check if we have cached data
+      const cachedData = localStorage.getItem('mcFilesCache');
+      const cacheTime = localStorage.getItem('mcFilesCacheTime');
+      
+      if (cachedData && cacheTime && (Date.now() - parseInt(cacheTime)) < 5 * 60 * 1000) {
+        // Use cached data if it's less than 5 minutes old
+        allFiles = JSON.parse(cachedData);
+        filterAndRenderFiles();
+        loadingOverlay.style.display = 'none';
+      } else {
+        loadFiles();
       }
-      return files;
-    } catch (e) {
-      return [];
-    }
-  }
-
-  async function fetchFiles(limit = 13) {
-    loadingOverlay.style.display = 'flex';
-    showRandomLoadingVideo();
-    try {
-      let data = await fetchAllFiles();
-      let tryCount = 0;
-      while ((data.length === 0 || !data.some(f => f.name.match(/\.mcpack$|\.mcworld$/i))) && tryCount < 20) {
-        await new Promise(r => setTimeout(r, 2000));
-        data = await fetchAllFiles();
-        tryCount++;
-      }
-      const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
-      allThumbs = {};
-      sorted.forEach(file => {
-        if (file.name.toLowerCase().endsWith('.png')) {
-          const base = file.name.replace(/\.png$/i, '').toLowerCase();
-          allThumbs[base] = RAW_URL + file.path;
-        }
-      });
-
-      const mcFiles = sorted.filter(file =>
-        file.name.match(/\.mcpack$/i) || file.name.match(/\.mcworld$/i)
-      ).map(file => ({
-        name: file.name,
-        download_url: RAW_URL + file.path,
-        size: file.size,
-        thumb: allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null
-      }));
-
-      allFiles = mcFiles;
-      const randomFiles = mcFiles.sort(() => Math.random() - 0.5).slice(0, limit);
-      renderFiles(randomFiles);
-    } finally {
-      loadingOverlay.style.display = 'none';
-      hideLoadingVideo();
-    }
-  }
-
-  function renderFiles(filesToRender) {
-    fileList.innerHTML = "";
-    if (filesToRender.length === 0) {
-      fileList.innerHTML = '<div style="text-align:center;color:#888">No .mcpack or .mcworld files found in the repository.</div>';
-      return;
-    }
-    filesToRender.forEach(file => {
-      let div = document.createElement('div');
-      div.className = 'file';
-
-      if (file.thumb) {
-  let thumb = document.createElement('img');
-  thumb.className = 'thumbnail';
-  thumb.src = file.thumb;
-  thumb.alt = "Thumbnail";
-  thumb.onerror = function() {
-    thumb.style.display = 'none';
-  };
-  div.appendChild(thumb);
-}
-
-      let name = document.createElement('div');
-      name.className = 'name';
-      name.textContent = file.name;
-      div.appendChild(name);
-
-      let actions = document.createElement('div');
-      actions.className = 'actions';
-      let dl = document.createElement('button');
-      dl.className = 'btn';
-      dl.textContent = 'Download';
-      dl.onclick = () => startDownload(file);
-      actions.appendChild(dl);
-      div.appendChild(actions);
-      fileList.appendChild(div);
+      
+      // Set random timer for fun video (1-30 minutes)
+      const randomTime = Math.floor(Math.random() * (30 - 1 + 1) + 1) * 60 * 1000;
+      setTimeout(showFunVideo, randomTime);
     });
-  }
-
-  searchInput.addEventListener('input', () => {
-    const query = searchInput.value.trim().toLowerCase();
-    if (query === "") {
-      const randomFiles = allFiles.sort(() => Math.random() - 0.5).slice(0, 13);
-      renderFiles(randomFiles);
-    } else {
-      const mcFiles = allFiles.filter(file =>
-        file.name.toLowerCase().includes(query)
-      );
-      renderFiles(mcFiles);
+    
+    // Show opening video
+    function showOpeningVideo() {
+      // Create particles for the dragon
+      const dragon = document.querySelector('.dragon');
+      const container = document.getElementById('openingVideo');
+      const interval = setInterval(() => {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        
+        const rect = dragon.getBoundingClientRect();
+        particle.style.left = (rect.left + 2) + 'px';
+        particle.style.top = (rect.bottom - 2) + 'px';
+        
+        container.appendChild(particle);
+        
+        setTimeout(() => {
+          particle.remove();
+        }, 1000);
+      }, 50);
+      
+      // Hide opening video after 5 seconds
+      setTimeout(() => {
+        clearInterval(interval);
+        openingVideo.style.opacity = '0';
+        setTimeout(() => {
+          openingVideo.style.display = 'none';
+        }, 1000);
+      }, 5000);
     }
-  });
-
-  function humanFileSize(size) {
-    if (size < 1024) return size + " B";
-    if (size < 1024 * 1024) return (size/1024).toFixed(1) + " KB";
-    if (size < 1024 * 1024 * 1024) return (size/1024/1024).toFixed(1) + " MB";
-    return (size/1024/1024/1024).toFixed(2) + " GB";
-  }
-
-  function startDownload(file) {
-    // Show UI + animation
-    downloadingScreen.style.display = 'flex';
-    downloadingAnimation.style.display = 'block';
-
-    let downloadName;
-    if (file.name.match(/\.mcpack$/i)) {
-      downloadName = file.name.replace(/(\.mcpack)?(\.txt)?$/i, '') + '.mcpack';
-    } else if (file.name.match(/\.mcworld$/i)) {
-      downloadName = file.name.replace(/(\.mcworld)?(\.txt)?$/i, '') + '.mcworld';
-    } else {
-      downloadName = file.name;
-    }
-    downloadFileName.textContent = downloadName + " (" + humanFileSize(file.size) + ")";
-    progressBar.style.width = "0";
-    downloadCancelBtn.style.display = "none";
-    let downloadedBytes = 0;
-    let allowClose = false;
-    let canCancel = false;
-    let controller = new AbortController();
-    currentDownload = controller;
-
-    // Ad unlock for current session only
-    let allowFastDownload = false;
-    let adMessageShown = false;
-    function unlockFastDownload() {
-      allowFastDownload = true;
-      if (progressText && downloadingScreen.style.display === 'flex') {
-        progressText.textContent = "Download speed unlocked! Now downloading at normal speed.";
-      }
-      adMessageShown = true;
-    }
-    adsContainerTop.onclick = unlockFastDownload;
-
-    const TEN_MB = 10 * 1024 * 1024;
-    const FILE_UNLOCK_SIZE = 30 * 1024 * 1024;
-    const SLOW_SIZE = 5 * 1024 * 1024;
-    const SLOW_FACTOR = 6; // 6x slower
-
-    // Out warning message
-    if (file.size < TEN_MB && !allowFastDownload) {
-      progressText.textContent =
-        "We made download slower. Click on ads for faster download. Then back if you want.\n";
-    } else {
-      progressText.textContent = "Starting download...";
-    }
-
-    // Cancel download on page leave/tab hide
-    function abortDownloadIfActive() {
-      if (currentDownload && !allowClose) {
-        controller.abort();
-      }
-    }
-    function beforeUnloadHandler(e) {
-      abortDownloadIfActive();
-      e.preventDefault();
-      e.returnValue = '';
-    }
-    window.addEventListener('beforeunload', beforeUnloadHandler);
-    function visibilityChangeHandler() {
-      if (document.visibilityState === "hidden") {
-        abortDownloadIfActive();
+    
+    // Show fun video
+    function showFunVideo() {
+      funVideo.style.display = 'flex';
+      
+      const scene = funVideo.querySelector('.scene');
+      const creeper = funVideo.querySelector('.creeper');
+      
+      // Trigger explosion when the creeper lands
+      creeper.addEventListener('animationend', () => {
+        creeper.style.display = 'none';
+        scene.classList.add('explosion');
+        createParticles();
+        
+        // Hide fun video after explosion
+        setTimeout(() => {
+          funVideo.style.display = 'none';
+        }, 3000);
+      });
+      
+      function createParticles() {
+        const particlesCount = 40;
+        for (let i = 0; i < particlesCount; i++) {
+          const particle = document.createElement('div');
+          particle.classList.add('particle');
+          
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 60 + Math.random() * 200;
+          const tx = Math.cos(angle) * distance;
+          const ty = Math.sin(angle) * distance;
+          
+          particle.style.setProperty('--tx', `${tx}px`);
+          particle.style.setProperty('--ty', `${ty}px`);
+          
+          particle.style.left = "50%";
+          particle.style.top = "48%";
+          
+          const delay = Math.random() * 0.2;
+          const duration = 0.3 + Math.random() * 0.5;
+          
+          particle.style.animation = `particleFly ${duration}s forwards`;
+          particle.style.animationDelay = `${delay}s`;
+          
+          scene.appendChild(particle);
+        }
       }
     }
-    document.addEventListener('visibilitychange', visibilityChangeHandler);
-
-    fetch(file.download_url, {signal: controller.signal})
-      .then(response => {
-        if (!response.ok) throw new Error("Failed to download file.");
-        const total = file.size || parseInt(response.headers.get('content-length')) || 0;
-        let reader = response.body.getReader();
-        let chunks = [];
-        function read() {
-          return reader.read().then(async ({done, value}) => {
-            if (done) {
-              window.removeEventListener('beforeunload', beforeUnloadHandler);
-              document.removeEventListener('visibilitychange', visibilityChangeHandler);
-              downloadingScreen.style.display = 'none';
-              downloadingAnimation.style.display = 'none';
-              currentDownload = null;
-              let blob = new Blob(chunks);
-              let url = URL.createObjectURL(blob);
-              let a = document.createElement('a');
-              a.href = url;
-              a.download = downloadName;
-              document.body.appendChild(a);
-              a.click();
-              setTimeout(() => {
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }, 500);
-              return;
-            }
-            chunks.push(value);
-            downloadedBytes += value.length;
-            let percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
-            // SLOW MODE: if pack < 10MB and not unlocked by ad
-            if (file.size < TEN_MB && !allowFastDownload) {
-              if (!adMessageShown) {
-                progressText.textContent =
-                  "We made download slower. Click on ads for faster download. Then back if you want.\n" +
-                  `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
-              } else {
-                progressText.textContent =
-                  `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
-              }
-              await new Promise(r => setTimeout(r, 600));
-            } else {
-              progressText.textContent =
-                `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
-              if (total <= SLOW_SIZE) {
-                await new Promise(r => setTimeout(r, 100));
-              }
-            }
-
-            if (total > FILE_UNLOCK_SIZE && downloadedBytes >= FILE_UNLOCK_SIZE && !allowClose) {
-              allowClose = true;
-              canCancel = true;
-              downloadCancelBtn.style.display = "";
-              progressText.textContent += "\nYou can now safely close the page or cancel download.";
-            }
-            read();
-          }).catch(err => {
-            if (controller.signal.aborted) {
-              progressText.textContent = "Download cancelled.";
-            } else {
-              progressText.textContent = "Error during download.";
-            }
-            downloadingScreen.style.display = 'none';
-            downloadingAnimation.style.display = 'none';
-            window.removeEventListener('beforeunload', beforeUnloadHandler);
-            document.removeEventListener('visibilitychange', visibilityChangeHandler);
-            currentDownload = null;
+    
+    // Set up event listeners
+    function initializeEventListeners() {
+      // Search functionality
+      searchInput.addEventListener('input', debounce(filterAndRenderFiles, 300));
+      
+      // Filter functionality
+      document.getElementById('filter-mcpack').addEventListener('change', filterAndRenderFiles);
+      document.getElementById('filter-mcworld').addEventListener('change', filterAndRenderFiles);
+      
+      // Sort functionality
+      sortSelect.addEventListener('change', filterAndRenderFiles);
+      
+      // Download actions
+      downloadCancelBtn.addEventListener('click', cancelDownload);
+      downloadOpenBtn.addEventListener('click', openDownloadFolder);
+      
+      // Modal functionality
+      document.getElementById('aboutLink').addEventListener('click', () => openModal('About', ABOUT_CONTENT));
+      document.getElementById('privacyLink').addEventListener('click', () => openModal('Privacy Policy', PRIVACY_CONTENT));
+      document.getElementById('contactLink').addEventListener('click', () => openModal('Contact', CONTACT_CONTENT));
+      document.getElementById('helpBtn').addEventListener('click', () => openModal('Help', HELP_CONTENT));
+      modalClose.addEventListener('click', closeModal);
+      
+      // Close modal when clicking outside
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+      
+      // View toggle buttons
+      document.getElementById('viewGridBtn').addEventListener('click', () => {
+        fileListElement.className = 'files-grid';
+        document.getElementById('viewGridBtn').classList.add('active');
+        document.getElementById('viewListBtn').classList.remove('active');
+      });
+      
+      document.getElementById('viewListBtn').addEventListener('click', () => {
+        fileListElement.className = 'files-list';
+        document.getElementById('viewListBtn').classList.add('active');
+        document.getElementById('viewGridBtn').classList.remove('active');
+      });
+    }
+    
+    // Load files from GitHub repository
+    async function loadFiles() {
+      try {
+        loadingOverlay.style.display = 'flex';
+        
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error('Failed to fetch repository contents');
+        
+        const data = await response.json();
+        processFiles(data);
+        
+        // Cache the data
+        localStorage.setItem('mcFilesCache', JSON.stringify(allFiles));
+        localStorage.setItem('mcFilesCacheTime', Date.now().toString());
+        
+        filterAndRenderFiles();
+      } catch (error) {
+        console.error('Error loading files:', error);
+        resultsCountElement.textContent = 'Error loading files. Please try again later.';
+      } finally {
+        loadingOverlay.style.display = 'none';
+      }
+    }
+    
+    // Process files from GitHub API response
+    function processFiles(files) {
+      allFiles = [];
+      
+      files.forEach(file => {
+        if (file.name.match(/\.(mcpack|mcworld)$/i)) {
+          allFiles.push({
+            name: file.name,
+            download_url: file.download_url,
+            size: file.size,
+            type: file.name.endsWith('.mcpack') ? 'mcpack' : 'mcworld',
+            lastModified: new Date().toISOString() // GitHub doesn't provide this directly
           });
         }
-        read();
-      }).catch(err => {
-        progressText.textContent = "Error: " + err.message;
-        downloadingScreen.style.display = 'none';
-        downloadingAnimation.style.display = 'none';
-        window.removeEventListener('beforeunload', beforeUnloadHandler);
-        document.removeEventListener('visibilitychange', visibilityChangeHandler);
-        currentDownload = null;
       });
-
-    downloadCancelBtn.onclick = function() {
-      if (canCancel && currentDownload) {
-        controller.abort();
-        downloadCancelBtn.style.display = "none";
+      
+      // Sort by name by default
+      allFiles.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    
+    // Filter and render files based on current filters
+    function filterAndRenderFiles() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const showMcpacks = document.getElementById('filter-mcpack').checked;
+      const showMcworlds = document.getElementById('filter-mcworld').checked;
+      const sortBy = sortSelect.value;
+      
+      // Filter files
+      filteredFiles = allFiles.filter(file => {
+        const matchesSearch = file.name.toLowerCase().includes(searchTerm);
+        const matchesType = 
+          (file.type === 'mcpack' && showMcpacks) || 
+          (file.type === 'mcworld' && showMcworlds);
+        
+        return matchesSearch && matchesType;
+      });
+      
+      // Sort files
+      switch(sortBy) {
+        case 'name':
+          filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'name-desc':
+          filteredFiles.sort((a, b) => b.name.localeCompare(a.name));
+          break;
+        case 'newest':
+          filteredFiles.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+          break;
+        case 'oldest':
+          filteredFiles.sort((a, b) => new Date(a.lastModified) - new Date(b.lastModified));
+          break;
+        case 'size':
+          filteredFiles.sort((a, b) => a.size - b.size);
+          break;
+        case 'size-desc':
+          filteredFiles.sort((a, b) => b.size - a.size);
+          break;
       }
-    };
-
-    window.onunload = abortDownloadIfActive;
-  }
-
-  // Loading video functions
-  function showRandomLoadingVideo() {
-    loadingVideoContainer.innerHTML = '';
-    const videoUrl = LOADING_VIDEOS[Math.random() < 0.5 ? 0 : 1];
-    const video = document.createElement('video');
-    video.src = videoUrl;
-    video.autoplay = true;
-    video.muted = true;
-    video.loop = false;
-    video.playsInline = true;
-    video.style.width = '100%';
-    video.style.borderRadius = '13px';
-    video.style.boxShadow = '0 4px 32px rgba(0,0,0,0.15)';
-    loadingVideoContainer.appendChild(video);
-  }
-  function hideLoadingVideo() {
-    loadingVideoContainer.innerHTML = '';
-  }
-
-  // Fun video logic: randomly summon video between 1 to 10 min, play above "so important", hide after end
-  function scheduleFunVideo() {
-    if (!FUN_VIDEO_LINK) return;
-    const ms = (60 + Math.floor(Math.random() * 9 * 60)) * 1000;
-    funVideoTimeout = setTimeout(() => {
-      showFunVideo();
-    }, ms);
-  }
-  function showFunVideo() {
-    funVideoWrapper.style.display = 'block';
-    funVideo.src = FUN_VIDEO_LINK;
-    funVideo.autoplay = true;
-    funVideo.muted = false;
-    funVideo.loop = false;
-    funVideo.playsInline = true;
-    funVideo.onended = () => {
-      funVideoWrapper.style.display = 'none';
-      scheduleFunVideo();
-    };
-    funVideo.onerror = () => {
-      funVideoWrapper.style.display = 'none';
-      scheduleFunVideo();
-    };
-  }
-
-  function isInternetFast() {
-    return window._repoLoadTime && window._repoLoadTime < 8000;
-  }
-
-  let startRepoLoad = Date.now();
-  fetchFiles().then(() => {
-    window._repoLoadTime = Date.now() - startRepoLoad;
-    if (isInternetFast()) {
-      scheduleFunVideo();
+      
+      // Update results count
+      resultsCountElement.textContent = `${filteredFiles.length} pack${filteredFiles.length !== 1 ? 's' : ''} found`;
+      
+      // Render files
+      renderFiles();
     }
-  });
-
-  // === Footer modal logic ===
-  const aboutBtn = document.getElementById('aboutBtn');
-  const privacyBtn = document.getElementById('privacyBtn');
-  const contactBtn = document.getElementById('contactBtn');
-  const footerModal = document.getElementById('footerModal');
-  const footerModalContent = document.getElementById('footerModalContent');
-  const footerModalBack = document.getElementById('footerModalBack');
-
-  // Modal section data
-  const FOOTER_SECTIONS = {
-    about: {
-      title: "About",
-      content: `Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). curated for your gameplay experience. We aim to provide a simple, and secure way for the Minecraft community to discover new content. Good luck with your pack!`
-    },
-    privacy: {
-      title: "Privacy Policy",
-      content: `Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.`
-    },
-    contact: {
-      title: "Contact",
-      content: `Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. Good luck!`
+    
+    // Render files to the UI
+    function renderFiles() {
+      fileListElement.innerHTML = '';
+      
+      if (filteredFiles.length === 0) {
+        fileListElement.innerHTML = `
+          <div class="no-results">
+            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; color: var(--text-secondary);"></i>
+            <h3>No packs found</h3>
+            <p>Try adjusting your search or filters</p>
+          </div>
+        `;
+        return;
+      }
+      
+      filteredFiles.forEach(file => {
+        const fileElement = document.createElement('div');
+        fileElement.className = 'file-card';
+        fileElement.innerHTML = `
+          <div class="thumbnail-container">
+            <div class="thumbnail" style="background: linear-gradient(45deg, var(--primary-light), var(--accent-dark)); display: flex; align-items: center; justify-content: center;">
+              <i class="fas ${file.type === 'mcpack' ? 'fa-cube' : 'fa-globe'}" style="font-size: 3rem; color: white;"></i>
+            </div>
+            <div class="file-type-badge">.${file.type}</div>
+          </div>
+          <div class="file-info">
+            <h3 class="file-name">${escapeHtml(file.name)}</h3>
+            <div class="file-meta">
+              <span>${formatFileSize(file.size)}</span>
+              <span>${formatDate(file.lastModified)}</span>
+            </div>
+            <div class="file-actions">
+              <button class="btn btn-primary download-btn" data-filename="${file.name}" data-url="${file.download_url}" data-size="${file.size}">
+                <i class="fas fa-download"></i> Download
+              </button>
+              <button class="btn btn-secondary details-btn" data-filename="${file.name}" data-url="${file.download_url}" data-size="${file.size}">
+                <i class="fas fa-info-circle"></i> Details
+              </button>
+            </div>
+          </div>
+        `;
+        
+        fileListElement.appendChild(fileElement);
+      });
+      
+      // Add event listeners to download buttons
+      document.querySelectorAll('.download-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const filename = e.target.dataset.filename;
+          const url = e.target.dataset.url;
+          const size = e.target.dataset.size;
+          startDownload({ name: filename, download_url: url, size: parseInt(size) });
+        });
+      });
+      
+      // Add event listeners to details buttons
+      document.querySelectorAll('.details-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const filename = e.target.dataset.filename;
+          const url = e.target.dataset.url;
+          const size = e.target.dataset.size;
+          showFileDetails({ name: filename, download_url: url, size: parseInt(size) });
+        });
+      });
     }
-  };
-
-  function openFooterModal(sectionKey) {
-    const data = FOOTER_SECTIONS[sectionKey];
-    if (!data) return;
-    footerModalContent.querySelectorAll('.footer-section-title,.footer-section-content').forEach(n => n.remove());
-    // Create title
-    const titleDiv = document.createElement('div');
-    titleDiv.className = 'footer-section-title';
-    titleDiv.textContent = data.title;
-    footerModalContent.insertBefore(titleDiv, footerModalBack);
-
-    // Create content
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'footer-section-content';
-    contentDiv.innerHTML = data.content;
-    footerModalContent.insertBefore(contentDiv, footerModalBack);
-
-    footerModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeFooterModal() {
-    footerModal.style.display = 'none';
-    document.body.style.overflow = '';
-    footerModalContent.querySelectorAll('.footer-section-title,.footer-section-content').forEach(n => n.remove());
-  }
-
-  aboutBtn.onclick = () => openFooterModal('about');
-  privacyBtn.onclick = () => openFooterModal('privacy');
-  contactBtn.onclick = () => openFooterModal('contact');
-  footerModalBack.onclick = closeFooterModal;
-
-  // Also close modal if background is clicked
-  footerModal.addEventListener('click', function(e){
-    if(e.target === footerModal) closeFooterModal();
-  });
-</script>
+    
+    // Start file download
+    function startDownload(file) {
+      // For mobile devices, use a simpler download method
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        // Create a direct download link for mobile
+        const a = document.createElement('a');
+        a.href = file.download_url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        return;
+      }
+      
+      // For desktop, use the existing download screen with progress
+      downloadFileName.textContent = file.name;
+      progressBar.style.width = '0%';
+      progressText.textContent = 'Starting download...';
+      downloadOpenBtn.hidden = true;
+      downloadScreen.hidden = false;
+      
+      let downloadedBytes = 0;
+      const totalBytes = file.size;
+      const controller = new AbortController();
+      currentDownload = controller;
+      
+      fetch(file.download_url, { signal: controller.signal })
+        .then(response => {
+          if (!response.ok) throw new Error('Download failed');
+          
+          const reader = response.body.getReader();
+          const chunks = [];
+          const total = totalBytes;
+          
+          function read() {
+            return reader.read().then(({ done, value }) => {
+              if (done) {
+                // Download complete
+                const blob = new Blob(chunks);
+                downloadBlob = blob;
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.name;
+                document.body.appendChild(a);
+                a.click();
+                
+                // Clean up
+                setTimeout(() => {
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }, 100);
+                
+                progressText.textContent = 'Download complete!';
+                downloadOpenBtn.hidden = false;
+                currentDownload = null;
+                return;
+              }
+              
+              chunks.push(value);
+              downloadedBytes += value.length;
+              const percent = Math.round((downloadedBytes / total) * 100);
+              
+              // Update progress
+              progressBar.style.width = `${percent}%`;
+              progressText.textContent = `Downloading... ${percent}% (${formatFileSize(downloadedBytes)} of ${formatFileSize(total)})`;
+              
+              // Continue reading
+              return read();
+            });
+          }
+          
+          return read();
+        })
+        .catch(error => {
+          if (error.name === 'AbortError') {
+            progressText.textContent = 'Download cancelled';
+          } else {
+            progressText.textContent = 'Download failed: ' + error.message;
+          }
+        });
+    }
+    
+    // Cancel current download
+    function cancelDownload() {
+      if (currentDownload) {
+        currentDownload.abort();
+        currentDownload = null;
+      }
+      downloadScreen.hidden = true;
+    }
+    
+    // Open download folder (placeholder - this would require additional permissions)
+    function openDownloadFolder() {
+      alert('This feature would open your downloads folder. In a real application, this would require additional permissions.');
+    }
+    
+    // Show file details in modal
+    function showFileDetails(file) {
+      const content = `
+        <p><strong>File name:</strong> ${escapeHtml(file.name)}</p>
+        <p><strong>File size:</strong> ${formatFileSize(file.size)}</p>
+        <p><strong>File type:</strong> ${file.name.endsWith('.mcpack') ? 'Resource Pack' : 'World'}</p>
+        <p>After downloading, remember to remove the .txt extension if present.</p>
+      `;
+      
+      openModal('File Details', content);
+    }
+    
+    // Open modal with content
+    function openModal(title, content) {
+      modalTitle.textContent = title;
+      modalBody.innerHTML = content;
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // Close modal
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    
+    // Utility function to format file size
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+      return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    }
+    
+    // Utility function to format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
+    }
+    
+    // Utility function to escape HTML
+    function escapeHtml(unsafe) {
+      return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+    
+    // Debounce function for search input
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+    
+    // Modal content
+    const ABOUT_CONTENT = `
+      <p>Welcome to Minecraft File Manager! This application allows you to easily browse, search, and download Minecraft resource packs and worlds.</p>
+      <p>All files are hosted on GitHub for easy access and reliability.</p>
+      <p>If you have any issues with downloads, please make sure to rename the files by removing the .txt extension if present.</p>
+    `;
+    
+    const PRIVACY_CONTENT = `
+      <p>Your privacy is important to us. This application:</p>
+      <ul>
+        <li>Does not collect any personal information</li>
+        <li>Only accesses GitHub to retrieve file information</li>
+        <li>Stores some data locally in your browser for better performance</li>
+        <li>Does not use any tracking cookies or analytics</li>
+      </ul>
+      <p>All downloads are processed directly between your browser and GitHub's servers.</p>
+    `;
+    
+    const CONTACT_CONTENT = `
+      <p>If you need help or have questions, you can contact us:</p>
+      <p><i class="fas fa-envelope"></i> Email: <a href="mailto:nursifat3026@gmail.com">nursifat3026@gmail.com</a></p>
+      <p><i class="fas fa-link"></i> Website: <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank">Mpacks App</a></p>
+    `;
+    
+    const HELP_CONTENT = `
+      <h3>How to use</h3>
+      <ol>
+        <li>Use the search box to find specific packs</li>
+        <li>Filter by file type using the checkboxes</li>
+        <li>Sort results using the dropdown menu</li>
+        <li>Click the download button to get a file</li>
+      </ol>
+      
+      <h3>Important notes</h3>
+      <ul>
+        <li>After downloading, you may need to remove the .txt extension from the file name</li>
+        <li>For Minecraft to recognize the file, it must end with .mcpack or .mcworld</li>
+        <li>World files are typically larger and may take longer to download</li>
+      </ul>
+      
+      <h3>Troubleshooting</h3>
+      <p>If you have issues with downloads:</p>
+      <ul>
+        <li>Check your internet connection</li>
+        <li>Make sure you have enough storage space</li>
+        <li>Try using the <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank">Mpacks app</a> for easier management</li>
+      </ul>
+    `;
+  </script>
 </body>
 </html>

@@ -1,1597 +1,1455 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Minecraft File Manager</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+  :root {
+    --primary: #7f5af0;
+    --primary-light: #9374f3;
+    --background: #18181b;
+    --surface: #232338;
+    --surface-light: #2d2d45;
+    --accent: #5ffbf1;
+    --accent-dark: #4bd1c8;
+    --danger: #ff5470;
+    --danger-light: #ff7a90;
+    --success: #36f09f;
+    --warning: #E6C200;
+    --text-primary: #f8fafc;
+    --text-secondary: #d4d6e0;
+    --text-muted: #9497a1;
+    --border-radius: 12px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.2);
+    --transition: all 0.3s ease;
+    font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
+    color: var(--text-primary);
+    font-size: 16px;
+  }
+
+  /* Base styles */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  html {
+    font-size: 100%;
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: linear-gradient(120deg, var(--surface) 0%, var(--primary) 100%);
+    display: flex;
+    flex-direction: column;
+    min-width: 320px;
+    line-height: 1.6;
+  }
+  
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Typography */
+  h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    line-height: 1.3;
+  }
+  
+  /* Header */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: var(--surface);
+    color: #fff;
+    box-shadow: var(--shadow);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  header h1 {
+    margin: 0;
+    font-size: 2rem;
+    background: linear-gradient(90deg, var(--accent), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  /* Main container */
+  .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    max-width: 800px;
+    width: 90%;
+    margin: 2rem auto;
+    gap: 1.5rem;
+  }
+  
+  /* Notice box */
+    .notice-box {
+  text-align: center;
+  padding: 1.25rem;
+  border: 2px dashed var(--primary);
+  border-radius: var(--border-radius);
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+  .notice-box h2 {
+    color: var(--warning);
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+  }
+  
+  .notice-box p {
+    margin: 0.5rem 0;
+  }
+  
+  .notice-box a {
+    color: var(--success);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition);
+  }
+  
+  .notice-box a:hover,
+  .notice-box a:focus {
+    text-decoration: underline;
+    color: var(--accent);
+  }
+  
+  /* Search input */
+  #searchInput {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem;
+    width: 100%;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    margin-top: 1rem;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  
+  #searchInput:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(95, 251, 241, 0.3);
+  }
+  
+  /* Files container */
+  .files {
+    background: var(--surface);
+    padding: 1.25rem;
+    border-radius: var(--border-radius);
+    min-height: 200px;
+    max-height: 70vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-shadow: var(--shadow);
+  }
+  
+  /* File item */
+  .file {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--surface-light);
+    position: relative;
+    gap: 0.75rem;
+  }
+  
+  .file:last-child {
+    border-bottom: none;
+  }
+  
+  /* Thumbnail */
+  .thumbnail {
+    width: 200px;
+    max-width: 90%;
+    height: auto;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+    background: var(--surface);
+    border: 4px solid var(--accent);
+    transition: var(--transition);
+  }
+  
+  .thumbnail:hover {
+    transform: scale(1.03);
+    border-color: var(--accent-dark);
+  }
+  
+  /* File name */
+  .name {
+    font-weight: 700;
+    color: var(--accent);
+    word-break: break-word;
+    text-align: center;
+    font-size: 1.15rem;
+  }
+  
+  /* Meta information */
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+  
+  /* Actions */
+  .actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+  }
+  
+  /* Buttons */
+  .btn {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    max-width: 100%;
+    word-wrap: break-word;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn:hover,
+  .btn:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .btn:active {
+    transform: translateY(0);
+  }
+  
+  .btn.danger {
+    background: linear-gradient(90deg, var(--danger), var(--danger-light));
+  }
+  
+  .btn.secondary {
+    background: linear-gradient(90deg, var(--surface), var(--primary));
+    border: 1px solid var(--accent);
+  }
+  
+  .btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Loading overlay */
+  #loadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(20, 20, 30, 0.9);
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    backdrop-filter: blur(5px);
+  }
+  
+  .loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    border-top-color: var(--accent);
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1.5rem;
+  }
+  
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  #loadingText {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  /* Downloading screen */
+  #downloadingScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(20, 20, 30, 0.95);
+    z-index: 10000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+  
+  #downloadBar {
+    width: 100%;
+    max-width: 500px;
+    background: var(--surface);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  #downloadFileName {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    word-break: break-word;
+    text-align: center;
+  }
+  
+  #progressBarContainer {
+    width: 100%;
+    background: var(--background);
+    border-radius: 8px;
+    margin: 1rem 0;
+    height: 24px;
+    overflow: hidden;
+  }
+  
+  #progressBar {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+    border-radius: 8px;
+  }
+  
+  #progressText {
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    white-space: pre-line;
+    margin-bottom: 1rem;
+  }
+  
+  #downloadCancelBtn {
+    background: linear-gradient(90deg, var(--danger), var(--danger-light));
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: inherit;
+    transition: var(--transition);
+  }
+  
+  #downloadCancelBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Footer buttons */
+  .footer-buttons-bottom {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin: 1.5rem 0 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .footer-btn {
+    background: transparent;
+    color: var(--warning);
+    border: 1px solid var(--warning);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    font-family: inherit;
+    transition: var(--transition);
+    text-decoration: none;
+  }
+  
+  .footer-btn:hover,
+  .footer-btn:focus {
+    background-color: rgba(230, 194, 0, 0.1);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  
+  /* Modal */
+  .footer-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(22, 22, 32, 0.95);
+    z-index: 9999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    animation: fadeInModal 0.3s ease;
+    padding: 1.5rem;
+  }
+  
+  @keyframes fadeInModal {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .footer-modal-content {
+    background: var(--surface);
+    color: var(--text-primary);
+    border-radius: var(--border-radius);
+    max-width: 95vw;
+    width: 500px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    align-items: center;
+    position: relative;
+    text-align: left;
+    font-size: 1rem;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .footer-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+  
+  .footer-section-content {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    word-break: break-word;
+  }
+  
+  .footer-contact-link {
+    color: var(--primary-light);
+    text-decoration: underline;
+    font-weight: 600;
+    word-break: break-word;
+    transition: var(--transition);
+  }
+  
+  .footer-contact-link:hover,
+  .footer-contact-link:focus {
+    color: var(--accent);
+  }
+  
+  .footer-modal-back {
+    background: linear-gradient(90deg, var(--danger), var(--danger-light));
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: var(--transition);
+  }
+  
+  .footer-modal-back:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Ad containers */
+  #adsContainerTop,
+  #adsContainerBottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--surface);
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+  }
+  
+  #adsContainerBottom {
+    width: 100%;
+    position: static;
+    min-height: 90px;
+    box-shadow: none;
+    margin-top: 2rem;
+  }
+  
+  /* Status messages */
+  .status-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+  }
+  
+  .status-error {
+    color: var(--danger);
+  }
+  
+  .status-success {
+    color: var(--success);
+  }
+  
+  /* Accessibility improvements */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  /* Focus styles for accessibility */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  
+  /* Reduced motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
     :root {
-      --primary: #7f5af0;
-      --primary-light: #9374f3;
-      --background: #121212;
-      --surface: #232338;
-      --surface-light: #2d2d44;
-      --accent: #5ffbf1;
-      --accent-dark: #4bd1c8;
-      --danger: #ff5470;
-      --success: #36f09f;
-      --warning: #E6C200;
-      --text-primary: #f8fafc;
-      --text-secondary: #a1a1aa;
-      --radius: 12px;
-      --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
-      background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
-      color: var(--text-primary);
-      min-height: 100vh;
-      line-height: 1.6;
-      padding: 0;
-      margin: 0;
-    }
-
-    /* Opening Video Styles */
-    #openingVideo {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #0c0c1d;
-      z-index: 9999;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: opacity 1s ease;
+      font-size: 15px;
     }
     
-    .dragon {
-      position: absolute;
-      top: -100px;
-      left: -100px;
-      animation: fly 1s linear forwards;
-      transform-origin: center;
-      transform: rotate(45deg);
-    }
-    
-    .body {
-      width: 100px;
-      height: 40px;
-      background: #1a1a2a;
-      border-radius: 50%;
-      position: relative;
-      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
-    }
-    
-    .head {
-      width: 40px;
-      height: 30px;
-      background: #1a1a2a;
-      position: absolute;
-      top: -15px;
-      right: -15px;
-      border-radius: 50% 40% 40% 50%;
-      transform: rotate(10deg);
-      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
-    }
-    
-    .horn {
-      width: 10px;
-      height: 20px;
-      background: #1a1a2a;
-      position: absolute;
-      top: -15px;
-      right: 15px;
-      border-radius: 40% 40% 0 0;
-      transform: rotate(5deg);
-    }
-    
-    .horn::before {
-      content: '';
-      position: absolute;
-      width: 8px;
-      height: 15px;
-      background: #1a1a2a;
-      top: -5px;
-      right: 5px;
-      border-radius: 40% 40% 0 0;
-      transform: rotate(5deg);
-    }
-    
-    .eye {
-      width: 8px;
-      height: 8px;
-      background: #ff0051;
-      border-radius: 50%;
-      position: absolute;
-      top: 12px;
-      right: 8px;
-      box-shadow: 0 0 10px #ff0051;
-      animation: blink 1s infinite;
-    }
-    
-    .mouth {
-      width: 12px;
-      height: 5px;
-      background: #ff0051;
-      position: absolute;
-      top: 20px;
-      right: 3px;
-      border-radius: 0 0 5px 5px;
-    }
-    
-    .wing {
-      position: absolute;
-      top: 5px;
-      left: 20px;
-      width: 70px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(45deg, #1a1a2a 50%, transparent 50%);
-      transform: rotate(30deg);
-      transform-origin: left center;
-      animation: flap 0.15s infinite alternate;
-      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
-    }
-    
-    .wing::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, transparent 50%, #1a1a2a 50%);
-      border-radius: 50%;
-      transform: rotate(-60deg);
-    }
-    
-    .tail {
-      position: absolute;
-      top: 15px;
-      left: -30px;
-      width: 40px;
-      height: 10px;
-      background: #1a1a2a;
-      border-radius: 50%;
-      transform: rotate(20deg);
-      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
-    }
-    
-    .tail::before, .tail::after {
-      content: '';
-      position: absolute;
-      background: #1a1a2a;
-      border-radius: 50%;
-      box-shadow: 0 0 10px rgba(157, 78, 221, 0.5);
-    }
-    
-    .tail::before {
-      width: 30px;
-      height: 8px;
-      top: 5px;
-      left: -20px;
-      transform: rotate(15deg);
-    }
-    
-    .tail::after {
-      width: 25px;
-      height: 6px;
-      top: 10px;
-      left: -40px;
-      transform: rotate(30deg);
-    }
-    
-    .spike {
-      position: absolute;
-      width: 8px;
-      height: 15px;
-      background: #1a1a2a;
-      border-radius: 40% 40% 0 0;
-    }
-    
-    .spike-1 {
-      top: -5px;
-      left: 20px;
-      transform: rotate(-10deg);
-    }
-    
-    .spike-2 {
-      top: -3px;
-      left: 40px;
-      transform: rotate(-5deg);
-    }
-    
-    .spike-3 {
-      top: -1px;
-      left: 60px;
-    }
-    
-    .particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      background: #9d4edd;
-      border-radius: 50%;
-      opacity: 0;
-      animation: particle 1s linear forwards;
-    }
-    
-    .particle::before {
-      content: '';
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #c77dff;
-      border-radius: 50%;
-      top: -1px;
-      left: -1px;
-      opacity: 0.7;
-    }
-    
-    @keyframes fly {
-      0% {
-        transform: translate(0, 0) rotate(45deg);
-      }
-      100% {
-        transform: translate(100vw, 100vh) rotate(45deg);
-      }
-    }
-    
-    @keyframes flap {
-      0% {
-        transform: rotate(20deg);
-      }
-      100% {
-        transform: rotate(40deg);
-      }
-    }
-    
-    @keyframes blink {
-      0%, 45%, 55%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.3;
-      }
-    }
-    
-    @keyframes particle {
-      0% {
-        opacity: 1;
-        transform: translate(0, 0) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-20px, -20px) scale(0.5);
-      }
-    }
-
-    /* Fun Video Styles */
-    #funVideo {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      z-index: 9998;
-      display: none;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .scene {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .creeper {
-      position: absolute;
-      top: -120px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 80px;
-      background: #1a801a;
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      animation: dropDown 0.8s forwards;
-      z-index: 10;
-    }
-    .creeper div { background: #2db82d; }
-    .creeper .dark { background: #0f4d0f; }
-    .creeper .black { background: #000; }
-
-    .flash {
-      position: absolute;
-      inset: 0;
-      background: white;
-      opacity: 0;
-      z-index: 20;
-    }
-    .blast {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: radial-gradient(circle, #fff, #ff0, #f80, #000);
-      opacity: 0;
-      transform: translate(-50%, -50%);
-      z-index: 15;
-    }
-    .explosion .blast {
-      animation: explode 0.6s forwards;
-    }
-    .explosion .flash {
-      animation: flashScreen 0.2s;
-    }
-    .explosion {
-      animation: screenShake 0.5s linear;
-    }
-
-    .particle {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #1a801a;
-      opacity: 0;
-    }
-
-    @keyframes dropDown {
-      0% { top: -120px; }
-      100% { top: 40%; }
-    }
-    @keyframes explode {
-      0% { width: 0; height: 0; opacity: 1; }
-      100% { width: 400px; height: 400px; opacity: 0; }
-    }
-    @keyframes flashScreen {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
-    @keyframes particleFly {
-      0% { transform: translate(0,0); opacity: 1; }
-      100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
-    }
-    @keyframes screenShake {
-      0% { transform: translate(0,0); }
-      20% { transform: translate(-10px, 5px); }
-      40% { transform: translate(10px, -5px); }
-      60% { transform: translate(-6px, 3px); }
-      80% { transform: translate(6px, -3px); }
-      100% { transform: translate(0,0); }
-    }
-
-    .app-container {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    /* Header */
     header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      background: var(--surface);
-      border-radius: var(--radius);
-      margin-bottom: 24px;
-      box-shadow: var(--shadow);
+      padding: 1rem;
     }
-
+    
     header h1 {
-      margin: 0;
-      font-size: 2rem;
-      background: linear-gradient(90deg, var(--accent), var(--primary));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 700;
+      font-size: 1.75rem;
     }
-
-    /* Main content */
-    .main-content {
-      display: flex;
-      gap: 24px;
-      flex: 1;
+    
+    .container {
+      padding: 1rem;
+      width: 95%;
+      margin: 1rem auto;
     }
-
-    /* Sidebar */
-    .sidebar {
-      flex: 0 0 280px;
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
+    
+    .files {
+      padding: 1rem;
+      max-height: 65vh;
     }
-
-    .search-container {
-      margin-bottom: 20px;
+    
+    .file {
+      padding: 1rem 0;
     }
-
-    .search-container input {
-      width: 100%;
-      padding: 12px 16px;
-      border-radius: 8px;
-      border: 2px solid var(--surface-light);
-      background: var(--background);
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-
-    .search-container input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .filter-section {
-      margin-bottom: 24px;
-    }
-
-    .filter-title {
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: var(--accent);
-      font-size: 1.1rem;
-    }
-
-    .filter-options {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .filter-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .filter-option input {
-      width: 18px;
-      height: 18px;
-    }
-
-    .filter-option label {
-      color: var(--text-secondary);
-      cursor: pointer;
-    }
-
-    .info-box {
-      background: var(--surface-light);
-      padding: 16px;
-      border-radius: var(--radius);
-      margin-top: 20px;
-    }
-
-    .info-box h3 {
-      color: var(--accent);
-      margin-bottom: 12px;
-      font-size: 1.1rem;
-    }
-
-    .info-box p {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 12px;
-    }
-
-    .info-box a {
-      color: var(--primary-light);
-      text-decoration: none;
-    }
-
-    .info-box a:hover {
-      text-decoration: underline;
-    }
-
-    /* File list */
-    .content-area {
-      flex: 1;
-    }
-
-    .content-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .results-count {
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
-    .sort-select {
-      padding: 8px 12px;
-      border-radius: 8px;
-      border: 2px solid var(--surface-light);
-      background: var(--surface);
-      color: var(--text-primary);
-    }
-
-    .files-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .file-card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      overflow: hidden;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: var(--shadow);
-    }
-
-    .file-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    .thumbnail-container {
-      position: relative;
-      width: 100%;
-      height: 160px;
-      overflow: hidden;
-    }
-
+    
     .thumbnail {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      background: var(--surface-light);
+      width: 180px;
     }
-
-    .file-type-badge {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: var(--primary);
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      font-weight: 600;
+    
+    .footer-modal-content {
+      padding: 1.5rem 1rem;
     }
-
-    .file-info {
-      padding: 16px;
+    
+    .footer-buttons-bottom {
+      gap: 0.75rem;
     }
-
-    .file-name {
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
-
-    .file-meta {
-      display: flex;
-      justify-content: space-between;
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      margin-bottom: 16px;
-    }
-
-    .file-actions {
-      display: flex;
-      gap: 8px;
-    }
-
+    
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: 8px;
-      border: none;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
+      padding: 0.6rem 1rem;
       font-size: 0.9rem;
     }
-
-    .btn-primary {
-      background: linear-gradient(90deg, var(--primary), var(--primary-light));
-      color: white;
-      flex: 1;
+  }
+  
+  @media (max-width: 480px) {
+    :root {
+      font-size: 14px;
     }
-
-    .btn-primary:hover {
-      background: linear-gradient(90deg, var(--primary-light), var(--primary));
-      box-shadow: 0 4px 12px rgba(127, 90, 240, 0.4);
+    
+    header h1 {
+      font-size: 1.5rem;
     }
-
-    .btn-secondary {
-      background: var(--surface-light);
-      color: var(--text-primary);
+    
+    .notice-box {
+      padding: 1rem;
     }
-
-    .btn-secondary:hover {
-      background: var(--surface);
+    
+    .thumbnail {
+      width: 160px;
     }
-
-    /* Loading overlay */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(18, 18, 18, 0.9);
-      z-index: 1000;
-      display: flex;
+    
+    .footer-modal-content {
+      width: 95%;
+      padding: 1.25rem 0.75rem;
+    }
+    
+    .footer-buttons-bottom {
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
+      gap: 0.5rem;
     }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(95, 251, 241, 0.2);
-      border-top: 5px solid var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Download screen */
-    .download-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(18, 18, 18, 0.95);
-      z-index: 1001;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .download-card {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 24px;
+    
+    .footer-btn {
       width: 100%;
-      max-width: 500px;
-      box-shadow: var(--shadow);
       text-align: center;
     }
+  }
+.header-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+.header-btn {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.header-btn:hover {
+  background: rgba(95, 251, 241, 0.15);
+}
+.filters select {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--primary);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition);
+  appearance: none;
+}
+.filters select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(95, 251, 241, 0.3);
+}
 
-    .download-header {
-      margin-bottom: 20px;
-    }
+/* Help modal */
+.help-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.help-content {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  max-width: 400px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.help-content h2 {
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+.help-content button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.help-content button:hover {
+  background: var(--accent-dark);
+}
+/* prettier native selects + faux arrow */
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
 
-    .download-title {
-      font-size: 1.5rem;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
+.select-wrapper {
+  position: relative;
+  display: inline-block;
+  min-width: 160px;
+  flex: 1;
+  max-width: 100%;
+}
 
-    .download-filename {
-      font-size: 1.1rem;
-      color: var(--text-primary);
-      word-break: break-word;
-    }
+.select-wrapper select {
+  width: 100%;
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--primary);
+  background: linear-gradient(180deg, var(--surface) 0%, rgba(0,0,0,0.03) 100%);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: var(--transition);
+}
+.select-wrapper::after {
+  content: "▾";
+  position: absolute;
+  right: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
 
-    .progress-container {
-      width: 100%;
-      background: var(--surface-light);
-      border-radius: 8px;
-      height: 22px;
-      margin: 20px 0;
-      overflow: hidden;
-    }
+/* focus + accessibility */
+.select-wrapper select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(95,251,241,0.06);
+}
 
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), var(--accent));
-      width: 0%;
-      transition: width 0.3s ease;
-    }
+/* option styling (note: browser support is limited; this helps where browsers allow it) */
+.select-wrapper select option {
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+}
 
-    .progress-text {
-      color: var(--text-secondary);
-      margin-bottom: 20px;
-    }
+/* selected option highlight in browsers that support it */
+.select-wrapper select option:checked,
+.select-wrapper select option[selected] {
+  background: var(--accent);
+  color: #031018;
+}
 
-    .download-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-    }
+/* hide native IE arrow */
+.select-wrapper select::-ms-expand { display: none; }
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .select-wrapper {
+    width: 100%;
+    max-width: 300px;
+  }
+}
 
-    /* Footer */
-    footer {
-      margin-top: 40px;
-      padding: 20px;
-      background: var(--surface);
-      border-radius: var(--radius);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: var(--shadow);
-    }
-
-    .copyright {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .footer-link {
-      color: var(--text-secondary);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-
-    .footer-link:hover {
-      color: var(--accent);
-    }
-
-    /* Modal */
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(18, 18, 18, 0.9);
-      z-index: 1002;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .modal.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    .modal-content {
-      background: var(--surface);
-      border-radius: var(--radius);
-      padding: 32px;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: var(--shadow);
-      position: relative;
-      max-height: 80vh;
-      overflow-y: auto;
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    .modal-title {
-      color: var(--accent);
-      margin-bottom: 16px;
-      font-size: 1.5rem;
-    }
-
-    .modal-body {
-      color: var(--text-primary);
-      line-height: 1.6;
-    }
-
-    /* Responsive design */
-    @media (max-width: 900px) {
-      .main-content {
-        flex-direction: column;
-      }
-      
-      .sidebar {
-        flex: 0 0 auto;
-        margin-bottom: 24px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .app-container {
-        padding: 12px;
-      }
-      
-      header {
-        flex-direction: column;
-        text-align: center;
-        gap: 12px;
-      }
-      
-      .files-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      footer {
-        flex-direction: column;
-        gap: 16px;
-        text-align: center;
-      }
-      
-      .footer-links {
-        justify-content: center;
-      }
-    }
-
-    /* Accessibility improvements */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    /* Focus styles for accessibility */
-    button:focus-visible,
-    input:focus-visible,
-    select:focus-visible,
-    a:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
+@media (max-width: 480px) {
+  .select-wrapper {
+    min-width: unset;
+    width: 100%;
+  }
+  
+  .select-wrapper select {
+    padding: 0.6rem 1.8rem 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
   </style>
+  <!-- Google AdSense (replace with your ad IDs) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
 <body>
-  <!-- Opening Video -->
-  <div id="openingVideo">
-    <div class="dragon">
-      <div class="body">
-        <div class="head">
-          <div class="horn"></div>
-          <div class="eye"></div>
-          <div class="mouth"></div>
-        </div>
-        <div class="spike spike-1"></div>
-        <div class="spike spike-2"></div>
-        <div class="spike spike-3"></div>
-        <div class="wing"></div>
-        <div class="tail"></div>
-      </div>
-    </div>
+  <header role="banner">
+  <h1>Minecraft packs</h1>
+  <div class="header-buttons">
+    <button id="helpBtn" class="header-btn">❔ Help</button>
+    <button id="refreshBtn" class="header-btn">🔄 Refresh</button>
   </div>
+</header>
 
-  <!-- Fun Video (Creeper Blast) -->
-  <div id="funVideo">
-    <div class="scene">
-      <div class="creeper">
-        <!-- row 1 -->
-        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-        <!-- row 2 -->
-        <div></div><div></div><div class="black"></div><div class="black"></div><div></div><div class="black"></div><div class="black"></div><div></div>
-        <!-- row 3 -->
-        <div></div><div></div><div class="black"></div><div class="black"></div><div></div><div class="black"></div><div class="black"></div><div></div>
-        <!-- row 4 -->
-        <div></div><div></div><div class="black"></div><div></div><div class="black"></div><div class="black"></div><div></div><div></div>
-        <!-- row 5 -->
-        <div></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div></div>
-        <!-- row 6 -->
-        <div></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div class="black"></div><div></div>
-        <!-- row 7 -->
-        <div></div><div></div><div></div><div class="black"></div><div class="black"></div><div></div><div></div><div></div>
-        <!-- row 8 -->
-        <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
-      </div>
-      <div class="flash"></div>
-      <div class="blast"></div>
-    </div>
-  </div>
-
-  <div class="app-container">
-    <header>
-      <h1>Minecraft File Manager</h1>
-      <div class="header-actions">
-        <button class="btn btn-secondary" id="helpBtn">
-          <i class="fas fa-question-circle"></i> Help
-        </button>
-      </div>
-    </header>
-
-    <div class="main-content">
-      <aside class="sidebar">
-        <div class="search-container">
-          <input type="text" id="searchInput" placeholder="Search packs..." aria-label="Search packs">
-        </div>
-
-        <div class="filter-section">
-          <h3 class="filter-title">File Type</h3>
-          <div class="filter-options">
-            <div class="filter-option">
-              <input type="checkbox" id="filter-mcpack" checked>
-              <label for="filter-mcpack">Resource Packs (.mcpack)</label>
-            </div>
-            <div class="filter-option">
-              <input type="checkbox" id="filter-mcworld" checked>
-              <label for="filter-mcworld">Worlds (.mcworld)</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="filter-section">
-          <h3 class="filter-title">Sort By</h3>
-          <select class="sort-select" id="sortSelect" aria-label="Sort files by">
-            <option value="name">Name (A-Z)</option>
-            <option value="name-desc">Name (Z-A)</option>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-            <option value="size">Size (Smallest First)</option>
-            <option value="size-desc">Size (Largest First)</option>
-          </select>
-        </div>
-
-        <div class="info-box">
-          <h3><i class="fas fa-info-circle"></i> Important Information</h3>
-          <p>After downloading, rename files from <code>packname.mcpack.txt</code> to <code>packname.mcpack</code> (remove .txt extension)</p>
-          <p>For easier management, try our <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank">Mpacks app</a></p>
-        </div>
-      </aside>
-
-      <main class="content-area">
-        <div class="content-header">
-          <div class="results-count" id="resultsCount">Loading packs...</div>
-          <div class="view-options">
-            <span>View: </span>
-            <button class="btn btn-secondary active" id="viewGridBtn" aria-label="Grid view"><i class="fas fa-th"></i></button>
-            <button class="btn btn-secondary" id="viewListBtn" aria-label="List view"><i class="fas fa-list"></i></button>
-          </div>
-        </div>
-
-        <div class="files-grid" id="fileList">
-          <!-- Files will be loaded here -->
-        </div>
-      </main>
-    </div>
-
-    <footer>
-      <div class="copyright">© 2023 Minecraft File Manager</div>
-      <div class="footer-links">
-        <a href="#" class="footer-link" id="aboutLink">About</a>
-        <a href="#" class="footer-link" id="privacyLink">Privacy</a>
-        <a href="#" class="footer-link" id="contactLink">Contact</a>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Loading Overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="spinner"></div>
-    <div id="loadingText">Loading packs...</div>
-  </div>
-
-  <!-- Download Screen -->
-  <div class="download-screen" id="downloadScreen" hidden>
-    <div class="download-card">
-      <div class="download-header">
-        <h2 class="download-title">Downloading</h2>
-        <div class="download-filename" id="downloadFileName"></div>
-      </div>
+<main class="container" role="main">
+    <section class="notice-box" aria-labelledby="important-notice">
+      <h2 id="important-notice">⚠️ Important Notice</h2>
+      <p>Get our app: <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank" rel="noopener">Mpacks app</a></p>
+      <p>Or rename packs after downloading: e.g., <code>packname.mcpack.txt</code> → <code>packname.mcpack</code> (remove .txt)</p>
       
-      <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-      
-      <div class="progress-text" id="progressText">Starting download...</div>
-      
-      <div class="download-actions">
-        <button class="btn btn-primary" id="downloadOpenBtn" hidden>
-          <i class="fas fa-folder-open"></i> Open Folder
-        </button>
-        <button class="btn btn-secondary" id="downloadCancelBtn">
-          <i class="fas fa-times"></i> Cancel
-        </button>
+      <label for="searchInput" class="sr-only">Search packs</label>
+      <input type="text" id="searchInput" placeholder="Search packs..." aria-label="Search packs">
+<div class="filters">
+  <div class="select-wrapper"><select id="fileType">
+<option value="all">All Types</option>
+<option value="mcpack">.mcpack</option>
+<option value="mcworld">.mcworld</option>
+</select></div>
+  <div class="select-wrapper"><select id="sortBy">
+<option value="az">A–Z Name</option>
+<option value="za">Z–A Name</option>
+<option value="largest">Largest First</option>
+<option value="smallest">Smallest First</option>
+</select></div>
+</div>
+    </section>
+    
+    <section aria-labelledby="files-heading">
+      <h2 id="files-heading" class="sr-only">Available Minecraft Packs</h2>
+      <div class="files" id="fileList" role="list" aria-label="List of Minecraft packs"></div>
+    </section>
+    
+    <div class="footer-buttons-bottom">
+      <button class="footer-btn" id="aboutBtn">About</button>
+      <button class="footer-btn" id="privacyBtn">Privacy Policy</button>
+      <button class="footer-btn" id="contactBtn">Contact</button>
+    </div>
+    
+    <div id="loadingOverlay" role="status" aria-live="polite">
+      <div class="loading-spinner" aria-hidden="true"></div>
+      <div id="loadingText">Loading packs...</div>
+    </div>
+    
+    <!-- Downloading Screen -->
+    <div id="downloadingScreen" role="dialog" aria-labelledby="downloadFileName" aria-modal="true">
+      <div id="downloadBar">
+        <div id="downloadFileName" role="heading"></div>
+        <div id="progressBarContainer">
+          <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div id="progressText" aria-live="polite"></div>
+        <button id="downloadCancelBtn">Cancel Download</button>
       </div>
     </div>
-  </div>
-
-  <!-- Modal -->
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <button class="modal-close" id="modalClose" aria-label="Close modal">&times;</button>
-      <h2 class="modal-title" id="modalTitle"></h2>
-      <div class="modal-body" id="modalBody"></div>
+    
+    <!-- Banner ads bottom -->
+    <div id="adsContainerBottom" aria-label="Advertisement">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="there is your ad id"
+           data-ad-slot="there is your ad code"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
+    
+    <!-- Modal popup for footer sections -->
+    <div class="footer-modal" id="footerModal" role="dialog" aria-modal="true">
+      <div class="footer-modal-content" id="footerModalContent">
+        <button class="footer-modal-back" id="footerModalBack">Back</button>
+      </div>
+    </div>
+<div id="helpModal" class="help-modal">
+  <div class="help-content">
+    <h2>Help</h2>
+    <p>Use the search bar to find packs.<br>
+    Filter by file type and sort order below the search.<br>
+    Click Download to get the file.</p>
+    <button id="helpClose">Close</button>
   </div>
-
+</div>
+  </main>
+  
   <script>
-    // Configuration
+  // Simple JS firewall for GitHub Pages
+  (function() {
+    // 1. Block known malicious bots by User-Agent
+    const blockedAgents = ["sqlmap", "nikto", "curl", "wget", "fuzz", "acunetix", "scan", "hack"];
+    const ua = navigator.userAgent.toLowerCase();
+    if (blockedAgents.some(bot => ua.includes(bot))) {
+        document.body.innerHTML = "<h1 style='color:var(--danger);text-align:center;margin-top:50px;padding:2rem;'>Access Denied</h1>";
+        throw new Error("Blocked User-Agent");
+    }
+
+    // 2. Prevent suspicious query parameters
+    const badPatterns = [/(\.\.\/|<script|%3Cscript|\/etc\/passwd|union.*select|insert.*into|drop.*table|delete.*from|script.*src)/i];
+    const urlParams = new URLSearchParams(window.location.search);
+    for (const [key, value] of urlParams) {
+        if (badPatterns.some(rx => rx.test(key) || rx.test(value))) {
+            document.body.innerHTML = "<h1 style='color:var(--danger);text-align:center;margin-top:50px;padding:2rem;'>Suspicious Activity Detected</h1>";
+            throw new Error("Blocked suspicious query");
+        }
+    }
+  })();
+
+  // Main application
+  (function() {
+    // Constants
     const GH_USERNAME = "sifat8668";
     const GH_REPO = "M-packs";
     const API_URL = `https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/`;
     const RAW_URL = `https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/`;
-    
-    // State
-    let allFiles = [];
-    let filteredFiles = [];
-    let currentDownload = null;
-    let downloadBlob = null;
-    
-    // DOM Elements
-    const fileListElement = document.getElementById('fileList');
-    const resultsCountElement = document.getElementById('resultsCount');
+    const CACHE_KEY = 'mc_packs_cache';
+    const CACHE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
+    // DOM elements
+    const fileList = document.getElementById('fileList');
     const loadingOverlay = document.getElementById('loadingOverlay');
-    const downloadScreen = document.getElementById('downloadScreen');
+    const searchInput = document.getElementById('searchInput');
+    const downloadingScreen = document.getElementById('downloadingScreen');
     const downloadFileName = document.getElementById('downloadFileName');
     const progressBar = document.getElementById('progressBar');
     const progressText = document.getElementById('progressText');
     const downloadCancelBtn = document.getElementById('downloadCancelBtn');
-    const downloadOpenBtn = document.getElementById('downloadOpenBtn');
-    const searchInput = document.getElementById('searchInput');
-    const sortSelect = document.getElementById('sortSelect');
-    const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalBody = document.getElementById('modalBody');
-    const modalClose = document.getElementById('modalClose');
-    const openingVideo = document.getElementById('openingVideo');
-    const funVideo = document.getElementById('funVideo');
-    
-    // Initialize the application
-    document.addEventListener('DOMContentLoaded', function() {
-      // Show opening video first
-      showOpeningVideo();
-      
-      initializeEventListeners();
-      
-      // Check if we have cached data
-      const cachedData = localStorage.getItem('mcFilesCache');
-      const cacheTime = localStorage.getItem('mcFilesCacheTime');
-      
-      if (cachedData && cacheTime && (Date.now() - parseInt(cacheTime)) < 5 * 60 * 1000) {
-        // Use cached data if it's less than 5 minutes old
-        allFiles = JSON.parse(cachedData);
-        filterAndRenderFiles();
-        loadingOverlay.style.display = 'none';
-      } else {
-        loadFiles();
+const fileTypeSelect = document.getElementById('fileType');
+    const sortBySelect = document.getElementById('sortBy');
+    // Global variables
+    let allFiles = [];
+    let allThumbs = {};
+    let currentDownload = null;
+
+    // Modal elements and functionality
+    const aboutBtn = document.getElementById('aboutBtn');
+    const privacyBtn = document.getElementById('privacyBtn');
+    const contactBtn = document.getElementById('contactBtn');
+    const footerModal = document.getElementById('footerModal');
+    const footerModalContent = document.getElementById('footerModalContent');
+    const footerModalBack = document.getElementById('footerModalBack');
+
+    // Modal section data
+    const FOOTER_SECTIONS = {
+      about: {
+        title: "About",
+        content: `Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). We provide a simple and secure way for the Minecraft community to discover new content. All packs are carefully curated for your gameplay experience.`
+      },
+      privacy: {
+        title: "Privacy Policy",
+        content: `Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.`
+      },
+      contact: {
+        title: "Contact",
+        content: `Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. We appreciate your feedback and will respond as soon as possible.`
       }
+    };
+
+    // Utility functions
+    function humanFileSize(size) {
+      if (size < 1024) return size + " B";
+      if (size < 1024 * 1024) return (size/1024).toFixed(1) + " KB";
+      if (size < 1024 * 1024 * 1024) return (size/1024/1024).toFixed(1) + " MB";
+      return (size/1024/1024/1024).toFixed(2) + " GB";
+    }
+
+    function sanitizeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function showNotification(message, type = 'info') {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `status-message status-${type}`;
+      notification.textContent = message;
+      notification.setAttribute('role', 'alert');
+      notification.setAttribute('aria-live', 'assertive');
       
-      // Set random timer for fun video (1-30 minutes)
-      const randomTime = Math.floor(Math.random() * (30 - 1 + 1) + 1) * 60 * 1000;
-      setTimeout(showFunVideo, randomTime);
-    });
-    
-    // Show opening video
-    function showOpeningVideo() {
-      // Create particles for the dragon
-      const dragon = document.querySelector('.dragon');
-      const container = document.getElementById('openingVideo');
-      const interval = setInterval(() => {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
-        
-        const rect = dragon.getBoundingClientRect();
-        particle.style.left = (rect.left + 2) + 'px';
-        particle.style.top = (rect.bottom - 2) + 'px';
-        
-        container.appendChild(particle);
-        
-        setTimeout(() => {
-          particle.remove();
-        }, 1000);
-      }, 50);
+      // Add to page
+      document.body.appendChild(notification);
       
-      // Hide opening video after 5 seconds
+      // Remove after delay
       setTimeout(() => {
-        clearInterval(interval);
-        openingVideo.style.opacity = '0';
-        setTimeout(() => {
-          openingVideo.style.display = 'none';
-        }, 1000);
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
       }, 5000);
     }
-    
-    // Show fun video
-    function showFunVideo() {
-      funVideo.style.display = 'flex';
-      
-      const scene = funVideo.querySelector('.scene');
-      const creeper = funVideo.querySelector('.creeper');
-      
-      // Trigger explosion when the creeper lands
-      creeper.addEventListener('animationend', () => {
-        creeper.style.display = 'none';
-        scene.classList.add('explosion');
-        createParticles();
-        
-        // Hide fun video after explosion
-        setTimeout(() => {
-          funVideo.style.display = 'none';
-        }, 3000);
-      });
-      
-      function createParticles() {
-        const particlesCount = 40;
-        for (let i = 0; i < particlesCount; i++) {
-          const particle = document.createElement('div');
-          particle.classList.add('particle');
-          
-          const angle = Math.random() * Math.PI * 2;
-          const distance = 60 + Math.random() * 200;
-          const tx = Math.cos(angle) * distance;
-          const ty = Math.sin(angle) * distance;
-          
-          particle.style.setProperty('--tx', `${tx}px`);
-          particle.style.setProperty('--ty', `${ty}px`);
-          
-          particle.style.left = "50%";
-          particle.style.top = "48%";
-          
-          const delay = Math.random() * 0.2;
-          const duration = 0.3 + Math.random() * 0.5;
-          
-          particle.style.animation = `particleFly ${duration}s forwards`;
-          particle.style.animationDelay = `${delay}s`;
-          
-          scene.appendChild(particle);
+
+    // Recursively get all files from repo with caching
+    async function fetchAllFiles(apiUrl = API_URL, prefix = '') {
+      // Check cache first
+      const cachedData = localStorage.getItem(CACHE_KEY);
+      if (cachedData) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        if (Date.now() - timestamp < CACHE_TIMEOUT) {
+          return data;
         }
       }
-    }
-    
-    // Set up event listeners
-    function initializeEventListeners() {
-      // Search functionality
-      searchInput.addEventListener('input', debounce(filterAndRenderFiles, 300));
-      
-      // Filter functionality
-      document.getElementById('filter-mcpack').addEventListener('change', filterAndRenderFiles);
-      document.getElementById('filter-mcworld').addEventListener('change', filterAndRenderFiles);
-      
-      // Sort functionality
-      sortSelect.addEventListener('change', filterAndRenderFiles);
-      
-      // Download actions
-      downloadCancelBtn.addEventListener('click', cancelDownload);
-      downloadOpenBtn.addEventListener('click', openDownloadFolder);
-      
-      // Modal functionality
-      document.getElementById('aboutLink').addEventListener('click', () => openModal('About', ABOUT_CONTENT));
-      document.getElementById('privacyLink').addEventListener('click', () => openModal('Privacy Policy', PRIVACY_CONTENT));
-      document.getElementById('contactLink').addEventListener('click', () => openModal('Contact', CONTACT_CONTENT));
-      document.getElementById('helpBtn').addEventListener('click', () => openModal('Help', HELP_CONTENT));
-      modalClose.addEventListener('click', closeModal);
-      
-      // Close modal when clicking outside
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-      
-      // View toggle buttons
-      document.getElementById('viewGridBtn').addEventListener('click', () => {
-        fileListElement.className = 'files-grid';
-        document.getElementById('viewGridBtn').classList.add('active');
-        document.getElementById('viewListBtn').classList.remove('active');
-      });
-      
-      document.getElementById('viewListBtn').addEventListener('click', () => {
-        fileListElement.className = 'files-list';
-        document.getElementById('viewListBtn').classList.add('active');
-        document.getElementById('viewGridBtn').classList.remove('active');
-      });
-    }
-    
-    // Load files from GitHub repository
-    async function loadFiles() {
+
       try {
         loadingOverlay.style.display = 'flex';
+        document.getElementById('loadingText').textContent = "Loading packs...";
         
-        const response = await fetch(API_URL);
-        if (!response.ok) throw new Error('Failed to fetch repository contents');
+        const response = await fetch(apiUrl);
+        
+        // Check for rate limiting
+        if (response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0') {
+          const resetTime = new Date(parseInt(response.headers.get('x-ratelimit-reset')) * 1000);
+          const timeUntilReset = Math.round((resetTime - new Date()) / 60000);
+          throw new Error(`GitHub API rate limit exceeded. Please try again in ${timeUntilReset} minutes.`);
+        }
+        
+        if (!response.ok) throw new Error(`Failed to fetch repository contents: ${response.status} ${response.statusText}`);
         
         const data = await response.json();
-        processFiles(data);
+        let files = [];
         
-        // Cache the data
-        localStorage.setItem('mcFilesCache', JSON.stringify(allFiles));
-        localStorage.setItem('mcFilesCacheTime', Date.now().toString());
+        for (const file of data) {
+          if (file.type === 'dir') {
+            const subFiles = await fetchAllFiles(file.url, prefix + file.name + '/');
+            files = files.concat(subFiles);
+          } else {
+            files.push({ ...file, path: prefix + file.name });
+          }
+        }
         
-        filterAndRenderFiles();
+        // Cache the results
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          data: files,
+          timestamp: Date.now()
+        }));
+        
+        return files;
       } catch (error) {
-        console.error('Error loading files:', error);
-        resultsCountElement.textContent = 'Error loading files. Please try again later.';
+        console.error('Error fetching files:', error);
+        showNotification(error.message, 'error');
+        return [];
       } finally {
         loadingOverlay.style.display = 'none';
       }
     }
-    
-    // Process files from GitHub API response
-    function processFiles(files) {
-      allFiles = [];
-      
-      files.forEach(file => {
-        if (file.name.match(/\.(mcpack|mcworld)$/i)) {
-          allFiles.push({
-            name: file.name,
-            download_url: file.download_url,
-            size: file.size,
-            type: file.name.endsWith('.mcpack') ? 'mcpack' : 'mcworld',
-            lastModified: new Date().toISOString() // GitHub doesn't provide this directly
-          });
+
+    // Fetch and process files
+    async function fetchFiles() {
+      try {
+        let data = await fetchAllFiles();
+        
+        // If no data, try again after a delay
+        let tryCount = 0;
+        while ((data.length === 0 || !data.some(f => f.name.match(/\.mcpack$|\.mcworld$/i))) && tryCount < 3) {
+          await new Promise(r => setTimeout(r, 2000));
+          data = await fetchAllFiles();
+          tryCount++;
         }
-      });
-      
-      // Sort by name by default
-      allFiles.sort((a, b) => a.name.localeCompare(b.name));
-    }
-    
-    // Filter and render files based on current filters
-    function filterAndRenderFiles() {
-      const searchTerm = searchInput.value.toLowerCase();
-      const showMcpacks = document.getElementById('filter-mcpack').checked;
-      const showMcworlds = document.getElementById('filter-mcworld').checked;
-      const sortBy = sortSelect.value;
-      
-      // Filter files
-      filteredFiles = allFiles.filter(file => {
-        const matchesSearch = file.name.toLowerCase().includes(searchTerm);
-        const matchesType = 
-          (file.type === 'mcpack' && showMcpacks) || 
-          (file.type === 'mcworld' && showMcworlds);
         
-        return matchesSearch && matchesType;
-      });
-      
-      // Sort files
-      switch(sortBy) {
-        case 'name':
-          filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case 'name-desc':
-          filteredFiles.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        case 'newest':
-          filteredFiles.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
-          break;
-        case 'oldest':
-          filteredFiles.sort((a, b) => new Date(a.lastModified) - new Date(b.lastModified));
-          break;
-        case 'size':
-          filteredFiles.sort((a, b) => a.size - b.size);
-          break;
-        case 'size-desc':
-          filteredFiles.sort((a, b) => b.size - a.size);
-          break;
+        if (data.length === 0) {
+          throw new Error("No files found in repository.");
+        }
+        
+        const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
+        allThumbs = {};
+        
+        // Process thumbnails
+        sorted.forEach(file => {
+          if (file.name.toLowerCase().endsWith('.png')) {
+            const base = file.name.replace(/\.png$/i, '').toLowerCase();
+            allThumbs[base] = RAW_URL + file.path;
+          }
+        });
+
+        // Process Minecraft files
+        const mcFiles = sorted.filter(file =>
+          file.name.match(/\.mcpack$/i) || file.name.match(/\.mcworld$/i)
+        ).map(file => ({
+          name: file.name,
+          download_url: RAW_URL + file.path,
+          size: file.size,
+          thumb: allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null,
+          type: file.name.match(/\.mcpack$/i) ? 'resource pack' : 'world'
+        }));
+
+        allFiles = mcFiles;
+        renderFiles(mcFiles);
+      } catch (error) {
+        console.error('Error processing files:', error);
+        fileList.innerHTML = `<div class="status-message status-error">${sanitizeHTML(error.message)}</div>`;
       }
-      
-      // Update results count
-      resultsCountElement.textContent = `${filteredFiles.length} pack${filteredFiles.length !== 1 ? 's' : ''} found`;
-      
-      // Render files
-      renderFiles();
     }
-    
-    // Render files to the UI
-    function renderFiles() {
-      fileListElement.innerHTML = '';
+
+    // Render files to the DOM
+    function renderFiles(filesToRender) {
+      fileList.innerHTML = "";
       
-      if (filteredFiles.length === 0) {
-        fileListElement.innerHTML = `
-          <div class="no-results">
-            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem; color: var(--text-secondary);"></i>
-            <h3>No packs found</h3>
-            <p>Try adjusting your search or filters</p>
-          </div>
-        `;
+      if (filesToRender.length === 0) {
+        fileList.innerHTML = '<div class="status-message">No .mcpack or .mcworld files found.</div>';
         return;
       }
       
-      filteredFiles.forEach(file => {
-        const fileElement = document.createElement('div');
-        fileElement.className = 'file-card';
-        fileElement.innerHTML = `
-          <div class="thumbnail-container">
-            <div class="thumbnail" style="background: linear-gradient(45deg, var(--primary-light), var(--accent-dark)); display: flex; align-items: center; justify-content: center;">
-              <i class="fas ${file.type === 'mcpack' ? 'fa-cube' : 'fa-globe'}" style="font-size: 3rem; color: white;"></i>
-            </div>
-            <div class="file-type-badge">.${file.type}</div>
-          </div>
-          <div class="file-info">
-            <h3 class="file-name">${escapeHtml(file.name)}</h3>
-            <div class="file-meta">
-              <span>${formatFileSize(file.size)}</span>
-              <span>${formatDate(file.lastModified)}</span>
-            </div>
-            <div class="file-actions">
-              <button class="btn btn-primary download-btn" data-filename="${file.name}" data-url="${file.download_url}" data-size="${file.size}">
-                <i class="fas fa-download"></i> Download
-              </button>
-              <button class="btn btn-secondary details-btn" data-filename="${file.name}" data-url="${file.download_url}" data-size="${file.size}">
-                <i class="fas fa-info-circle"></i> Details
-              </button>
-            </div>
-          </div>
+      filesToRender.forEach(file => {
+        const div = document.createElement('div');
+        div.className = 'file';
+        div.setAttribute('role', 'listitem');
+
+        // Thumbnail
+        if (file.thumb) {
+          const thumb = document.createElement('img');
+          thumb.className = 'thumbnail';
+          thumb.src = file.thumb;
+          thumb.alt = `Thumbnail for ${file.name}`;
+          thumb.loading = 'lazy';
+          thumb.onerror = function() {
+            thumb.style.display = 'none';
+          };
+          div.appendChild(thumb);
+        }
+
+        // File name
+        const name = document.createElement('div');
+        name.className = 'name';
+        name.textContent = file.name;
+        div.appendChild(name);
+
+        // Meta information
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.innerHTML = `
+          <span>${humanFileSize(file.size)}</span>
+          <span>•</span>
+          <span>${file.type}</span>
         `;
+        div.appendChild(meta);
+
+        // Actions
+        const actions = document.createElement('div');
+        actions.className = 'actions';
         
-        fileListElement.appendChild(fileElement);
-      });
-      
-      // Add event listeners to download buttons
-      document.querySelectorAll('.download-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const filename = e.target.dataset.filename;
-          const url = e.target.dataset.url;
-          const size = e.target.dataset.size;
-          startDownload({ name: filename, download_url: url, size: parseInt(size) });
-        });
-      });
-      
-      // Add event listeners to details buttons
-      document.querySelectorAll('.details-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const filename = e.target.dataset.filename;
-          const url = e.target.dataset.url;
-          const size = e.target.dataset.size;
-          showFileDetails({ name: filename, download_url: url, size: parseInt(size) });
-        });
+        const dl = document.createElement('button');
+        dl.className = 'btn';
+        dl.innerHTML = `<span aria-hidden="true">⬇️</span> Download`;
+        dl.onclick = () => startDownload(file);
+        actions.appendChild(dl);
+        
+        div.appendChild(actions);
+        fileList.appendChild(div);
       });
     }
-    
-    // Start file download
+
+    // Search functionality
+    function setupSearch() {
+      function applyFiltersAndSearch() {
+        let filtered = allFiles;
+
+        // Search
+        const query = searchInput.value.trim().toLowerCase();
+        if (query) {
+          filtered = filtered.filter(f => f.name.toLowerCase().includes(query));
+        }
+
+        // Filter by type
+        const type = fileTypeSelect.value;
+        if (type !== 'all') {
+          filtered = filtered.filter(f => f.name.toLowerCase().endsWith('.' + type));
+        }
+
+        // Sorting
+        switch (sortBySelect.value) {
+          case 'az':
+            filtered.sort((a,b) => a.name.localeCompare(b.name));
+            break;
+          case 'za':
+            filtered.sort((a,b) => b.name.localeCompare(a.name));
+            break;
+          case 'largest':
+            filtered.sort((a,b) => b.size - a.size);
+            break;
+          case 'smallest':
+            filtered.sort((a,b) => a.size - b.size);
+            break;
+        }
+
+        renderFiles(filtered);
+      }
+
+      // Events
+      let searchTimeout;
+      searchInput.addEventListener('input', () => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(applyFiltersAndSearch, 300);
+      });
+      fileTypeSelect.addEventListener('change', applyFiltersAndSearch);
+      sortBySelect.addEventListener('change', applyFiltersAndSearch);
+    }
+
+    // Download functionality
     function startDownload(file) {
-      // For mobile devices, use a simpler download method
-      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        // Create a direct download link for mobile
-        const a = document.createElement('a');
-        a.href = file.download_url;
-        a.download = file.name;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        return;
+      // Show UI
+      downloadingScreen.style.display = 'flex';
+      downloadCancelBtn.style.display = 'block';
+
+      let downloadName;
+      if (file.name.match(/\.mcpack$/i)) {
+        downloadName = file.name.replace(/(\.mcpack)?(\.txt)?$/i, '') + '.mcpack';
+      } else if (file.name.match(/\.mcworld$/i)) {
+        downloadName = file.name.replace(/(\.mcworld)?(\.txt)?$/i, '') + '.mcworld';
+      } else {
+        downloadName = file.name;
       }
       
-      // For desktop, use the existing download screen with progress
-      downloadFileName.textContent = file.name;
-      progressBar.style.width = '0%';
-      progressText.textContent = 'Starting download...';
-      downloadOpenBtn.hidden = true;
-      downloadScreen.hidden = false;
+      downloadFileName.textContent = `${downloadName} (${humanFileSize(file.size)})`;
+      progressBar.style.width = "0";
+      progressBar.setAttribute('aria-valuenow', 0);
       
       let downloadedBytes = 0;
-      const totalBytes = file.size;
-      const controller = new AbortController();
+      let allowClose = false;
+      let canCancel = false;
+      let controller = new AbortController();
       currentDownload = controller;
+
+      progressText.textContent = "Starting download...";
+
+      // Cancel download on page leave/tab hide
+      function abortDownloadIfActive() {
+        if (currentDownload && !allowClose) {
+          controller.abort();
+        }
+      }
       
-      fetch(file.download_url, { signal: controller.signal })
+      function beforeUnloadHandler(e) {
+        abortDownloadIfActive();
+        e.preventDefault();
+        e.returnValue = '';
+      }
+      
+      function visibilityChangeHandler() {
+        if (document.visibilityState === "hidden") {
+          abortDownloadIfActive();
+        }
+      }
+      
+      window.addEventListener('beforeunload', beforeUnloadHandler);
+      document.addEventListener('visibilitychange', visibilityChangeHandler);
+
+      fetch(file.download_url, {signal: controller.signal})
         .then(response => {
-          if (!response.ok) throw new Error('Download failed');
+          if (!response.ok) throw new Error("Failed to download file.");
           
+          const total = file.size || parseInt(response.headers.get('content-length')) || 0;
           const reader = response.body.getReader();
           const chunks = [];
-          const total = totalBytes;
           
           function read() {
-            return reader.read().then(({ done, value }) => {
+            return reader.read().then(({done, value}) => {
               if (done) {
                 // Download complete
-                const blob = new Blob(chunks);
-                downloadBlob = blob;
+                window.removeEventListener('beforeunload', beforeUnloadHandler);
+                document.removeEventListener('visibilitychange', visibilityChangeHandler);
                 
-                // Create download link
+                downloadingScreen.style.display = 'none';
+                currentDownload = null;
+                
+                const blob = new Blob(chunks);
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
+                
                 a.href = url;
-                a.download = file.name;
+                a.download = downloadName;
+                a.style.display = 'none';
+                
                 document.body.appendChild(a);
                 a.click();
                 
-                // Clean up
                 setTimeout(() => {
                   document.body.removeChild(a);
                   URL.revokeObjectURL(url);
+                  showNotification(`Download complete: ${downloadName}`, 'success');
                 }, 100);
                 
-                progressText.textContent = 'Download complete!';
-                downloadOpenBtn.hidden = false;
-                currentDownload = null;
                 return;
               }
               
               chunks.push(value);
               downloadedBytes += value.length;
-              const percent = Math.round((downloadedBytes / total) * 100);
               
-              // Update progress
-              progressBar.style.width = `${percent}%`;
-              progressText.textContent = `Downloading... ${percent}% (${formatFileSize(downloadedBytes)} of ${formatFileSize(total)})`;
+              const percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
+              progressBar.style.width = percent + "%";
+              progressBar.setAttribute('aria-valuenow', percent);
               
-              // Continue reading
+              progressText.textContent = `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
+              
+              // Allow canceling after 10% progress
+              if (percent >= 10 && !allowClose) {
+                allowClose = true;
+                canCancel = true;
+                progressText.textContent += "\nYou can now safely cancel the download if needed.";
+              }
+              
               return read();
+            }).catch(err => {
+              if (controller.signal.aborted) {
+                progressText.textContent = "Download cancelled.";
+              } else {
+                progressText.textContent = "Error during download: " + err.message;
+              }
+              
+              downloadingScreen.style.display = 'none';
+              window.removeEventListener('beforeunload', beforeUnloadHandler);
+              document.removeEventListener('visibilitychange', visibilityChangeHandler);
+              currentDownload = null;
             });
           }
           
           return read();
-        })
-        .catch(error => {
-          if (error.name === 'AbortError') {
-            progressText.textContent = 'Download cancelled';
+        }).catch(err => {
+          if (err.name === 'AbortError') {
+            progressText.textContent = "Download cancelled.";
           } else {
-            progressText.textContent = 'Download failed: ' + error.message;
+            progressText.textContent = "Error: " + err.message;
+            showNotification("Download failed: " + err.message, 'error');
           }
+          
+          downloadingScreen.style.display = 'none';
+          window.removeEventListener('beforeunload', beforeUnloadHandler);
+          document.removeEventListener('visibilitychange', visibilityChangeHandler);
+          currentDownload = null;
         });
-    }
-    
-    // Cancel current download
-    function cancelDownload() {
-      if (currentDownload) {
-        currentDownload.abort();
-        currentDownload = null;
-      }
-      downloadScreen.hidden = true;
-    }
-    
-    // Open download folder (placeholder - this would require additional permissions)
-    function openDownloadFolder() {
-      alert('This feature would open your downloads folder. In a real application, this would require additional permissions.');
-    }
-    
-    // Show file details in modal
-    function showFileDetails(file) {
-      const content = `
-        <p><strong>File name:</strong> ${escapeHtml(file.name)}</p>
-        <p><strong>File size:</strong> ${formatFileSize(file.size)}</p>
-        <p><strong>File type:</strong> ${file.name.endsWith('.mcpack') ? 'Resource Pack' : 'World'}</p>
-        <p>After downloading, remember to remove the .txt extension if present.</p>
-      `;
-      
-      openModal('File Details', content);
-    }
-    
-    // Open modal with content
-    function openModal(title, content) {
-      modalTitle.textContent = title;
-      modalBody.innerHTML = content;
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-    }
-    
-    // Close modal
-    function closeModal() {
-      modal.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-    
-    // Utility function to format file size
-    function formatFileSize(bytes) {
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-      if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-      return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
-    }
-    
-    // Utility function to format date
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      return date.toLocaleDateString();
-    }
-    
-    // Utility function to escape HTML
-    function escapeHtml(unsafe) {
-      return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-    
-    // Debounce function for search input
-    function debounce(func, wait) {
-      let timeout;
-      return function executedFunction(...args) {
-        const later = () => {
-          clearTimeout(timeout);
-          func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+
+      downloadCancelBtn.onclick = function() {
+        if (canCancel && currentDownload) {
+          controller.abort();
+          downloadCancelBtn.style.display = "none";
+        }
       };
     }
-    
-    // Modal content
-    const ABOUT_CONTENT = `
-      <p>Welcome to Minecraft File Manager! This application allows you to easily browse, search, and download Minecraft resource packs and worlds.</p>
-      <p>All files are hosted on GitHub for easy access and reliability.</p>
-      <p>If you have any issues with downloads, please make sure to rename the files by removing the .txt extension if present.</p>
-    `;
-    
-    const PRIVACY_CONTENT = `
-      <p>Your privacy is important to us. This application:</p>
-      <ul>
-        <li>Does not collect any personal information</li>
-        <li>Only accesses GitHub to retrieve file information</li>
-        <li>Stores some data locally in your browser for better performance</li>
-        <li>Does not use any tracking cookies or analytics</li>
-      </ul>
-      <p>All downloads are processed directly between your browser and GitHub's servers.</p>
-    `;
-    
-    const CONTACT_CONTENT = `
-      <p>If you need help or have questions, you can contact us:</p>
-      <p><i class="fas fa-envelope"></i> Email: <a href="mailto:nursifat3026@gmail.com">nursifat3026@gmail.com</a></p>
-      <p><i class="fas fa-link"></i> Website: <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank">Mpacks App</a></p>
-    `;
-    
-    const HELP_CONTENT = `
-      <h3>How to use</h3>
-      <ol>
-        <li>Use the search box to find specific packs</li>
-        <li>Filter by file type using the checkboxes</li>
-        <li>Sort results using the dropdown menu</li>
-        <li>Click the download button to get a file</li>
-      </ol>
+
+    // Modal functionality
+    function setupModal() {
+      function openFooterModal(sectionKey) {
+        const data = FOOTER_SECTIONS[sectionKey];
+        if (!data) return;
+        
+        // Clear previous content
+        const existingTitle = footerModalContent.querySelector('.footer-section-title');
+        const existingContent = footerModalContent.querySelector('.footer-section-content');
+        
+        if (existingTitle) existingTitle.remove();
+        if (existingContent) existingContent.remove();
+        
+        // Create title
+        const titleDiv = document.createElement('div');
+        titleDiv.className = 'footer-section-title';
+        titleDiv.textContent = data.title;
+        titleDiv.id = 'modalTitle';
+        footerModalContent.insertBefore(titleDiv, footerModalBack);
+        
+        // Create content
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'footer-section-content';
+        contentDiv.innerHTML = data.content;
+        footerModalContent.insertBefore(contentDiv, footerModalBack);
+        
+        // Show modal
+        footerModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        
+        // Set focus for accessibility
+        setTimeout(() => {
+          footerModalBack.focus();
+        }, 100);
+      }
+
+      function closeFooterModal() {
+        footerModal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      aboutBtn.onclick = () => openFooterModal('about');
+      privacyBtn.onclick = () => openFooterModal('privacy');
+      contactBtn.onclick = () => openFooterModal('contact');
+      footerModalBack.onclick = closeFooterModal;
+
+      // Close modal if background is clicked or Escape key is pressed
+      footerModal.addEventListener('click', function(e) {
+        if (e.target === footerModal) closeFooterModal();
+      });
       
-      <h3>Important notes</h3>
-      <ul>
-        <li>After downloading, you may need to remove the .txt extension from the file name</li>
-        <li>For Minecraft to recognize the file, it must end with .mcpack or .mcworld</li>
-        <li>World files are typically larger and may take longer to download</li>
-      </ul>
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && footerModal.style.display === 'flex') {
+          closeFooterModal();
+        }
+      });
+    }
+
+    // Initialize the application
+    function init() {
+      setupSearch();
+      setupModal();
+      fetchFiles();
       
-      <h3>Troubleshooting</h3>
-      <p>If you have issues with downloads:</p>
-      <ul>
-        <li>Check your internet connection</li>
-        <li>Make sure you have enough storage space</li>
-        <li>Try using the <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank">Mpacks app</a> for easier management</li>
-      </ul>
-    `;
+      // Clear cache on shift+click for debugging
+      document.addEventListener('click', (e) => {
+        if (e.shiftKey && e.button === 0) {
+          localStorage.removeItem(CACHE_KEY);
+          showNotification('Cache cleared', 'success');
+          fetchFiles();
+        }
+      });
+    }
+
+    // Start the application
+    document.addEventListener('DOMContentLoaded', init);
+// Help + Refresh buttons
+    document.getElementById('refreshBtn').onclick = () => location.reload();
+
+    const helpModal = document.getElementById('helpModal');
+    const helpClose = document.getElementById('helpClose');
+    document.getElementById('helpBtn').onclick = () => helpModal.style.display = 'flex';
+    helpClose.onclick = () => helpModal.style.display = 'none';
+  })();
   </script>
 </body>
 </html>

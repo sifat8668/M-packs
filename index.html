@@ -3462,13 +3462,9 @@
           document.getElementById('loadingOverlay').style.display = 'flex';
           document.getElementById('loadingText').textContent = "Loading packs...";
           
-          // Use a proxy to avoid CORS issues
-          const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-          const response = await fetch(proxyUrl + apiUrl, {
-            headers: {
-              'Origin': window.location.origin
-            }
-          });
+          // Use a more reliable CORS proxy
+          const proxyUrl = 'https://corsproxy.io/?';
+          const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
           
           if (response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0') {
             const resetTime = new Date(parseInt(response.headers.get('x-ratelimit-reset')) * 1000);
@@ -3737,7 +3733,7 @@
       }
     }
 
-    // Download functionality - Fixed to always use correct extensions
+    // Download functionality - Fixed to always use correct extensions and prevent cancellation
     function startDownload(file) {
       const downloadingScreen = document.getElementById('downloadingScreen');
       const downloadFileName = document.getElementById('downloadFileName');
@@ -3748,18 +3744,20 @@
       downloadingScreen.style.display = 'flex';
       downloadCancelBtn.style.display = 'block';
 
-      // ALWAYS use correct extension, NEVER add .txt
-      let downloadName;
-      if (file.name.match(/\.mcpack$/i)) {
-        downloadName = file.name.replace(/(\.mcpack)?(\.txt)?$/i, '') + '.mcpack';
-      } else if (file.name.match(/\.mcworld$/i)) {
-        downloadName = file.name.replace(/(\.mcworld)?(\.txt)?$/i, '') + '.mcworld';
+      // FIXED: Always use correct extension, never add .txt
+      let downloadName = file.name;
+      
+      // Remove any existing .txt extension and ensure correct extension
+      if (file.name.toLowerCase().endsWith('.mcpack')) {
+        downloadName = file.name.replace(/\.(mcpack|txt)$/gi, '') + '.mcpack';
+      } else if (file.name.toLowerCase().endsWith('.mcworld')) {
+        downloadName = file.name.replace(/\.(mcworld|txt)$/gi, '') + '.mcworld';
       } else {
-        // For any other file, remove .txt if present and keep original extension
+        // For any other file type, remove .txt if present
         downloadName = file.name.replace(/\.txt$/i, '');
       }
       
-      // Double-check: Ensure we never have .txt in the final filename
+      // Double security: Ensure we never have .txt in the final filename
       downloadName = downloadName.replace(/\.txt$/i, '');
       
       downloadFileName.textContent = `${downloadName} (${fileManager.humanFileSize(file.size)})`;
@@ -3795,121 +3793,152 @@
       window.addEventListener('beforeunload', beforeUnloadHandler);
       document.addEventListener('visibilitychange', visibilityChangeHandler);
 
-      // Use proxy to avoid CORS issues
-      const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      // Use multiple reliable CORS proxies with fallback
+      const proxyUrls = [
+        'https://corsproxy.io/?',
+        'https://api.allorigins.win/raw?url=',
+        'https://cors-anywhere.herokuapp.com/'
+      ];
       
-      fetch(proxyUrl + file.download_url, {signal: controller.signal})
-        .then(response => {
-          if (!response.ok) throw new Error("Failed to download file.");
-          
-          const total = file.size || parseInt(response.headers.get('content-length')) || 0;
-          const reader = response.body.getReader();
-          const chunks = [];
-          
-          function read() {
-            return reader.read().then(({done, value}) => {
-              if (done) {
-                window.removeEventListener('beforeunload', beforeUnloadHandler);
-                document.removeEventListener('visibilitychange', visibilityChangeHandler);
-                
-                downloadingScreen.style.display = 'none';
-                fileManager.currentDownload = null;
-                
-                const blob = new Blob(chunks);
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                
-                a.href = url;
-                a.download = downloadName;
-                a.style.display = 'none';
-                
-                document.body.appendChild(a);
-                a.click();
-                
-                setTimeout(() => {
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                  premiumSystem.addToDownloadHistory(file.name);
-                  premiumSystem.showNotification(`Download complete: ${downloadName}`, 'success');
-                }, 100);
-                
-                return;
-              }
-              
-              chunks.push(value);
-              downloadedBytes += value.length;
-              
-              const percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
-              progressBar.style.width = percent + "%";
-              progressBar.setAttribute('aria-valuenow', percent);
-              
-              progressText.textContent = `Downloaded ${fileManager.humanFileSize(downloadedBytes)} of ${fileManager.humanFileSize(total)} (${percent.toFixed(1)}%)`;
-              
-              if (percent >= 10 && !allowClose) {
-                allowClose = true;
-                canCancel = true;
-                progressText.textContent += "\nYou can now safely cancel the download if needed.";
-              }
-              
-              return read();
-            }).catch(err => {
-              if (controller.signal.aborted) {
-                progressText.textContent = "Download cancelled.";
-              } else {
-                progressText.textContent = "Error during download: " + err.message;
-              }
-              
-              downloadingScreen.style.display = 'none';
-              window.removeEventListener('beforeunload', beforeUnloadHandler);
-              document.removeEventListener('visibilitychange', visibilityChangeHandler);
-              fileManager.currentDownload = null;
-            });
-          }
-          
-          return read();
-        }).catch(err => {
-          if (err.name === 'AbortError') {
-            progressText.textContent = "Download cancelled.";
-          } else {
-            progressText.textContent = "Error: " + err.message;
-            premiumSystem.showNotification("Download failed: " + err.message, 'error');
-          }
-          
+      let currentProxyIndex = 0;
+      
+      function tryDownloadWithProxy() {
+        if (currentProxyIndex >= proxyUrls.length) {
+          // All proxies failed
+          progressText.textContent = "Download failed: All proxies unavailable";
           downloadingScreen.style.display = 'none';
           window.removeEventListener('beforeunload', beforeUnloadHandler);
           document.removeEventListener('visibilitychange', visibilityChangeHandler);
           fileManager.currentDownload = null;
-        });
+          premiumSystem.showNotification("Download failed: Please try again later", 'error');
+          return;
+        }
+        
+        const proxyUrl = proxyUrls[currentProxyIndex];
+        
+        fetch(proxyUrl + encodeURIComponent(file.download_url), {signal: controller.signal})
+          .then(response => {
+            if (!response.ok) throw new Error("Failed to download file.");
+            
+            const total = file.size || parseInt(response.headers.get('content-length')) || 0;
+            const reader = response.body.getReader();
+            const chunks = [];
+            
+            function read() {
+              return reader.read().then(({done, value}) => {
+                if (done) {
+                  // Download completed successfully
+                  window.removeEventListener('beforeunload', beforeUnloadHandler);
+                  document.removeEventListener('visibilitychange', visibilityChangeHandler);
+                  
+                  downloadingScreen.style.display = 'none';
+                  fileManager.currentDownload = null;
+                  
+                  const blob = new Blob(chunks);
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  
+                  a.href = url;
+                  a.download = downloadName;
+                  a.style.display = 'none';
+                  
+                  document.body.appendChild(a);
+                  a.click();
+                  
+                  setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    // Save to download history
+                    premiumSystem.addToDownloadHistory(file.name);
+                    premiumSystem.showNotification(`Download complete: ${downloadName}`, 'success');
+                  }, 100);
+                  
+                  return;
+                }
+                
+                chunks.push(value);
+                downloadedBytes += value.length;
+                
+                const percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
+                progressBar.style.width = percent + "%";
+                progressBar.setAttribute('aria-valuenow', percent);
+                
+                progressText.textContent = `Downloaded ${fileManager.humanFileSize(downloadedBytes)} of ${fileManager.humanFileSize(total)} (${percent.toFixed(1)}%)`;
+                
+                if (percent >= 10 && !allowClose) {
+                  allowClose = true;
+                  canCancel = true;
+                  progressText.textContent += "\nYou can now safely cancel the download if needed.";
+                }
+                
+                return read();
+              }).catch(err => {
+                if (controller.signal.aborted) {
+                  progressText.textContent = "Download cancelled.";
+                } else {
+                  // Try next proxy
+                  currentProxyIndex++;
+                  progressText.textContent = `Retrying with different proxy... (${currentProxyIndex + 1}/${proxyUrls.length})`;
+                  setTimeout(tryDownloadWithProxy, 1000);
+                }
+              });
+            }
+            
+            return read();
+          }).catch(err => {
+            if (err.name === 'AbortError') {
+              progressText.textContent = "Download cancelled.";
+            } else {
+              // Try next proxy
+              currentProxyIndex++;
+              progressText.textContent = `Retrying with different proxy... (${currentProxyIndex + 1}/${proxyUrls.length})`;
+              setTimeout(tryDownloadWithProxy, 1000);
+            }
+          });
+      }
+      
+      // Start download with first proxy
+      tryDownloadWithProxy();
 
       downloadCancelBtn.onclick = function() {
         if (canCancel && fileManager.currentDownload) {
           controller.abort();
           downloadCancelBtn.style.display = "none";
+          progressText.textContent = "Download cancelled by user.";
+          
+          setTimeout(() => {
+            downloadingScreen.style.display = 'none';
+            window.removeEventListener('beforeunload', beforeUnloadHandler);
+            document.removeEventListener('visibilitychange', visibilityChangeHandler);
+            fileManager.currentDownload = null;
+          }, 2000);
+        } else {
+          progressText.textContent = "Please wait... download cannot be cancelled yet.";
         }
       };
     }
 
-    // Initialize Application
-    let premiumSystem, fileManager;
+    // Initialize systems
+    const premiumSystem = new PremiumSystem();
+    const fileManager = new FileManager();
 
-    document.addEventListener('DOMContentLoaded', function() {
-      premiumSystem = new PremiumSystem();
-      fileManager = new FileManager();
-      
-      // Make functions globally available
-      window.premiumSystem = premiumSystem;
-      window.fileManager = fileManager;
-      window.startDownload = startDownload;
-      
-      // Clear cache on shift+click for debugging
-      document.addEventListener('click', (e) => {
-        if (e.shiftKey && e.button === 0) {
-          localStorage.removeItem(CACHE_KEY);
-          premiumSystem.showNotification('Cache cleared', 'success');
-          fileManager.fetchFiles();
-        }
-      });
+    // Global functions for onclick handlers
+    window.premiumSystem = premiumSystem;
+    window.startDownload = startDownload;
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.custom-dropdown')) {
+        fileManager.closeAllDropdowns();
+      }
     });
+
+    // Prevent default for all dropdown buttons
+    document.querySelectorAll('.dropdown-button').forEach(btn => {
+      btn.addEventListener('click', (e) => e.preventDefault());
+    });
+
+    console.log('Minecraft File Manager loaded successfully!');
   })();
   </script>
 </body>

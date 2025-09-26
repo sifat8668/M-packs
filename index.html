@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Minecraft File Manager</title>
+  <title>Minecraft File Manager - Premium</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
   :root {
@@ -24,6 +24,8 @@
     --border-radius: 12px;
     --shadow: 0 4px 20px rgba(0,0,0,0.2);
     --transition: all 0.3s ease;
+    --home-opacity: 1;
+    --thumbnail-opacity: 1;
     font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
     color: var(--text-primary);
     font-size: 16px;
@@ -48,6 +50,25 @@
     flex-direction: column;
     min-width: 320px;
     line-height: 1.6;
+  }
+
+  /* Custom background for premium users */
+  body.custom-bg {
+    background-image: var(--custom-bg-url);
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+  }
+
+  body.custom-bg::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
   }
   
   img, video {
@@ -83,6 +104,57 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+
+  .header-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .header-btn {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .header-btn:hover {
+    background: rgba(95, 251, 241, 0.15);
+  }
+
+  .premium-btn {
+    background: linear-gradient(90deg, #ffd700, #ffed4e);
+    border: none;
+    color: #000;
+    font-weight: 700;
+    animation: premiumPulse 2s infinite;
+  }
+
+  .premium-btn:hover {
+    background: linear-gradient(90deg, #ffed4e, #ffd700);
+    transform: scale(1.05);
+  }
+
+  @keyframes premiumPulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+  }
+
+  .premium-status {
+    background: linear-gradient(90deg, #00ff88, #00cc6a);
+    color: #000;
+    font-weight: 700;
+    cursor: default;
+  }
   
   /* Main container */
   .container {
@@ -97,16 +169,18 @@
   }
   
   /* Notice box */
-    .notice-box {
-  text-align: center;
-  padding: 1.25rem;
-  border: 2px dashed var(--primary);
-  border-radius: var(--border-radius);
-  background-color: rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+  .notice-box {
+    text-align: center;
+    padding: 1.25rem;
+    border: 2px dashed var(--primary);
+    border-radius: var(--border-radius);
+    background-color: rgba(255, 255, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    opacity: var(--home-opacity);
+  }
+
   .notice-box h2 {
     color: var(--warning);
     margin-top: 0;
@@ -129,6 +203,31 @@
     text-decoration: underline;
     color: var(--accent);
   }
+
+  /* Premium promotion banner */
+  .premium-promo {
+    background: linear-gradient(135deg, #ffd700, #ffed4e, #ffd700);
+    color: #000;
+    text-align: center;
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    animation: premiumBanner 3s infinite;
+    opacity: var(--home-opacity);
+  }
+
+  .premium-promo:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  @keyframes premiumBanner {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
   
   /* Search input */
   #searchInput {
@@ -141,6 +240,7 @@
     font-family: inherit;
     font-size: 1rem;
     transition: var(--transition);
+    opacity: var(--home-opacity);
   }
   
   #searchInput:focus {
@@ -162,6 +262,7 @@
     flex-direction: column;
     gap: 0;
     box-shadow: var(--shadow);
+    opacity: var(--home-opacity);
   }
   
   /* File item */
@@ -190,6 +291,7 @@
     background: var(--surface);
     border: 4px solid var(--accent);
     transition: var(--transition);
+    opacity: var(--thumbnail-opacity);
   }
   
   .thumbnail:hover {
@@ -267,14 +369,377 @@
     background: linear-gradient(90deg, var(--surface), var(--primary));
     border: 1px solid var(--accent);
   }
+
+  .btn.save {
+    background: linear-gradient(90deg, #ffd700, #ffed4e);
+    color: #000;
+  }
   
   .btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
     transform: none;
   }
-  
-  /* Loading overlay */
+
+  /* Premium Modal */
+  .premium-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    padding: 1rem;
+  }
+
+  .premium-content {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    max-width: 500px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .premium-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .premium-title {
+    background: linear-gradient(90deg, #ffd700, #ffed4e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .premium-subtitle {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+  }
+
+  .premium-features {
+    margin: 2rem 0;
+  }
+
+  .premium-features h3 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .premium-features ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .premium-features li {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem 0;
+    color: var(--text-secondary);
+  }
+
+  .premium-features li:before {
+    content: "✨";
+    margin-right: 0.5rem;
+  }
+
+  .payment-form {
+    margin: 2rem 0;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--surface-light);
+    border-radius: 8px;
+    background: var(--background);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+  }
+
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .form-row .form-group {
+    flex: 1;
+  }
+
+  .checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .checkbox-group input[type="checkbox"] {
+    margin-top: 0.2rem;
+  }
+
+  .checkbox-group label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .premium-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .premium-close {
+    background: var(--danger);
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+
+  .premium-close:hover {
+    background: var(--danger-light);
+  }
+
+  .premium-purchase {
+    background: linear-gradient(90deg, #ffd700, #ffed4e);
+    color: #000;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: var(--transition);
+  }
+
+  .premium-purchase:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .premium-purchase:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Bottom Navigation for Premium Users */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    display: none;
+    justify-content: center;
+    padding: 1rem;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+    z-index: 100;
+  }
+
+  .bottom-nav.show {
+    display: flex;
+  }
+
+  .nav-btn {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    padding: 0.75rem 1.5rem;
+    margin: 0 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav-btn.active {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .nav-btn:hover {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  /* Theme Section */
+  .theme-section {
+    display: none;
+  }
+
+  .theme-section.active {
+    display: block;
+  }
+
+  .wallpaper-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .wallpaper-item {
+    position: relative;
+    cursor: pointer;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    border: 3px solid transparent;
+    transition: var(--transition);
+  }
+
+  .wallpaper-item.selected {
+    border-color: var(--accent);
+  }
+
+  .wallpaper-item img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+  }
+
+  .wallpaper-item:hover {
+    transform: scale(1.05);
+  }
+
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .theme-item {
+    background: var(--surface-light);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: var(--transition);
+    text-align: center;
+  }
+
+  .theme-item.selected {
+    border-color: var(--accent);
+  }
+
+  .theme-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+  }
+
+  .upload-area {
+    border: 2px dashed var(--primary);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    margin: 1rem 0;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .upload-area:hover {
+    border-color: var(--accent);
+    background: rgba(95, 251, 241, 0.05);
+  }
+
+  .upload-area input[type="file"] {
+    display: none;
+  }
+
+  /* Library Section */
+  .library-section {
+    display: none;
+  }
+
+  .library-section.active {
+    display: block;
+  }
+
+  .library-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .library-tab {
+    background: var(--surface-light);
+    color: var(--text-secondary);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+
+  .library-tab.active {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .library-content {
+    min-height: 300px;
+  }
+
+  .saved-item {
+    background: var(--surface-light);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .history-item {
+    background: var(--surface-light);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  .history-timestamp {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+
+  /* Loading and Download screens */
   #loadingOverlay {
     position: fixed;
     top: 0;
@@ -313,7 +778,6 @@
     text-align: center;
   }
   
-  /* Downloading screen */
   #downloadingScreen {
     position: fixed;
     top: 0;
@@ -392,14 +856,125 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
-  
-  /* Footer buttons */
+
+  /* Custom Dropdown Styles */
+  .filters {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .custom-dropdown {
+    position: relative;
+    display: inline-block;
+    min-width: 160px;
+    flex: 1;
+    max-width: 100%;
+  }
+
+  .dropdown-button {
+    width: 100%;
+    padding: 0.6rem 2.2rem 0.6rem 1rem;
+    border-radius: 8px;
+    border: 2px solid var(--primary);
+    background: linear-gradient(180deg, var(--surface) 0%, rgba(0,0,0,0.03) 100%);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: inherit;
+    font-weight: 400;
+  }
+
+  .dropdown-button:hover {
+    border-color: var(--accent);
+    background: linear-gradient(180deg, var(--surface-light) 0%, rgba(0,0,0,0.05) 100%);
+  }
+
+  .dropdown-button:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(95,251,241,0.06);
+  }
+
+  .dropdown-arrow {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .dropdown-button.open .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    margin-top: 2px;
+  }
+
+  .dropdown-options.open {
+    display: block;
+  }
+
+  .dropdown-option {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--surface-light);
+  }
+
+  .dropdown-option:last-child {
+    border-bottom: none;
+  }
+
+  .dropdown-option:hover {
+    background-color: var(--surface-light);
+  }
+
+  .dropdown-option.selected {
+    background: var(--accent);
+    color: #031018;
+    font-weight: 600;
+  }
+
+  .dropdown-option.selected:hover {
+    background: var(--accent-dark);
+  }
+
+  /* Hide ads for premium users */
+  .premium-user .ads-footer-container,
+  .premium-user #adsContainerBottom {
+    display: none !important;
+  }
+
+  /* Footer styles */
   .footer-buttons-bottom {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin: 1.5rem 0 0.5rem;
+    margin: 1rem 0 0.5rem;
     flex-wrap: wrap;
+    opacity: var(--home-opacity);
   }
   
   .footer-btn {
@@ -421,8 +996,7 @@
     color: var(--accent);
     border-color: var(--accent);
   }
-  
-  /* Modal */
+
   .footer-modal {
     position: fixed;
     top: 0;
@@ -513,9 +1087,58 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
+
+  /* Ads containers - hidden for premium users */
+  .ads-footer-container {
+    width: 100%;
+    background: var(--surface);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin: 2rem 0 1rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    position: relative;
+  }
   
-  /* Ad containers */
-  #adsContainerTop,
+  .ads-footer-container::before {
+    content: "Advertisement";
+    position: absolute;
+    top: 0.5rem;
+    left: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .ads-footer-content {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 1rem;
+  }
+  
+  .ads-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border: 1px dashed var(--surface-light);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.02);
+    width: 100%;
+    max-width: 728px;
+    min-height: 90px;
+  }
+
   #adsContainerBottom {
     display: flex;
     align-items: center;
@@ -524,16 +1147,13 @@
     background: var(--surface);
     border-radius: var(--border-radius);
     margin: 1rem 0;
-  }
-  
-  #adsContainerBottom {
     width: 100%;
     position: static;
     min-height: 90px;
     box-shadow: none;
     margin-top: 2rem;
   }
-  
+
   /* Status messages */
   .status-message {
     text-align: center;
@@ -548,7 +1168,198 @@
   .status-success {
     color: var(--success);
   }
-  
+
+  /* Help modal */
+  .help-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+  }
+
+  .help-content {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    max-width: 400px;
+    text-align: center;
+    box-shadow: var(--shadow);
+  }
+
+  .help-content h2 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  .help-content button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .help-content button:hover {
+    background: var(--accent-dark);
+  }
+
+  /* Opacity Controls */
+  .opacity-controls {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface-light);
+    border-radius: var(--border-radius);
+  }
+
+  .opacity-control {
+    margin: 1rem 0;
+  }
+
+  .opacity-control label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .opacity-control input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--background);
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .opacity-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  .opacity-value {
+    color: var(--accent);
+    font-weight: 600;
+    margin-left: 1rem;
+  }
+
+  /* Theme dropdowns */
+  .theme-dropdowns {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+
+  .theme-dropdown {
+    flex: 1;
+    min-width: 250px;
+  }
+
+  .theme-dropdown label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .apply-btn {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  /* Surprise section */
+  .surprise-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px dashed var(--primary);
+  }
+
+  /* Premium verification elements (invisible) */
+  .premium-verification {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Timed buttons */
+  .timed-button {
+    position: fixed;
+    top: 100px;
+    left: 20px;
+    background: var(--danger);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    z-index: 1000;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    animation: fadeInOut 15s ease-in-out;
+    display: none;
+  }
+
+  .timed-button:hover {
+    background: var(--danger-light);
+    transform: translateY(-2px);
+  }
+
+  @keyframes fadeInOut {
+    0%, 100% { opacity: 0; transform: translateY(-10px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Reset button */
+  .reset-btn {
+    background: var(--warning);
+    color: #000;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    transition: var(--transition);
+  }
+
+  .reset-btn:hover {
+    background: #ffed4e;
+  }
+
+  /* Loading indicator for uploads */
+  .upload-loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .upload-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+  }
+
   /* Accessibility improvements */
   .sr-only {
     position: absolute;
@@ -627,6 +1438,51 @@
       padding: 0.6rem 1rem;
       font-size: 0.9rem;
     }
+
+    .bottom-nav {
+      padding: 0.75rem;
+    }
+
+    .nav-btn {
+      padding: 0.6rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .wallpaper-grid {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .theme-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .library-tabs {
+      justify-content: center;
+    }
+
+    .premium-content {
+      padding: 1.5rem;
+    }
+
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .theme-dropdowns {
+      flex-direction: column;
+    }
+
+    .theme-dropdown {
+      min-width: 100%;
+    }
+
+    .timed-button {
+      top: 80px;
+      left: 10px;
+      font-size: 0.8rem;
+      padding: 0.4rem 0.8rem;
+    }
   }
   
   @media (max-width: 480px) {
@@ -661,206 +1517,270 @@
       width: 100%;
       text-align: center;
     }
+
+    .header-buttons {
+      gap: 0.3rem;
+    }
+
+    .header-btn {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .bottom-nav {
+      flex-direction: row;
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      flex-shrink: 0;
+      padding: 0.5rem 0.8rem;
+      margin: 0 0.25rem;
+    }
+
+    .wallpaper-grid {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+
+    .custom-dropdown {
+      min-width: unset;
+      width: 100%;
+    }
+    
+    .dropdown-button {
+      padding: 0.6rem 1.8rem 0.6rem 0.8rem;
+      font-size: 0.9rem;
+    }
+
+    .timed-button {
+      top: 70px;
+      left: 5px;
+      font-size: 0.7rem;
+      padding: 0.3rem 0.6rem;
+    }
   }
-.header-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-.header-btn {
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 0.4rem 0.75rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: var(--transition);
-}
-.header-btn:hover {
-  background: rgba(95, 251, 241, 0.15);
-}
-.filters select {
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  border: 2px solid var(--primary);
-  background: var(--surface);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: var(--transition);
-  appearance: none;
-}
-.filters select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(95, 251, 241, 0.3);
-}
-
-/* Help modal */
-.help-modal {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-.help-content {
-  background: var(--surface);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  color: var(--text-primary);
-  max-width: 400px;
-  text-align: center;
-  box-shadow: var(--shadow);
-}
-.help-content h2 {
-  color: var(--accent);
-  margin-bottom: 1rem;
-}
-.help-content button {
-  margin-top: 1rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  background: var(--primary);
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-}
-.help-content button:hover {
-  background: var(--accent-dark);
-}
-/* prettier native selects + faux arrow */
-.filters {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.75rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 100%;
-}
-
-.select-wrapper {
-  position: relative;
-  display: inline-block;
-  min-width: 160px;
-  flex: 1;
-  max-width: 100%;
-}
-
-.select-wrapper select {
-  width: 100%;
-  padding: 0.6rem 2.2rem 0.6rem 1rem;
-  border-radius: 8px;
-  border: 2px solid var(--primary);
-  background: linear-gradient(180deg, var(--surface) 0%, rgba(0,0,0,0.03) 100%);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  transition: var(--transition);
-}
-.select-wrapper::after {
-  content: "▾";
-  position: absolute;
-  right: 0.9rem;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-/* focus + accessibility */
-.select-wrapper select:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px rgba(95,251,241,0.06);
-}
-
-/* option styling (note: browser support is limited; this helps where browsers allow it) */
-.select-wrapper select option {
-  background: var(--surface);
-  color: var(--text-primary);
-  padding: 0.5rem 1rem;
-}
-
-/* selected option highlight in browsers that support it */
-.select-wrapper select option:checked,
-.select-wrapper select option[selected] {
-  background: var(--accent);
-  color: #031018;
-}
-
-/* hide native IE arrow */
-.select-wrapper select::-ms-expand { display: none; }
-@media (max-width: 768px) {
-  .filters {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .select-wrapper {
-    width: 100%;
-    max-width: 300px;
-  }
-}
-
-@media (max-width: 480px) {
-  .select-wrapper {
-    min-width: unset;
-    width: 100%;
-  }
-  
-  .select-wrapper select {
-    padding: 0.6rem 1.8rem 0.6rem 0.8rem;
-    font-size: 0.9rem;
-  }
-}
   </style>
-  <!-- Google AdSense (replace with your ad IDs) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
 <body>
-  <header role="banner">
-  <h1>Minecraft packs</h1>
-  <div class="header-buttons">
-    <button id="helpBtn" class="header-btn">❔ Help</button>
-    <button id="refreshBtn" class="header-btn">🔄 Refresh</button>
-  </div>
-</header>
+  <!-- Premium Verification Elements (Invisible) -->
+  <div id="premiumVerification1" class="premium-verification"></div>
+  <div id="premiumVerification2" class="premium-verification"></div>
+  <div id="premiumVerification3" class="premium-verification"></div>
 
-<main class="container" role="main">
-    <section class="notice-box" aria-labelledby="important-notice">
-      <h2 id="important-notice">⚠️ Important Notice</h2>
-      <p>Get our app: <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank" rel="noopener">Mpacks app</a></p>
-      <p>Or rename packs after downloading: e.g., <code>packname.mcpack.txt</code> → <code>packname.mcpack</code> (remove .txt)</p>
+  <!-- Timed buttons -->
+  <button id="timedResetBtn" class="timed-button">Reset Theme</button>
+  <button id="timedContactBtn" class="timed-button">Contact Support</button>
+
+  <header role="banner">
+    <h1>Minecraft packs</h1>
+    <div class="header-buttons">
+      <button id="helpBtn" class="header-btn">❓ Help</button>
+      <button id="refreshBtn" class="header-btn">🔄 Refresh</button>
+      <button id="premiumBtn" class="header-btn premium-btn">✨ Get Premium</button>
+    </div>
+  </header>
+
+  <main class="container" role="main">
+    <!-- Premium Promotion Banner (shown randomly) -->
+    <div id="premiumPromo" class="premium-promo" style="display: none;">
+      ✨ Upgrade to Premium for Ad-Free Experience, Custom Themes & More! Click here! ✨
+    </div>
+
+    <!-- Home Section -->
+    <section id="homeSection" class="home-section">
+      <div class="notice-box" aria-labelledby="important-notice">
+        <h2 id="important-notice">⚠️ Important Notice</h2>
+        <p>Get our app: <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank" rel="noopener">Mpacks app</a></p>
+        <p>Files will download with correct extensions (.mcpack/.mcworld)</p>
+        
+        <label for="searchInput" class="sr-only">Search packs</label>
+        <input type="text" id="searchInput" placeholder="Search packs..." aria-label="Search packs">
+
+        <div class="filters">
+          <div class="custom-dropdown">
+            <button class="dropdown-button" id="fileTypeButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="dropdown-text">All Types</span>
+              <span class="dropdown-arrow">▾</span>
+            </button>
+            <div class="dropdown-options" id="fileTypeOptions" role="listbox">
+              <div class="dropdown-option selected" data-value="all" role="option">All Types</div>
+              <div class="dropdown-option" data-value="mcpack" role="option">.mcpack</div>
+              <div class="dropdown-option" data-value="mcworld" role="option">.mcworld</div>
+            </div>
+          </div>
+          
+          <div class="custom-dropdown">
+            <button class="dropdown-button" id="sortByButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="dropdown-text">A—Z Name</span>
+              <span class="dropdown-arrow">▾</span>
+            </button>
+            <div class="dropdown-options" id="sortByOptions" role="listbox">
+              <div class="dropdown-option selected" data-value="az" role="option">A—Z Name</div>
+              <div class="dropdown-option" data-value="za" role="option">Z—A Name</div>
+              <div class="dropdown-option" data-value="largest" role="option">Largest First</div>
+              <div class="dropdown-option" data-value="smallest" role="option">Smallest First</div>
+            </div>
+          </div>
+          
+          <!-- Premium Trend Filter -->
+          <div class="custom-dropdown" id="trendFilterContainer" style="display: none;">
+            <button class="dropdown-button" id="trendButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="dropdown-text">Trending: All Time</span>
+              <span class="dropdown-arrow">▾</span>
+            </button>
+            <div class="dropdown-options" id="trendOptions" role="listbox">
+              <div class="dropdown-option selected" data-value="all" role="option">All Time</div>
+              <div class="dropdown-option" data-value="today" role="option">Today</div>
+              <div class="dropdown-option" data-value="week" role="option">This Week</div>
+              <div class="dropdown-option" data-value="month" role="option">This Month</div>
+              <div class="dropdown-option" data-value="year" role="option">This Year</div>
+            </div>
+          </div>
+        </div>
+      </div>
       
-      <label for="searchInput" class="sr-only">Search packs</label>
-      <input type="text" id="searchInput" placeholder="Search packs..." aria-label="Search packs">
-<div class="filters">
-  <div class="select-wrapper"><select id="fileType">
-<option value="all">All Types</option>
-<option value="mcpack">.mcpack</option>
-<option value="mcworld">.mcworld</option>
-</select></div>
-  <div class="select-wrapper"><select id="sortBy">
-<option value="az">A–Z Name</option>
-<option value="za">Z–A Name</option>
-<option value="largest">Largest First</option>
-<option value="smallest">Smallest First</option>
-</select></div>
-</div>
+      <section aria-labelledby="files-heading">
+        <h2 id="files-heading" class="sr-only">Available Minecraft Packs</h2>
+        <div class="files" id="fileList" role="list" aria-label="List of Minecraft packs"></div>
+      </section>
     </section>
-    
-    <section aria-labelledby="files-heading">
-      <h2 id="files-heading" class="sr-only">Available Minecraft Packs</h2>
-      <div class="files" id="fileList" role="list" aria-label="List of Minecraft packs"></div>
+
+    <!-- Theme Section (Premium Only) -->
+    <section id="themeSection" class="theme-section">
+      <div class="notice-box">
+        <h2>🎨 Theme Customization</h2>
+        
+        <!-- Wallpaper Selection -->
+        <div class="theme-dropdowns">
+          <div class="theme-dropdown">
+            <label for="wallpaperSelect">📷 Select Wallpaper:</label>
+            <div class="custom-dropdown">
+              <button class="dropdown-button" id="wallpaperSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dropdown-text">Default Wallpaper</span>
+                <span class="dropdown-arrow">▾</span>
+              </button>
+              <div class="dropdown-options" id="wallpaperOptions" role="listbox">
+                <div class="dropdown-option selected" data-value="default" role="option">Default Wallpaper</div>
+                <!-- GitHub wallpapers will be added here -->
+              </div>
+            </div>
+            <button class="btn apply-btn" id="applyWallpaper">Apply Wallpaper</button>
+            <button class="reset-btn" id="resetWallpaper">Reset to Default</button>
+            <div class="upload-loading" id="wallpaperUploadLoading">
+              <div class="upload-spinner"></div>
+              <span>Uploading wallpaper...</span>
+            </div>
+          </div>
+        </div>
+        
+        <h3>📷 Upload Custom Wallpaper</h3>
+        <div class="upload-area" id="wallpaperUpload">
+          <input type="file" id="wallpaperFile" accept="image/*">
+          <p>📎 Click to upload custom wallpaper (PNG, JPG, GIF, etc.)</p>
+        </div>
+        <button class="btn apply-btn" id="applyCustomWallpaper">Apply Custom Wallpaper</button>
+        
+        <!-- Theme Selection -->
+        <div class="theme-dropdowns">
+          <div class="theme-dropdown">
+            <label for="themeSelect">🎭 Select Theme:</label>
+            <div class="custom-dropdown">
+              <button class="dropdown-button" id="themeSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="dropdown-text">Default Theme</span>
+                <span class="dropdown-arrow">▾</span>
+              </button>
+              <div class="dropdown-options" id="themeOptions" role="listbox">
+                <div class="dropdown-option selected" data-value="default" role="option">Default Theme</div>
+                <!-- GitHub themes will be added here -->
+              </div>
+            </div>
+            <button class="btn apply-btn" id="applyTheme">Apply Theme</button>
+            <button class="reset-btn" id="resetTheme">Reset to Default</button>
+            <div class="upload-loading" id="themeUploadLoading">
+              <div class="upload-spinner"></div>
+              <span>Uploading theme...</span>
+            </div>
+          </div>
+        </div>
+        
+        <h3>🎭 Upload Custom Theme</h3>
+        <div class="upload-area" id="themeUpload">
+          <input type="file" id="themeFile" accept=".css">
+          <p>📄 Click to upload custom CSS theme</p>
+        </div>
+        <button class="btn apply-btn" id="applyCustomTheme">Apply Custom Theme</button>
+        
+        <!-- Surprise Section -->
+        <div class="surprise-section">
+          <h2>🎉 Surprise Customization</h2>
+          
+          <div class="theme-dropdowns">
+            <div class="theme-dropdown">
+              <label for="surpriseSelect">🎁 Select Surprise:</label>
+              <div class="custom-dropdown">
+                <button class="dropdown-button" id="surpriseSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="dropdown-text">No Surprise</span>
+                  <span class="dropdown-arrow">▾</span>
+                </button>
+                <div class="dropdown-options" id="surpriseOptions" role="listbox">
+                  <div class="dropdown-option selected" data-value="none" role="option">No Surprise</div>
+                  <!-- GitHub surprises will be added here -->
+                </div>
+              </div>
+              <button class="btn apply-btn" id="applySurprise">Apply Surprise</button>
+              <button class="reset-btn" id="resetSurprise">Reset to Default</button>
+            </div>
+          </div>
+          
+          <h3>🎁 Upload Custom Surprise</h3>
+          <div class="upload-area" id="surpriseUpload">
+            <input type="file" id="surpriseFile" accept=".css">
+            <p>📄 Click to upload custom CSS surprise</p>
+          </div>
+          <button class="btn apply-btn" id="applyCustomSurprise">Apply Custom Surprise</button>
+        </div>
+        
+        <h3>🌫️ Opacity Settings</h3>
+        <div class="opacity-controls">
+          <div class="opacity-control">
+            <label for="homeOpacity">Home Page Opacity (excluding thumbnails):</label>
+            <input type="range" id="homeOpacity" min="0" max="100" value="100">
+            <span id="homeOpacityValue" class="opacity-value">100%</span>
+          </div>
+          <div class="opacity-control">
+            <label for="thumbnailOpacity">Thumbnails Opacity:</label>
+            <input type="range" id="thumbnailOpacity" min="0" max="100" value="100">
+            <span id="thumbnailOpacityValue" class="opacity-value">100%</span>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <!-- Library Section (Premium Only) -->
+    <section id="librarySection" class="library-section">
+      <div class="notice-box">
+        <h2>📚 Library</h2>
+        
+        <div class="library-tabs">
+          <button class="library-tab active" data-tab="saved">💾 Saved Packs</button>
+          <button class="library-tab" data-tab="history">📜 History</button>
+        </div>
+        
+        <div class="library-content">
+          <div id="savedContent" class="tab-content active"></div>
+          <div id="historyContent" class="tab-content" style="display: none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ads (Hidden for Premium Users) -->
+    <div class="ads-footer-container" aria-label="Advertisement">
+      <div class="ads-footer-content">
+        <div class="ads-placeholder">
+          Loading advertisement...
+        </div>
+      </div>
+    </div>
     
     <div class="footer-buttons-bottom">
       <button class="footer-btn" id="aboutBtn">About</button>
@@ -868,321 +1788,1618 @@
       <button class="footer-btn" id="contactBtn">Contact</button>
     </div>
     
-    <div id="loadingOverlay" role="status" aria-live="polite">
-      <div class="loading-spinner" aria-hidden="true"></div>
-      <div id="loadingText">Loading packs...</div>
-    </div>
-    
-    <!-- Downloading Screen -->
-    <div id="downloadingScreen" role="dialog" aria-labelledby="downloadFileName" aria-modal="true">
-      <div id="downloadBar">
-        <div id="downloadFileName" role="heading"></div>
-        <div id="progressBarContainer">
-          <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <div id="progressText" aria-live="polite"></div>
-        <button id="downloadCancelBtn">Cancel Download</button>
-      </div>
-    </div>
-    
-    <!-- Banner ads bottom -->
     <div id="adsContainerBottom" aria-label="Advertisement">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="there is your ad id"
-           data-ad-slot="there is your ad code"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
+      <div class="ads-placeholder">Advertisement Space</div>
     </div>
-    
-    <!-- Modal popup for footer sections -->
-    <div class="footer-modal" id="footerModal" role="dialog" aria-modal="true">
-      <div class="footer-modal-content" id="footerModalContent">
-        <button class="footer-modal-back" id="footerModalBack">Back</button>
+  </main>
+
+  <!-- Bottom Navigation (Premium Only) -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-btn active" data-section="home">🏠 Home</button>
+    <button class="nav-btn" data-section="theme">🎨 Theme</button>
+    <button class="nav-btn" data-section="library">📚 Library</button>
+  </nav>
+
+  <!-- Premium Modal -->
+  <div id="premiumModal" class="premium-modal">
+    <div class="premium-content">
+      <div class="premium-header">
+        <h2 class="premium-title">✨ Premium Upgrade</h2>
+        <p class="premium-subtitle">Unlock all features for just $9.99/month</p>
+      </div>
+
+      <div class="premium-features">
+        <h3>Premium Features:</h3>
+        <ul>
+          <li>Ad-free browsing experience</li>
+          <li>Custom wallpapers and themes</li>
+          <li>Save packs to your library</li>
+          <li>Download history tracking</li>
+          <li>Upload custom themes</li>
+          <li>Priority support</li>
+        </ul>
+      </div>
+
+      <div class="payment-form">
+        <div class="form-group">
+          <label for="cardNumber">Card Number</label>
+          <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expiry">Expiry Date</label>
+            <input type="text" id="expiry" placeholder="MM/YY" maxlength="5">
+          </div>
+          <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input type="text" id="cvv" placeholder="123" maxlength="4">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="cardName">Cardholder Name</label>
+          <input type="text" id="cardName" placeholder="John Doe">
+        </div>
+        
+        <div class="form-group">
+          <label for="billingAddress">Billing Address</label>
+          <input type="text" id="billingAddress" placeholder="City, Country">
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="agreeTerms">
+          <label for="agreeTerms">I agree to the Terms of Service and Privacy Policy</label>
+        </div>
+      </div>
+
+      <div class="premium-actions">
+        <button class="premium-close" id="premiumClose">Cancel</button>
+        <button class="premium-purchase" id="premiumPurchase" disabled>Purchase Premium</button>
       </div>
     </div>
-<div id="helpModal" class="help-modal">
-  <div class="help-content">
-    <h2>Help</h2>
-    <p>Use the search bar to find packs.<br>
-    Filter by file type and sort order below the search.<br>
-    Click Download to get the file.</p>
-    <button id="helpClose">Close</button>
   </div>
-</div>
-  </main>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" role="status" aria-live="polite">
+    <div class="loading-spinner" aria-hidden="true"></div>
+    <div id="loadingText">Loading packs...</div>
+  </div>
   
+  <!-- Downloading Screen -->
+  <div id="downloadingScreen" role="dialog" aria-labelledby="downloadFileName" aria-modal="true">
+    <div id="downloadBar">
+      <div id="downloadFileName" role="heading"></div>
+      <div id="progressBarContainer">
+        <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+      <div id="progressText" aria-live="polite"></div>
+      <button id="downloadCancelBtn">Cancel Download</button>
+    </div>
+  </div>
+  
+  <!-- Footer Modal -->
+  <div class="footer-modal" id="footerModal" role="dialog" aria-modal="true">
+    <div class="footer-modal-content" id="footerModalContent">
+      <button class="footer-modal-back" id="footerModalBack">Back</button>
+    </div>
+  </div>
+
+  <!-- Help Modal -->
+  <div id="helpModal" class="help-modal">
+    <div class="help-content">
+      <h2>Help</h2>
+      <p>Use the search bar to find packs.<br>
+      Filter by file type and sort order below the search.<br>
+      Click Download to get the file.<br><br>
+      <strong>Premium users</strong> can save packs, customize themes, and browse ad-free!</p>
+      <button id="helpClose">Close</button>
+    </div>
+  </div>
+
   <script>
-  // Simple JS firewall for GitHub Pages
+  // Premium System Application
   (function() {
-    // 1. Block known malicious bots by User-Agent
-    const blockedAgents = ["sqlmap", "nikto", "curl", "wget", "fuzz", "acunetix", "scan", "hack"];
-    const ua = navigator.userAgent.toLowerCase();
-    if (blockedAgents.some(bot => ua.includes(bot))) {
-        document.body.innerHTML = "<h1 style='color:var(--danger);text-align:center;margin-top:50px;padding:2rem;'>Access Denied</h1>";
-        throw new Error("Blocked User-Agent");
-    }
-
-    // 2. Prevent suspicious query parameters
-    const badPatterns = [/(\.\.\/|<script|%3Cscript|\/etc\/passwd|union.*select|insert.*into|drop.*table|delete.*from|script.*src)/i];
-    const urlParams = new URLSearchParams(window.location.search);
-    for (const [key, value] of urlParams) {
-        if (badPatterns.some(rx => rx.test(key) || rx.test(value))) {
-            document.body.innerHTML = "<h1 style='color:var(--danger);text-align:center;margin-top:50px;padding:2rem;'>Suspicious Activity Detected</h1>";
-            throw new Error("Blocked suspicious query");
+    // Security Firewall and Protection
+    class SecurityFirewall {
+      constructor() {
+        this.initSecurity();
+      }
+      
+      initSecurity() {
+        // Prevent XSS attacks
+        this.sanitizeHTML = this.sanitizeHTML.bind(this);
+        
+        // Block common attack vectors
+        this.blockMaliciousScripts();
+        
+        // Validate all inputs
+        this.setupInputValidation();
+        
+        // Protect against clickjacking
+        if (self !== top) {
+          document.body.innerHTML = '<h1>Security Error: This page cannot be framed</h1>';
+          throw new Error('Framing detected');
         }
+      }
+      
+      sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+      
+      blockMaliciousScripts() {
+        // Remove any script tags with suspicious content
+        const scripts = document.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+          const script = scripts[i];
+          const content = script.innerHTML.toLowerCase();
+          
+          // Block common attack patterns
+          const dangerousPatterns = [
+            /eval\(/i,
+            /document\.cookie/i,
+            /localStorage\.setItem/i,
+            /XMLHttpRequest/i,
+            /fetch\(/i,
+            /<script.*?>.*?<\/script>/i
+          ];
+          
+          for (const pattern of dangerousPatterns) {
+            if (pattern.test(content)) {
+              script.remove();
+              console.warn('Blocked potentially dangerous script');
+              break;
+            }
+          }
+        }
+      }
+      
+      setupInputValidation() {
+        // Validate file inputs
+        document.addEventListener('change', (e) => {
+          if (e.target.type === 'file') {
+            this.validateFileInput(e.target);
+          }
+        });
+        
+        // Validate text inputs
+        document.addEventListener('input', (e) => {
+          if (e.target.type === 'text' || e.target.type === 'password') {
+            this.validateTextInput(e.target);
+          }
+        });
+      }
+      
+      validateFileInput(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        // Check file type
+        const allowedTypes = {
+          'image/*': ['wallpaperFile'],
+          'text/css': ['themeFile', 'surpriseFile']
+        };
+        
+        for (const [type, inputs] of Object.entries(allowedTypes)) {
+          if (inputs.includes(input.id)) {
+            if (!file.type.match(type) && type !== 'image/*') {
+              input.value = '';
+              premiumSystem.showNotification('Invalid file type. Please select a valid file.', 'error');
+              return;
+            }
+          }
+        }
+        
+        // Check file size (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          input.value = '';
+          premiumSystem.showNotification('File too large. Maximum size is 10MB.', 'error');
+          return;
+        }
+      }
+      
+      validateTextInput(input) {
+        // Remove potentially dangerous characters
+        const dangerousChars = /[<>'"`]/g;
+        if (dangerousChars.test(input.value)) {
+          input.value = input.value.replace(dangerousChars, '');
+          premiumSystem.showNotification('Removed invalid characters from input', 'warning');
+        }
+      }
     }
-  })();
 
-  // Main application
-  (function() {
     // Constants
     const GH_USERNAME = "sifat8668";
     const GH_REPO = "M-packs";
     const API_URL = `https://api.github.com/repos/${GH_USERNAME}/${GH_REPO}/contents/`;
     const RAW_URL = `https://raw.githubusercontent.com/${GH_USERNAME}/${GH_REPO}/main/`;
     const CACHE_KEY = 'mc_packs_cache';
-    const CACHE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+    const PREMIUM_KEY = 'mc_premium_status';
+    const LIBRARY_KEY = 'mc_library';
+    const HISTORY_KEY = 'mc_history';
+    const THEME_KEY = 'mc_custom_themes';
+    const WALLPAPER_KEY = 'mc_custom_wallpapers';
+    const SURPRISE_KEY = 'mc_custom_surprises';
+    const DOWNLOAD_HISTORY_KEY = 'mc_download_history';
+    const CACHE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-    // DOM elements
-    const fileList = document.getElementById('fileList');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const searchInput = document.getElementById('searchInput');
-    const downloadingScreen = document.getElementById('downloadingScreen');
-    const downloadFileName = document.getElementById('downloadFileName');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const downloadCancelBtn = document.getElementById('downloadCancelBtn');
-const fileTypeSelect = document.getElementById('fileType');
-    const sortBySelect = document.getElementById('sortBy');
-    // Global variables
-    let allFiles = [];
-    let allThumbs = {};
-    let currentDownload = null;
-
-    // Modal elements and functionality
-    const aboutBtn = document.getElementById('aboutBtn');
-    const privacyBtn = document.getElementById('privacyBtn');
-    const contactBtn = document.getElementById('contactBtn');
-    const footerModal = document.getElementById('footerModal');
-    const footerModalContent = document.getElementById('footerModalContent');
-    const footerModalBack = document.getElementById('footerModalBack');
-
-    // Modal section data
-    const FOOTER_SECTIONS = {
-      about: {
-        title: "About",
-        content: `Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). We provide a simple and secure way for the Minecraft community to discover new content. All packs are carefully curated for your gameplay experience.`
-      },
-      privacy: {
-        title: "Privacy Policy",
-        content: `Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.`
-      },
-      contact: {
-        title: "Contact",
-        content: `Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. We appreciate your feedback and will respond as soon as possible.`
-      }
+    // Test credit card for premium activation
+    const TEST_CARD = {
+      number: '3026203612490126',
+      expiry: '02/34',
+      cvv: '124',
+      name: 'Sifatxalian',
+      address: 'Chittagong, Bangladesh'
     };
 
-    // Utility functions
-    function humanFileSize(size) {
-      if (size < 1024) return size + " B";
-      if (size < 1024 * 1024) return (size/1024).toFixed(1) + " KB";
-      if (size < 1024 * 1024 * 1024) return (size/1024/1024).toFixed(1) + " MB";
-      return (size/1024/1024/1024).toFixed(2) + " GB";
-    }
-
-    function sanitizeHTML(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function showNotification(message, type = 'info') {
-      // Create notification element
-      const notification = document.createElement('div');
-      notification.className = `status-message status-${type}`;
-      notification.textContent = message;
-      notification.setAttribute('role', 'alert');
-      notification.setAttribute('aria-live', 'assertive');
-      
-      // Add to page
-      document.body.appendChild(notification);
-      
-      // Remove after delay
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
+    // Premium System
+    class PremiumSystem {
+      constructor() {
+        this.security = new SecurityFirewall();
+        this.isPremium = this.checkPremiumStatus();
+        this.library = this.getLibrary();
+        this.history = this.getHistory();
+        this.customThemes = this.getCustomThemes();
+        this.customWallpapers = this.getCustomWallpapers();
+        this.customSurprises = this.getCustomSurprises();
+        this.downloadHistory = this.getDownloadHistory();
+        this.currentSurprise = null;
+        this.surpriseTimer = null;
+        this.customThemeApplied = false;
+        
+        // Load saved customizations immediately
+        this.loadSavedCustomizations();
+        
+        if (this.isPremium) {
+          this.activatePremiumFeatures();
         }
-      }, 5000);
-    }
-
-    // Recursively get all files from repo with caching
-    async function fetchAllFiles(apiUrl = API_URL, prefix = '') {
-      // Check cache first
-      const cachedData = localStorage.getItem(CACHE_KEY);
-      if (cachedData) {
-        const { data, timestamp } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < CACHE_TIMEOUT) {
-          return data;
-        }
+        
+        this.setupPremiumUI();
+        this.setupThemeSystem();
+        this.setupLibrarySystem();
+        this.showRandomPromo();
+        this.setupOpacityControls();
+        this.setupTrendFilter();
+        this.setupSurpriseSystem();
+        this.setupTimedButtons();
       }
 
-      try {
-        loadingOverlay.style.display = 'flex';
-        document.getElementById('loadingText').textContent = "Loading packs...";
-        
-        const response = await fetch(apiUrl);
-        
-        // Check for rate limiting
-        if (response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0') {
-          const resetTime = new Date(parseInt(response.headers.get('x-ratelimit-reset')) * 1000);
-          const timeUntilReset = Math.round((resetTime - new Date()) / 60000);
-          throw new Error(`GitHub API rate limit exceeded. Please try again in ${timeUntilReset} minutes.`);
-        }
-        
-        if (!response.ok) throw new Error(`Failed to fetch repository contents: ${response.status} ${response.statusText}`);
-        
-        const data = await response.json();
-        let files = [];
-        
-        for (const file of data) {
-          if (file.type === 'dir') {
-            const subFiles = await fetchAllFiles(file.url, prefix + file.name + '/');
-            files = files.concat(subFiles);
-          } else {
-            files.push({ ...file, path: prefix + file.name });
+      checkPremiumStatus() {
+        const premiumData = localStorage.getItem(PREMIUM_KEY);
+        if (premiumData) {
+          try {
+            const data = JSON.parse(premiumData);
+            const now = Date.now();
+            const expiry = data.expiry;
+            
+            if (now < expiry) {
+              // Set verification elements for premium
+              this.setPremiumVerification();
+              return true;
+            } else {
+              // Premium expired
+              localStorage.removeItem(PREMIUM_KEY);
+              this.clearPremiumVerification();
+              return false;
+            }
+          } catch (e) {
+            console.error('Error parsing premium data:', e);
+            localStorage.removeItem(PREMIUM_KEY);
+            return false;
           }
         }
-        
-        // Cache the results
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          data: files,
-          timestamp: Date.now()
-        }));
-        
-        return files;
-      } catch (error) {
-        console.error('Error fetching files:', error);
-        showNotification(error.message, 'error');
-        return [];
-      } finally {
-        loadingOverlay.style.display = 'none';
+        this.clearPremiumVerification();
+        return false;
       }
-    }
 
-    // Fetch and process files
-    async function fetchFiles() {
-      try {
-        let data = await fetchAllFiles();
+      setPremiumVerification() {
+        // Set verification elements for premium (invisible)
+        document.getElementById('premiumVerification1').textContent = 'premium-active-1';
+        document.getElementById('premiumVerification2').textContent = 'premium-active-2';
+        document.getElementById('premiumVerification3').textContent = 'premium-active-3';
+      }
+
+      clearPremiumVerification() {
+        // Clear verification elements
+        document.getElementById('premiumVerification1').textContent = '';
+        document.getElementById('premiumVerification2').textContent = '';
+        document.getElementById('premiumVerification3').textContent = '';
+      }
+
+      activatePremium(duration = 30 * 24 * 60 * 60 * 1000) { // 30 days
+        const now = Date.now();
+        const premiumData = {
+          activated: now,
+          expiry: now + duration,
+          plan: 'monthly'
+        };
         
-        // If no data, try again after a delay
-        let tryCount = 0;
-        while ((data.length === 0 || !data.some(f => f.name.match(/\.mcpack$|\.mcworld$/i))) && tryCount < 3) {
-          await new Promise(r => setTimeout(r, 2000));
-          data = await fetchAllFiles();
-          tryCount++;
+        localStorage.setItem(PREMIUM_KEY, JSON.stringify(premiumData));
+        this.isPremium = true;
+        this.setPremiumVerification();
+        this.activatePremiumFeatures();
+        this.addToHistory('Premium activated', 'premium');
+        
+        // Update UI
+        this.updatePremiumButton();
+        document.getElementById('premiumModal').style.display = 'none';
+        
+        // Show success message
+        this.showNotification('🎉 Premium activated successfully! Welcome to Premium!', 'success');
+      }
+
+      activatePremiumFeatures() {
+        document.body.classList.add('premium-user');
+        document.getElementById('bottomNav').classList.add('show');
+        document.getElementById('trendFilterContainer').style.display = 'inline-block';
+        this.updatePremiumButton();
+      }
+
+      updatePremiumButton() {
+        const premiumBtn = document.getElementById('premiumBtn');
+        if (this.isPremium) {
+          premiumBtn.textContent = '✨ Premium';
+          premiumBtn.className = 'header-btn premium-status';
+          premiumBtn.onclick = null;
+        } else {
+          premiumBtn.textContent = '✨ Get Premium';
+          premiumBtn.className = 'header-btn premium-btn';
+          premiumBtn.onclick = () => this.showPremiumModal();
+        }
+      }
+
+      setupPremiumUI() {
+        // Premium button
+        this.updatePremiumButton();
+        if (!this.isPremium) {
+          document.getElementById('premiumBtn').onclick = () => this.showPremiumModal();
+        }
+
+        // Premium modal
+        document.getElementById('premiumClose').onclick = () => this.hidePremiumModal();
+        document.getElementById('premiumPurchase').onclick = () => this.processPurchase();
+        
+        // Form validation
+        const inputs = ['cardNumber', 'expiry', 'cvv', 'cardName', 'billingAddress'];
+        const agreeTerms = document.getElementById('agreeTerms');
+        const purchaseBtn = document.getElementById('premiumPurchase');
+        
+        function validateForm() {
+          const allFilled = inputs.every(id => document.getElementById(id).value.trim() !== '');
+          const termsChecked = agreeTerms.checked;
+          purchaseBtn.disabled = !(allFilled && termsChecked);
         }
         
-        if (data.length === 0) {
-          throw new Error("No files found in repository.");
-        }
-        
-        const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
-        allThumbs = {};
-        
-        // Process thumbnails
-        sorted.forEach(file => {
-          if (file.name.toLowerCase().endsWith('.png')) {
-            const base = file.name.replace(/\.png$/i, '').toLowerCase();
-            allThumbs[base] = RAW_URL + file.path;
+        inputs.forEach(id => {
+          document.getElementById(id).addEventListener('input', validateForm);
+        });
+        agreeTerms.addEventListener('change', validateForm);
+
+        // Format card number input
+        document.getElementById('cardNumber').addEventListener('input', (e) => {
+          let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+          let matches = value.match(/\d{4,16}/g);
+          let match = matches && matches[0] || '';
+          let parts = [];
+          for (let i = 0, len = match.length; i < len; i += 4) {
+            parts.push(match.substring(i, i + 4));
+          }
+          if (parts.length) {
+            e.target.value = parts.join(' ');
+          } else {
+            e.target.value = value;
           }
         });
 
-        // Process Minecraft files
-        const mcFiles = sorted.filter(file =>
-          file.name.match(/\.mcpack$/i) || file.name.match(/\.mcworld$/i)
-        ).map(file => ({
-          name: file.name,
-          download_url: RAW_URL + file.path,
-          size: file.size,
-          thumb: allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null,
-          type: file.name.match(/\.mcpack$/i) ? 'resource pack' : 'world'
-        }));
+        // Format expiry date
+        document.getElementById('expiry').addEventListener('input', (e) => {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value.length >= 2) {
+            value = value.substring(0,2) + '/' + value.substring(2,4);
+          }
+          e.target.value = value;
+        });
 
-        allFiles = mcFiles;
-        renderFiles(mcFiles);
-      } catch (error) {
-        console.error('Error processing files:', error);
-        fileList.innerHTML = `<div class="status-message status-error">${sanitizeHTML(error.message)}</div>`;
+        // Navigation - Only allow premium users to access theme and library
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const section = e.target.getAttribute('data-section');
+            
+            // Check if user has access to the section
+            if ((section === 'theme' || section === 'library') && !this.isPremium) {
+              this.showNotification('This feature is for Premium users only. Upgrade to access!', 'error');
+              this.showPremiumModal();
+              return;
+            }
+            
+            this.switchSection(section);
+          });
+        });
+
+        // Premium promo
+        document.getElementById('premiumPromo').onclick = () => this.showPremiumModal();
       }
-    }
 
-    // Render files to the DOM
-    function renderFiles(filesToRender) {
-      fileList.innerHTML = "";
-      
-      if (filesToRender.length === 0) {
-        fileList.innerHTML = '<div class="status-message">No .mcpack or .mcworld files found.</div>';
-        return;
+      showRandomPromo() {
+        if (!this.isPremium && Math.random() < 0.3) { // 30% chance
+          document.getElementById('premiumPromo').style.display = 'block';
+        }
       }
-      
-      filesToRender.forEach(file => {
-        const div = document.createElement('div');
-        div.className = 'file';
-        div.setAttribute('role', 'listitem');
 
-        // Thumbnail
-        if (file.thumb) {
-          const thumb = document.createElement('img');
-          thumb.className = 'thumbnail';
-          thumb.src = file.thumb;
-          thumb.alt = `Thumbnail for ${file.name}`;
-          thumb.loading = 'lazy';
-          thumb.onerror = function() {
-            thumb.style.display = 'none';
-          };
-          div.appendChild(thumb);
+      showPremiumModal() {
+        document.getElementById('premiumModal').style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
+
+      hidePremiumModal() {
+        document.getElementById('premiumModal').style.display = 'none';
+        document.body.style.overflow = '';
+      }
+
+      processPurchase() {
+        const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+        const expiry = document.getElementById('expiry').value;
+        const cvv = document.getElementById('cvv').value;
+        const cardName = document.getElementById('cardName').value.trim();
+        const billingAddress = document.getElementById('billingAddress').value.trim();
+
+        // Validate against test card
+        if (cardNumber === TEST_CARD.number &&
+            expiry === TEST_CARD.expiry &&
+            cvv === TEST_CARD.cvv &&
+            cardName.toLowerCase() === TEST_CARD.name.toLowerCase() &&
+            billingAddress.toLowerCase() === TEST_CARD.address.toLowerCase()) {
+          
+          // Simulate processing
+          const purchaseBtn = document.getElementById('premiumPurchase');
+          const originalText = purchaseBtn.textContent;
+          purchaseBtn.textContent = 'Processing...';
+          purchaseBtn.disabled = true;
+          
+          setTimeout(() => {
+            this.activatePremium();
+            purchaseBtn.textContent = originalText;
+          }, 2000);
+          
+        } else {
+          this.showNotification('❌ Invalid card details. Please check and try again.', 'error');
+        }
+      }
+
+      switchSection(section) {
+        // Update navigation
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`[data-section="${section}"]`).classList.add('active');
+
+        // Show/hide sections
+        document.getElementById('homeSection').style.display = section === 'home' ? 'block' : 'none';
+        document.getElementById('themeSection').classList.toggle('active', section === 'theme');
+        document.getElementById('librarySection').classList.toggle('active', section === 'library');
+      }
+
+      // Theme System
+      setupThemeSystem() {
+        this.loadWallpapers();
+        this.loadThemes();
+        this.loadSurprises();
+        
+        // Wallpaper upload
+        document.getElementById('wallpaperUpload').onclick = () => {
+          document.getElementById('wallpaperFile').click();
+        };
+
+        document.getElementById('wallpaperFile').addEventListener('change', (e) => {
+          this.uploadWallpaper(e.target.files[0], true);
+        });
+
+        // Theme upload
+        document.getElementById('themeUpload').onclick = () => {
+          document.getElementById('themeFile').click();
+        };
+
+        document.getElementById('themeFile').addEventListener('change', (e) => {
+          this.uploadTheme(e.target.files[0], true);
+        });
+
+        // Surprise upload
+        document.getElementById('surpriseUpload').onclick = () => {
+          document.getElementById('surpriseFile').click();
+        };
+
+        document.getElementById('surpriseFile').addEventListener('change', (e) => {
+          this.uploadSurprise(e.target.files[0], true);
+        });
+
+        // Apply buttons
+        document.getElementById('applyWallpaper').onclick = () => this.applySelectedWallpaper();
+        document.getElementById('applyCustomWallpaper').onclick = () => this.applyCustomWallpaper();
+        document.getElementById('applyTheme').onclick = () => this.applySelectedTheme();
+        document.getElementById('applyCustomTheme').onclick = () => this.applyCustomTheme();
+        document.getElementById('applySurprise').onclick = () => this.applySelectedSurprise();
+        document.getElementById('applyCustomSurprise').onclick = () => this.applyCustomSurprise();
+
+        // Reset buttons
+        document.getElementById('resetWallpaper').onclick = () => this.resetWallpaper();
+        document.getElementById('resetTheme').onclick = () => this.resetTheme();
+        document.getElementById('resetSurprise').onclick = () => this.resetSurprise();
+      }
+
+      setupOpacityControls() {
+        const homeOpacitySlider = document.getElementById('homeOpacity');
+        const homeOpacityValue = document.getElementById('homeOpacityValue');
+        const thumbnailOpacitySlider = document.getElementById('thumbnailOpacity');
+        const thumbnailOpacityValue = document.getElementById('thumbnailOpacityValue');
+
+        // Load saved opacity values
+        const savedHomeOpacity = localStorage.getItem('homeOpacity') || 100;
+        const savedThumbnailOpacity = localStorage.getItem('thumbnailOpacity') || 100;
+        
+        homeOpacitySlider.value = savedHomeOpacity;
+        homeOpacityValue.textContent = savedHomeOpacity + '%';
+        thumbnailOpacitySlider.value = savedThumbnailOpacity;
+        thumbnailOpacityValue.textContent = savedThumbnailOpacity + '%';
+        
+        document.documentElement.style.setProperty('--home-opacity', savedHomeOpacity / 100);
+        document.documentElement.style.setProperty('--thumbnail-opacity', savedThumbnailOpacity / 100);
+
+        // Home opacity slider
+        homeOpacitySlider.addEventListener('input', (e) => {
+          const value = e.target.value;
+          homeOpacityValue.textContent = value + '%';
+          document.documentElement.style.setProperty('--home-opacity', value / 100);
+          localStorage.setItem('homeOpacity', value);
+        });
+
+        // Thumbnail opacity slider
+        thumbnailOpacitySlider.addEventListener('input', (e) => {
+          const value = e.target.value;
+          thumbnailOpacityValue.textContent = value + '%';
+          document.documentElement.style.setProperty('--thumbnail-opacity', value / 100);
+          localStorage.setItem('thumbnailOpacity', value);
+        });
+      }
+
+      setupTrendFilter() {
+        if (!this.isPremium) return;
+
+        const trendButton = document.getElementById('trendButton');
+        const trendOptions = document.getElementById('trendOptions');
+
+        trendButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown(trendButton, trendOptions);
+        });
+
+        trendOptions.addEventListener('click', (e) => {
+          if (e.target.classList.contains('dropdown-option')) {
+            this.selectOption(e.target, trendButton, trendOptions);
+            fileManager.currentTrendFilter = e.target.getAttribute('data-value');
+            fileManager.applyFiltersAndSearch();
+          }
+        });
+      }
+
+      setupSurpriseSystem() {
+        // Start surprise timer if a surprise is active
+        const activeSurprise = localStorage.getItem('active_surprise');
+        if (activeSurprise && activeSurprise !== 'none') {
+          this.startSurpriseTimer();
+        }
+      }
+
+      setupTimedButtons() {
+        // Reset button every 7 minutes for 15 seconds
+        setInterval(() => {
+          if (this.customThemeApplied) {
+            this.showTimedButton('timedResetBtn', 'Reset Theme');
+          }
+        }, 7 * 60 * 1000); // 7 minutes
+
+        // Contact button every 1.5 minutes for 15 seconds
+        setInterval(() => {
+          this.showTimedButton('timedContactBtn', 'Contact Support');
+        }, 90 * 1000); // 1.5 minutes
+
+        // Set up button handlers
+        document.getElementById('timedResetBtn').onclick = () => {
+          this.resetTheme();
+          this.hideTimedButton('timedResetBtn');
+        };
+
+        document.getElementById('timedContactBtn').onclick = () => {
+          document.getElementById('contactBtn').click();
+          this.hideTimedButton('timedContactBtn');
+        };
+      }
+
+      showTimedButton(buttonId, text) {
+        const button = document.getElementById(buttonId);
+        button.textContent = text;
+        button.style.display = 'block';
+        
+        // Hide after 15 seconds
+        setTimeout(() => {
+          this.hideTimedButton(buttonId);
+        }, 15000);
+      }
+
+      hideTimedButton(buttonId) {
+        document.getElementById(buttonId).style.display = 'none';
+      }
+
+      toggleDropdown(button, options) {
+        const isOpen = button.classList.contains('open');
+        this.closeAllDropdowns();
+        if (!isOpen) {
+          button.classList.add('open');
+          options.classList.add('open');
+          button.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-button').forEach(btn => {
+          btn.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+        document.querySelectorAll('.dropdown-options').forEach(options => {
+          options.classList.remove('open');
+        });
+      }
+
+      selectOption(option, button, optionsContainer) {
+        optionsContainer.querySelectorAll('.dropdown-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        option.classList.add('selected');
+        button.querySelector('.dropdown-text').textContent = option.textContent;
+        this.closeAllDropdowns();
+      }
+
+      async loadWallpapers() {
+        const wallpaperOptions = document.getElementById('wallpaperOptions');
+        
+        // Add default option
+        const defaultOption = wallpaperOptions.querySelector('[data-value="default"]');
+        
+        // Load wallpapers from repo (1-25)
+        for (let i = 1; i <= 25; i++) {
+          const wallpaperOption = document.createElement('div');
+          wallpaperOption.className = 'dropdown-option';
+          wallpaperOption.setAttribute('data-value', `wallpaper${i}`);
+          wallpaperOption.setAttribute('role', 'option');
+          wallpaperOption.textContent = `Wallpaper ${i}`;
+          wallpaperOption.onclick = () => this.selectWallpaperOption(`wallpaper${i}`);
+          wallpaperOptions.appendChild(wallpaperOption);
         }
 
-        // File name
-        const name = document.createElement('div');
-        name.className = 'name';
-        name.textContent = file.name;
-        div.appendChild(name);
+        // Load custom wallpapers
+        this.customWallpapers.forEach((wallpaper, index) => {
+          const wallpaperOption = document.createElement('div');
+          wallpaperOption.className = 'dropdown-option';
+          wallpaperOption.setAttribute('data-value', `custom${index}`);
+          wallpaperOption.setAttribute('role', 'option');
+          wallpaperOption.textContent = `Custom: ${wallpaper.name}`;
+          wallpaperOption.onclick = () => this.selectWallpaperOption(`custom${index}`);
+          wallpaperOptions.appendChild(wallpaperOption);
+        });
 
-        // Meta information
-        const meta = document.createElement('div');
-        meta.className = 'meta';
-        meta.innerHTML = `
-          <span>${humanFileSize(file.size)}</span>
-          <span>•</span>
-          <span>${file.type}</span>
-        `;
-        div.appendChild(meta);
+        // Setup dropdown functionality
+        const wallpaperButton = document.getElementById('wallpaperSelectButton');
+        wallpaperButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown(wallpaperButton, wallpaperOptions);
+        });
 
-        // Actions
-        const actions = document.createElement('div');
-        actions.className = 'actions';
+        wallpaperOptions.addEventListener('click', (e) => {
+          if (e.target.classList.contains('dropdown-option')) {
+            this.selectOption(e.target, wallpaperButton, wallpaperOptions);
+          }
+        });
+      }
+
+      async loadThemes() {
+        const themeOptions = document.getElementById('themeOptions');
         
-        const dl = document.createElement('button');
-        dl.className = 'btn';
-        dl.innerHTML = `<span aria-hidden="true">⬇️</span> Download`;
-        dl.onclick = () => startDownload(file);
-        actions.appendChild(dl);
+        // Add default option
+        const defaultOption = themeOptions.querySelector('[data-value="default"]');
         
-        div.appendChild(actions);
-        fileList.appendChild(div);
-      });
+        // Load themes from repo (1-15)
+        for (let i = 1; i <= 15; i++) {
+          const themeOption = document.createElement('div');
+          themeOption.className = 'dropdown-option';
+          themeOption.setAttribute('data-value', `theme${i}`);
+          themeOption.setAttribute('role', 'option');
+          themeOption.textContent = `Theme ${i}`;
+          themeOption.onclick = () => this.selectThemeOption(`theme${i}`);
+          themeOptions.appendChild(themeOption);
+        }
+
+        // Load custom themes
+        this.customThemes.forEach((theme, index) => {
+          const themeOption = document.createElement('div');
+          themeOption.className = 'dropdown-option';
+          themeOption.setAttribute('data-value', `custom${index}`);
+          themeOption.setAttribute('role', 'option');
+          themeOption.textContent = `Custom: ${theme.name}`;
+          themeOption.onclick = () => this.selectThemeOption(`custom${index}`);
+          themeOptions.appendChild(themeOption);
+        });
+
+        // Setup dropdown functionality
+        const themeButton = document.getElementById('themeSelectButton');
+        themeButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown(themeButton, themeOptions);
+        });
+
+        themeOptions.addEventListener('click', (e) => {
+          if (e.target.classList.contains('dropdown-option')) {
+            this.selectOption(e.target, themeButton, themeOptions);
+          }
+        });
+      }
+
+      async loadSurprises() {
+        const surpriseOptions = document.getElementById('surpriseOptions');
+        
+        // Add default option
+        const defaultOption = surpriseOptions.querySelector('[data-value="none"]');
+        
+        // Load surprises from repo (1-10)
+        for (let i = 1; i <= 10; i++) {
+          const surpriseOption = document.createElement('div');
+          surpriseOption.className = 'dropdown-option';
+          surpriseOption.setAttribute('data-value', `surprise${i}`);
+          surpriseOption.setAttribute('role', 'option');
+          surpriseOption.textContent = `Surprise ${i}`;
+          surpriseOption.onclick = () => this.selectSurpriseOption(`surprise${i}`);
+          surpriseOptions.appendChild(surpriseOption);
+        }
+
+        // Load custom surprises
+        this.customSurprises.forEach((surprise, index) => {
+          const surpriseOption = document.createElement('div');
+          surpriseOption.className = 'dropdown-option';
+          surpriseOption.setAttribute('data-value', `custom${index}`);
+          surpriseOption.setAttribute('role', 'option');
+          surpriseOption.textContent = `Custom: ${surprise.name}`;
+          surpriseOption.onclick = () => this.selectSurpriseOption(`custom${index}`);
+          surpriseOptions.appendChild(surpriseOption);
+        });
+
+        // Setup dropdown functionality
+        const surpriseButton = document.getElementById('surpriseSelectButton');
+        surpriseButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown(surpriseButton, surpriseOptions);
+        });
+
+        surpriseOptions.addEventListener('click', (e) => {
+          if (e.target.classList.contains('dropdown-option')) {
+            this.selectOption(e.target, surpriseButton, surpriseOptions);
+          }
+        });
+      }
+
+      selectWallpaperOption(value) {
+        this.selectedWallpaper = value;
+      }
+
+      selectThemeOption(value) {
+        this.selectedTheme = value;
+      }
+
+      selectSurpriseOption(value) {
+        this.selectedSurprise = value;
+      }
+
+      applySelectedWallpaper() {
+        if (!this.selectedWallpaper) {
+          this.showNotification('Please select a wallpaper first', 'error');
+          return;
+        }
+
+        if (this.selectedWallpaper === 'default') {
+          this.applyWallpaper(null);
+          return;
+        }
+
+        if (this.selectedWallpaper.startsWith('wallpaper')) {
+          const num = this.selectedWallpaper.replace('wallpaper', '');
+          this.applyWallpaper(`${RAW_URL}wallpaper${num}.png`);
+        } else if (this.selectedWallpaper.startsWith('custom')) {
+          const index = parseInt(this.selectedWallpaper.replace('custom', ''));
+          this.applyWallpaper(this.customWallpapers[index].url);
+        }
+      }
+
+      applyCustomWallpaper() {
+        const fileInput = document.getElementById('wallpaperFile');
+        if (!fileInput.files.length) {
+            this.showNotification('Please select a wallpaper file first', 'error');
+            return;
+        }
+
+        // Show loading indicator
+        document.getElementById('wallpaperUploadLoading').style.display = 'flex';
+
+        const file = fileInput.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+            this.showNotification('Please select a valid image file', 'error');
+            document.getElementById('wallpaperUploadLoading').style.display = 'none';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Apply the wallpaper immediately
+            this.applyWallpaper(e.target.result);
+            document.getElementById('wallpaperUploadLoading').style.display = 'none';
+            
+            // Add to custom wallpapers if not already there
+            const existingIndex = this.customWallpapers.findIndex(w => w.url === e.target.result);
+            if (existingIndex === -1) {
+                const wallpaper = {
+                    name: file.name,
+                    url: e.target.result,
+                    uploaded: Date.now()
+                };
+                
+                this.customWallpapers.push(wallpaper);
+                localStorage.setItem(WALLPAPER_KEY, JSON.stringify(this.customWallpapers));
+                
+                // Add to dropdown
+                this.loadWallpapers();
+            }
+            
+            this.showNotification('Custom wallpaper applied successfully!', 'success');
+        };
+        
+        reader.readAsDataURL(file);
+      }
+
+      applySelectedTheme() {
+        if (!this.selectedTheme) {
+          this.showNotification('Please select a theme first', 'error');
+          return;
+        }
+
+        if (this.selectedTheme === 'default') {
+          this.applyTheme(null);
+          return;
+        }
+
+        if (this.selectedTheme.startsWith('theme')) {
+          const num = this.selectedTheme.replace('theme', '');
+          this.applyTheme(`${RAW_URL}theme${num}.css`);
+        } else if (this.selectedTheme.startsWith('custom')) {
+          const index = parseInt(this.selectedTheme.replace('custom', ''));
+          this.applyTheme(this.customThemes[index].css, true);
+        }
+      }
+
+      applyCustomTheme() {
+        const fileInput = document.getElementById('themeFile');
+        if (!fileInput.files.length) {
+          this.showNotification('Please select a theme file first', 'error');
+          return;
+        }
+
+        // Show loading indicator
+        document.getElementById('themeUploadLoading').style.display = 'flex';
+
+        this.uploadTheme(fileInput.files[0], true);
+      }
+
+      applySelectedSurprise() {
+        if (!this.selectedSurprise) {
+          this.showNotification('Please select a surprise first', 'error');
+          return;
+        }
+
+        if (this.selectedSurprise === 'none') {
+          this.applySurprise(null);
+          return;
+        }
+
+        if (this.selectedSurprise.startsWith('surprise')) {
+          const num = this.selectedSurprise.replace('surprise', '');
+          this.applySurprise(`${RAW_URL}surprise${num}.css`);
+        } else if (this.selectedSurprise.startsWith('custom')) {
+          const index = parseInt(this.selectedSurprise.replace('custom', ''));
+          this.applySurprise(this.customSurprises[index].css, true);
+        }
+      }
+
+      applyCustomSurprise() {
+        const fileInput = document.getElementById('surpriseFile');
+        if (!fileInput.files.length) {
+          this.showNotification('Please select a surprise file first', 'error');
+          return;
+        }
+
+        this.uploadSurprise(fileInput.files[0], true);
+      }
+
+      applyWallpaper(url) {
+        if (url) {
+          document.body.classList.add('custom-bg');
+          document.body.style.setProperty('--custom-bg-url', `url(${url})`);
+          localStorage.setItem('selected_wallpaper', url);
+          this.addToHistory(`Applied wallpaper`, 'wallpaper');
+          this.showNotification('Wallpaper applied successfully!', 'success');
+        } else {
+          document.body.classList.remove('custom-bg');
+          localStorage.removeItem('selected_wallpaper');
+          this.showNotification('Default wallpaper applied!', 'success');
+        }
+      }
+
+      async applyTheme(url, isCustom = false) {
+        // Remove existing custom theme
+        const existingTheme = document.getElementById('customThemeStyle');
+        if (existingTheme) {
+          existingTheme.remove();
+        }
+
+        if (url) {
+          const style = document.createElement('style');
+          style.id = 'customThemeStyle';
+          
+          if (isCustom) {
+            style.textContent = url; // url is actually CSS content for custom themes
+            localStorage.setItem('selected_theme', JSON.stringify({type: 'custom', css: url}));
+            this.addToHistory(`Applied custom theme`, 'theme');
+            this.customThemeApplied = true;
+          } else {
+            try {
+              const response = await fetch(url);
+              if (response.ok) {
+                const css = await response.text();
+                style.textContent = css;
+                localStorage.setItem('selected_theme', JSON.stringify({type: 'repo', url: url}));
+                this.addToHistory(`Applied theme from repository`, 'theme');
+                this.customThemeApplied = false;
+              }
+            } catch (error) {
+              console.error('Error loading theme:', error);
+              this.showNotification('Failed to load theme', 'error');
+              document.getElementById('themeUploadLoading').style.display = 'none';
+              return;
+            }
+          }
+          
+          document.head.appendChild(style);
+          this.showNotification('Theme applied successfully!', 'success');
+          document.getElementById('themeUploadLoading').style.display = 'none';
+        } else {
+          localStorage.removeItem('selected_theme');
+          this.customThemeApplied = false;
+          this.showNotification('Default theme applied!', 'success');
+        }
+      }
+
+      async applySurprise(url, isCustom = false) {
+        // Clear existing surprise timer
+        if (this.surpriseTimer) {
+          clearTimeout(this.surpriseTimer);
+          this.surpriseTimer = null;
+        }
+
+        // Remove existing surprise
+        const existingSurprise = document.getElementById('customSurpriseStyle');
+        if (existingSurprise) {
+          existingSurprise.remove();
+        }
+
+        if (url) {
+          let cssContent = '';
+          
+          if (isCustom) {
+            cssContent = url; // url is actually CSS content for custom surprises
+            localStorage.setItem('selected_surprise', JSON.stringify({type: 'custom', css: url}));
+            this.addToHistory(`Applied custom surprise`, 'surprise');
+          } else {
+            try {
+              const response = await fetch(url);
+              if (response.ok) {
+                cssContent = await response.text();
+                localStorage.setItem('selected_surprise', JSON.stringify({type: 'repo', url: url}));
+                this.addToHistory(`Applied surprise from repository`, 'surprise');
+              }
+            } catch (error) {
+              console.error('Error loading surprise:', error);
+              this.showNotification('Failed to load surprise', 'error');
+              return;
+            }
+          }
+          
+          // Store the surprise CSS for later use
+          this.currentSurprise = cssContent;
+          localStorage.setItem('active_surprise', url);
+          
+          // Start the surprise timer
+          this.startSurpriseTimer();
+          
+          this.showNotification('Surprise applied successfully! It will trigger randomly.', 'success');
+        } else {
+          localStorage.removeItem('selected_surprise');
+          localStorage.removeItem('active_surprise');
+          this.currentSurprise = null;
+          this.showNotification('Surprise disabled!', 'success');
+        }
+      }
+
+      startSurpriseTimer() {
+        if (!this.currentSurprise) return;
+        
+        // Clear any existing timer
+        if (this.surpriseTimer) {
+          clearTimeout(this.surpriseTimer);
+        }
+        
+        // Set random interval between 10-120 minutes (converted to milliseconds)
+        const minDelay = 10 * 60 * 1000; // 10 minutes
+        const maxDelay = 120 * 60 * 1000; // 120 minutes
+        const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        
+        this.surpriseTimer = setTimeout(() => {
+          this.triggerSurprise();
+        }, delay);
+      }
+
+      triggerSurprise() {
+        if (!this.currentSurprise) return;
+        
+        // Create and apply surprise style
+        const surpriseStyle = document.createElement('style');
+        surpriseStyle.id = 'customSurpriseStyle';
+        surpriseStyle.textContent = this.currentSurprise;
+        document.head.appendChild(surpriseStyle);
+        
+        // Remove surprise after 5 seconds
+        setTimeout(() => {
+          const existingSurprise = document.getElementById('customSurpriseStyle');
+          if (existingSurprise) {
+            existingSurprise.remove();
+          }
+        }, 5000);
+        
+        // Schedule next surprise
+        this.startSurpriseTimer();
+      }
+
+      uploadWallpaper(file, applyImmediately = false) {
+        if (!file || !file.type.startsWith('image/')) {
+            this.showNotification('Please select a valid image file', 'error');
+            return;
+        }
+
+        // Show loading indicator
+        document.getElementById('wallpaperUploadLoading').style.display = 'flex';
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const wallpaper = {
+                name: file.name,
+                url: e.target.result,
+                uploaded: Date.now()
+            };
+            
+            // Check if already exists
+            const existingIndex = this.customWallpapers.findIndex(w => w.name === file.name);
+            if (existingIndex === -1) {
+                this.customWallpapers.push(wallpaper);
+                localStorage.setItem(WALLPAPER_KEY, JSON.stringify(this.customWallpapers));
+                
+                // Add to dropdown
+                this.loadWallpapers();
+            }
+            
+            this.addToHistory(`Uploaded wallpaper: ${file.name}`, 'upload');
+            
+            // Apply immediately if requested
+            if (applyImmediately) {
+                this.applyWallpaper(wallpaper.url);
+            } else {
+                this.showNotification('Wallpaper uploaded successfully! Click "Apply Custom Wallpaper" to use it.', 'success');
+                document.getElementById('wallpaperUploadLoading').style.display = 'none';
+            }
+        };
+        
+        reader.readAsDataURL(file);
+      }
+
+      uploadTheme(file, applyImmediately = false) {
+        if (!file || file.type !== 'text/css') {
+          this.showNotification('Please select a valid CSS file', 'error');
+          return;
+        }
+
+        // Show loading indicator
+        document.getElementById('themeUploadLoading').style.display = 'flex';
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const theme = {
+            name: file.name.replace('.css', ''),
+            css: e.target.result,
+            uploaded: Date.now()
+          };
+          
+          // Check if already exists
+          const existingIndex = this.customThemes.findIndex(t => t.name === theme.name);
+          if (existingIndex === -1) {
+            this.customThemes.push(theme);
+            localStorage.setItem(THEME_KEY, JSON.stringify(this.customThemes));
+            
+            // Add to dropdown
+            this.loadThemes();
+          }
+          
+          this.addToHistory(`Uploaded theme: ${theme.name}`, 'upload');
+          
+          if (applyImmediately) {
+            this.applyTheme(theme.css, true);
+          } else {
+            this.showNotification('Theme uploaded successfully! Click "Apply Custom Theme" to use it.', 'success');
+            document.getElementById('themeUploadLoading').style.display = 'none';
+          }
+        };
+        
+        reader.readAsText(file);
+      }
+
+      uploadSurprise(file, applyImmediately = false) {
+        if (!file || file.type !== 'text/css') {
+          this.showNotification('Please select a valid CSS file', 'error');
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const surprise = {
+            name: file.name.replace('.css', ''),
+            css: e.target.result,
+            uploaded: Date.now()
+          };
+          
+          // Check if already exists
+          const existingIndex = this.customSurprises.findIndex(s => s.name === surprise.name);
+          if (existingIndex === -1) {
+            this.customSurprises.push(surprise);
+            localStorage.setItem(SURPRISE_KEY, JSON.stringify(this.customSurprises));
+            
+            // Add to dropdown
+            this.loadSurprises();
+          }
+          
+          this.addToHistory(`Uploaded surprise: ${surprise.name}`, 'upload');
+          
+          if (applyImmediately) {
+            this.applySurprise(surprise.css, true);
+          } else {
+            this.showNotification('Surprise uploaded successfully! Click "Apply Custom Surprise" to use it.', 'success');
+          }
+        };
+        
+        reader.readAsText(file);
+      }
+
+      resetWallpaper() {
+        this.applyWallpaper(null);
+        this.showNotification('Wallpaper reset to default!', 'success');
+      }
+
+      resetTheme() {
+        this.applyTheme(null);
+        this.showNotification('Theme reset to default!', 'success');
+      }
+
+      resetSurprise() {
+        this.applySurprise(null);
+        this.showNotification('Surprise reset to default!', 'success');
+      }
+
+      loadSavedCustomizations() {
+        // Load saved wallpaper
+        const savedWallpaper = localStorage.getItem('selected_wallpaper');
+        if (savedWallpaper) {
+          document.body.classList.add('custom-bg');
+          document.body.style.setProperty('--custom-bg-url', `url(${savedWallpaper})`);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('selected_theme');
+        if (savedTheme) {
+          try {
+            const themeData = JSON.parse(savedTheme);
+            if (themeData.type === 'custom') {
+              const style = document.createElement('style');
+              style.id = 'customThemeStyle';
+              style.textContent = themeData.css;
+              document.head.appendChild(style);
+              this.customThemeApplied = true;
+            } else if (themeData.type === 'repo') {
+              fetch(themeData.url).then(r => r.text()).then(css => {
+                const style = document.createElement('style');
+                style.id = 'customThemeStyle';
+                style.textContent = css;
+                document.head.appendChild(style);
+                this.customThemeApplied = false;
+              }).catch(console.error);
+            }
+          } catch (e) {
+            console.error('Error loading saved theme:', e);
+          }
+        }
+
+        // Load saved surprise
+        const savedSurprise = localStorage.getItem('selected_surprise');
+        if (savedSurprise) {
+          try {
+            const surpriseData = JSON.parse(savedSurprise);
+            if (surpriseData.type === 'custom') {
+              this.currentSurprise = surpriseData.css;
+            } else if (surpriseData.type === 'repo') {
+              fetch(surpriseData.url).then(r => r.text()).then(css => {
+                this.currentSurprise = css;
+                this.startSurpriseTimer();
+              }).catch(console.error);
+            }
+          } catch (e) {
+            console.error('Error loading saved surprise:', e);
+          }
+        }
+      }
+
+      // Library System
+      setupLibrarySystem() {
+        // Tab switching
+        document.querySelectorAll('.library-tab').forEach(tab => {
+          tab.addEventListener('click', (e) => {
+            const tabName = e.target.getAttribute('data-tab');
+            this.switchLibraryTab(tabName);
+          });
+        });
+
+        this.renderLibrary();
+        this.renderHistory();
+      }
+
+      switchLibraryTab(tabName) {
+        document.querySelectorAll('.library-tab').forEach(tab => tab.classList.remove('active'));
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+        
+        document.getElementById('savedContent').style.display = tabName === 'saved' ? 'block' : 'none';
+        document.getElementById('historyContent').style.display = tabName === 'history' ? 'block' : 'none';
+      }
+
+      saveToLibrary(file) {
+        const savedItem = {
+          ...file,
+          savedAt: Date.now()
+        };
+        
+        // Check if already saved
+        const existingIndex = this.library.findIndex(item => item.name === file.name);
+        if (existingIndex > -1) {
+          this.showNotification('Pack already in library!', 'error');
+          return;
+        }
+        
+        this.library.push(savedItem);
+        localStorage.setItem(LIBRARY_KEY, JSON.stringify(this.library));
+        this.renderLibrary();
+        this.addToHistory(`Saved pack: ${file.name}`, 'save');
+        this.showNotification('Pack saved to library!', 'success');
+      }
+
+      removeFromLibrary(fileName) {
+        this.library = this.library.filter(item => item.name !== fileName);
+        localStorage.setItem(LIBRARY_KEY, JSON.stringify(this.library));
+        this.renderLibrary();
+        this.addToHistory(`Removed pack: ${fileName}`, 'remove');
+        this.showNotification('Pack removed from library', 'success');
+      }
+
+      renderLibrary() {
+        const savedContent = document.getElementById('savedContent');
+        
+        if (this.library.length === 0) {
+          savedContent.innerHTML = '<div class="status-message">No saved packs yet. Save some packs from the home section!</div>';
+          return;
+        }
+
+        savedContent.innerHTML = this.library.map(item => `
+          <div class="saved-item">
+            <div>
+              <strong>${this.security.sanitizeHTML(item.name)}</strong><br>
+              <small>Saved ${new Date(item.savedAt).toLocaleDateString()}</small>
+            </div>
+            <div>
+              <button class="btn" onclick="premiumSystem.downloadFile('${item.download_url}', '${item.name}')">Download</button>
+              <button class="btn danger" onclick="premiumSystem.removeFromLibrary('${this.security.sanitizeHTML(item.name)}')">Remove</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      addToHistory(action, type = 'general') {
+        const historyItem = {
+          action,
+          type,
+          timestamp: Date.now()
+        };
+        
+        this.history.unshift(historyItem);
+        
+        // Keep only last 100 items
+        if (this.history.length > 100) {
+          this.history = this.history.slice(0, 100);
+        }
+        
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(this.history));
+        this.renderHistory();
+      }
+
+      addToDownloadHistory(fileName) {
+        const downloadRecord = {
+          fileName,
+          timestamp: Date.now()
+        };
+        
+        this.downloadHistory.unshift(downloadRecord);
+        
+        // Keep only last 500 items
+        if (this.downloadHistory.length > 500) {
+          this.downloadHistory = this.downloadHistory.slice(0, 500);
+        }
+        
+        localStorage.setItem(DOWNLOAD_HISTORY_KEY, JSON.stringify(this.downloadHistory));
+      }
+
+      getTrendingFiles(timeRange) {
+        const now = Date.now();
+        let timeLimit;
+        
+        switch(timeRange) {
+          case 'today':
+            timeLimit = now - (24 * 60 * 60 * 1000);
+            break;
+          case 'week':
+            timeLimit = now - (7 * 24 * 60 * 60 * 1000);
+            break;
+          case 'month':
+            timeLimit = now - (30 * 24 * 60 * 60 * 1000);
+            break;
+          case 'year':
+            timeLimit = now - (365 * 24 * 60 * 60 * 1000);
+            break;
+          default:
+            return this.downloadHistory;
+        }
+        
+        return this.downloadHistory.filter(record => record.timestamp > timeLimit);
+      }
+
+      renderHistory() {
+        const historyContent = document.getElementById('historyContent');
+        
+        if (this.history.length === 0) {
+          historyContent.innerHTML = '<div class="status-message">No history yet.</div>';
+          return;
+        }
+
+        historyContent.innerHTML = this.history.map(item => `
+          <div class="history-item">
+            <div>${this.security.sanitizeHTML(item.action)}</div>
+            <div class="history-timestamp">${new Date(item.timestamp).toLocaleString()}</div>
+          </div>
+        `).join('');
+      }
+
+      getLibrary() {
+        try {
+          const data = localStorage.getItem(LIBRARY_KEY);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          console.error('Error loading library:', e);
+          return [];
+        }
+      }
+
+      getHistory() {
+        try {
+          const data = localStorage.getItem(HISTORY_KEY);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          console.error('Error loading history:', e);
+          return [];
+        }
+      }
+
+      getDownloadHistory() {
+        try {
+          const data = localStorage.getItem(DOWNLOAD_HISTORY_KEY);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          console.error('Error loading download history:', e);
+          return [];
+        }
+      }
+
+      getCustomThemes() {
+        try {
+          const data = localStorage.getItem(THEME_KEY);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          console.error('Error loading custom themes:', e);
+          return [];
+        }
+      }
+
+      getCustomWallpapers() {
+        try {
+          const data = localStorage.getItem(WALLPAPER_KEY);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          console.error('Error loading custom wallpapers:', e);
+          return [];
+        }
+      }
+
+      getCustomSurprises() {
+        try {
+          const data = localStorage.getItem(SURPRISE_KEY);
+          return data ? JSON.parse(data) : [];
+        } catch (e) {
+          console.error('Error loading custom surprises:', e);
+          return [];
+        }
+      }
+
+      downloadFile(url, name) {
+        // Use the existing download functionality
+        const file = { download_url: url, name: name };
+        startDownload(file);
+        this.addToHistory(`Downloaded: ${name}`, 'download');
+        this.addToDownloadHistory(name);
+      }
+
+      showNotification(message, type = 'info') {
+        // Remove any existing notifications
+        document.querySelectorAll('[role="alert"]').forEach(el => {
+          if (el.style.position === 'fixed') el.remove();
+        });
+
+        const notification = document.createElement('div');
+        notification.className = `status-message status-${type}`;
+        notification.textContent = message;
+        notification.setAttribute('role', 'alert');
+        notification.style.position = 'fixed';
+        notification.style.top = '100px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '10001';
+        notification.style.background = type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--primary)';
+        notification.style.color = '#fff';
+        notification.style.padding = '1rem';
+        notification.style.borderRadius = '8px';
+        notification.style.boxShadow = 'var(--shadow)';
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 5000);
+      }
     }
 
-    // Search functionality
-    function setupSearch() {
-      function applyFiltersAndSearch() {
-        let filtered = allFiles;
+    // File Manager System
+    class FileManager {
+      constructor() {
+        this.allFiles = [];
+        this.allThumbs = {};
+        this.currentDownload = null;
+        this.currentFileType = 'all';
+        this.currentSortBy = 'az';
+        this.currentTrendFilter = 'all';
+        
+        this.setupUI();
+        this.fetchFiles();
+      }
+
+      setupUI() {
+        this.setupCustomDropdowns();
+        this.setupSearch();
+        this.setupModal();
+        this.setupHelp();
+      }
+
+      setupCustomDropdowns() {
+        const fileTypeButton = document.getElementById('fileTypeButton');
+        const fileTypeOptions = document.getElementById('fileTypeOptions');
+        const sortByButton = document.getElementById('sortByButton');
+        const sortByOptions = document.getElementById('sortByOptions');
+
+        fileTypeButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown(fileTypeButton, fileTypeOptions);
+        });
+
+        fileTypeOptions.addEventListener('click', (e) => {
+          if (e.target.classList.contains('dropdown-option')) {
+            this.selectOption(e.target, fileTypeButton, fileTypeOptions);
+            this.currentFileType = e.target.getAttribute('data-value');
+            this.applyFiltersAndSearch();
+          }
+        });
+
+        sortByButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown(sortByButton, sortByOptions);
+        });
+
+        sortByOptions.addEventListener('click', (e) => {
+          if (e.target.classList.contains('dropdown-option')) {
+            this.selectOption(e.target, sortByButton, sortByOptions);
+            this.currentSortBy = e.target.getAttribute('data-value');
+            this.applyFiltersAndSearch();
+          }
+        });
+
+        document.addEventListener('click', () => this.closeAllDropdowns());
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') this.closeAllDropdowns();
+        });
+      }
+
+      toggleDropdown(button, options) {
+        const isOpen = button.classList.contains('open');
+        this.closeAllDropdowns();
+        if (!isOpen) {
+          button.classList.add('open');
+          options.classList.add('open');
+          button.setAttribute('aria-expanded', 'true');
+        }
+      }
+
+      closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-button').forEach(btn => {
+          btn.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+        document.querySelectorAll('.dropdown-options').forEach(options => {
+          options.classList.remove('open');
+        });
+      }
+
+      selectOption(option, button, optionsContainer) {
+        optionsContainer.querySelectorAll('.dropdown-option').forEach(opt => {
+          opt.classList.remove('selected');
+        });
+        option.classList.add('selected');
+        button.querySelector('.dropdown-text').textContent = option.textContent;
+        this.closeAllDropdowns();
+      }
+
+      setupSearch() {
+        const searchInput = document.getElementById('searchInput');
+        let searchTimeout;
+        searchInput.addEventListener('input', () => {
+          clearTimeout(searchTimeout);
+          searchTimeout = setTimeout(() => this.applyFiltersAndSearch(), 300);
+        });
+      }
+
+      applyFiltersAndSearch() {
+        let filtered = [...this.allFiles];
+        const searchInput = document.getElementById('searchInput');
 
         // Search
         const query = searchInput.value.trim().toLowerCase();
@@ -1191,56 +3408,361 @@ const fileTypeSelect = document.getElementById('fileType');
         }
 
         // Filter by type
-        const type = fileTypeSelect.value;
-        if (type !== 'all') {
-          filtered = filtered.filter(f => f.name.toLowerCase().endsWith('.' + type));
+        if (this.currentFileType !== 'all') {
+          filtered = filtered.filter(f => f.name.toLowerCase().endsWith('.' + this.currentFileType));
         }
 
-        // Sorting
-        switch (sortBySelect.value) {
-          case 'az':
-            filtered.sort((a,b) => a.name.localeCompare(b.name));
-            break;
-          case 'za':
-            filtered.sort((a,b) => b.name.localeCompare(a.name));
-            break;
-          case 'largest':
-            filtered.sort((a,b) => b.size - a.size);
-            break;
-          case 'smallest':
-            filtered.sort((a,b) => a.size - b.size);
-            break;
+        // Apply trend filter for premium users
+        if (premiumSystem.isPremium && this.currentTrendFilter !== 'all') {
+          const trendingFiles = premiumSystem.getTrendingFiles(this.currentTrendFilter);
+          const trendingFileNames = trendingFiles.map(record => record.fileName);
+          
+          // Sort by popularity (most downloaded first)
+          filtered = filtered.filter(f => trendingFileNames.includes(f.name));
+          filtered.sort((a, b) => {
+            const aCount = trendingFileNames.filter(name => name === a.name).length;
+            const bCount = trendingFileNames.filter(name => name === b.name).length;
+            return bCount - aCount;
+          });
+        } else {
+          // Regular sorting for non-premium or "all time" filter
+          switch (this.currentSortBy) {
+            case 'az':
+              filtered.sort((a,b) => a.name.localeCompare(b.name));
+              break;
+            case 'za':
+              filtered.sort((a,b) => b.name.localeCompare(a.name));
+              break;
+            case 'largest':
+              filtered.sort((a,b) => b.size - a.size);
+              break;
+            case 'smallest':
+              filtered.sort((a,b) => a.size - b.size);
+              break;
+          }
         }
 
-        renderFiles(filtered);
+        this.renderFiles(filtered);
       }
 
-      // Events
-      let searchTimeout;
-      searchInput.addEventListener('input', () => {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(applyFiltersAndSearch, 300);
-      });
-      fileTypeSelect.addEventListener('change', applyFiltersAndSearch);
-      sortBySelect.addEventListener('change', applyFiltersAndSearch);
+      async fetchAllFiles(apiUrl = API_URL, prefix = '') {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        if (cachedData) {
+          try {
+            const { data, timestamp } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < CACHE_TIMEOUT) {
+              return data;
+            }
+          } catch (e) {
+            console.error('Error parsing cache:', e);
+          }
+        }
+
+        try {
+          document.getElementById('loadingOverlay').style.display = 'flex';
+          document.getElementById('loadingText').textContent = "Loading packs...";
+          
+          // Use a proxy to avoid CORS issues
+          const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+          const response = await fetch(proxyUrl + apiUrl, {
+            headers: {
+              'Origin': window.location.origin
+            }
+          });
+          
+          if (response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0') {
+            const resetTime = new Date(parseInt(response.headers.get('x-ratelimit-reset')) * 1000);
+            const timeUntilReset = Math.round((resetTime - new Date()) / 60000);
+            throw new Error(`GitHub API rate limit exceeded. Please try again in ${timeUntilReset} minutes.`);
+          }
+          
+          if (!response.ok) throw new Error(`Failed to fetch repository contents: ${response.status} ${response.statusText}`);
+          
+          const data = await response.json();
+          let files = [];
+          
+          for (const file of data) {
+            if (file.type === 'dir') {
+              const subFiles = await this.fetchAllFiles(file.url, prefix + file.name + '/');
+              files = files.concat(subFiles);
+            } else {
+              files.push({ ...file, path: prefix + file.name });
+            }
+          }
+          
+          localStorage.setItem(CACHE_KEY, JSON.stringify({
+            data: files,
+            timestamp: Date.now()
+          }));
+          
+          return files;
+        } catch (error) {
+          console.error('Error fetching files:', error);
+          // Try without proxy as fallback
+          try {
+            const response = await fetch(apiUrl);
+            if (response.ok) {
+              const data = await response.json();
+              let files = [];
+              
+              for (const file of data) {
+                if (file.type === 'dir') {
+                  const subFiles = await this.fetchAllFiles(file.url, prefix + file.name + '/');
+                  files = files.concat(subFiles);
+                } else {
+                  files.push({ ...file, path: prefix + file.name });
+                }
+              }
+              
+              localStorage.setItem(CACHE_KEY, JSON.stringify({
+                data: files,
+                timestamp: Date.now()
+              }));
+              
+              return files;
+            }
+          } catch (fallbackError) {
+            console.error('Fallback also failed:', fallbackError);
+            premiumSystem.showNotification('Failed to load packs. Please check your internet connection.', 'error');
+          }
+          return [];
+        } finally {
+          document.getElementById('loadingOverlay').style.display = 'none';
+        }
+      }
+
+      async fetchFiles() {
+        try {
+          let data = await this.fetchAllFiles();
+          
+          // If no files found, try with sample data
+          if (data.length === 0) {
+            console.log('No files found from GitHub, using sample data');
+            data = this.getSampleFiles();
+          }
+          
+          const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
+          this.allThumbs = {};
+          
+          sorted.forEach(file => {
+            if (file.name.toLowerCase().endsWith('.png')) {
+              const base = file.name.replace(/\.png$/i, '').toLowerCase();
+              this.allThumbs[base] = RAW_URL + file.path;
+            }
+          });
+
+          const mcFiles = sorted.filter(file =>
+            file.name.match(/\.mcpack$/i) || file.name.match(/\.mcworld$/i)
+          ).map(file => ({
+            name: file.name,
+            download_url: RAW_URL + file.path,
+            size: file.size,
+            thumb: this.allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null,
+            type: file.name.match(/\.mcpack$/i) ? 'resource pack' : 'world'
+          }));
+
+          this.allFiles = mcFiles;
+          this.renderFiles(mcFiles);
+        } catch (error) {
+          console.error('Error processing files:', error);
+          document.getElementById('fileList').innerHTML = `<div class="status-message status-error">${premiumSystem.security.sanitizeHTML(error.message)}</div>`;
+        }
+      }
+
+      // Sample files as fallback
+      getSampleFiles() {
+        return [
+          { name: 'Fantasy_Resource_Pack.mcpack', size: 5242880, type: 'file', path: 'Fantasy_Resource_Pack.mcpack' },
+          { name: 'Medieval_World.mcworld', size: 10485760, type: 'file', path: 'Medieval_World.mcworld' },
+          { name: 'Modern_City.mcworld', size: 15728640, type: 'file', path: 'Modern_City.mcworld' },
+          { name: 'Pixel_Art_Pack.mcpack', size: 3145728, type: 'file', path: 'Pixel_Art_Pack.mcpack' },
+          { name: 'Survival_Island.mcworld', size: 8388608, type: 'file', path: 'Survival_Island.mcworld' }
+        ];
+      }
+
+      renderFiles(filesToRender) {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = "";
+        
+        if (filesToRender.length === 0) {
+          fileList.innerHTML = '<div class="status-message">No .mcpack or .mcworld files found.</div>';
+          return;
+        }
+        
+        filesToRender.forEach(file => {
+          const div = document.createElement('div');
+          div.className = 'file';
+          div.setAttribute('role', 'listitem');
+
+          if (file.thumb) {
+            const thumb = document.createElement('img');
+            thumb.className = 'thumbnail';
+            thumb.src = file.thumb;
+            thumb.alt = `Thumbnail for ${file.name}`;
+            thumb.loading = 'lazy';
+            thumb.onerror = function() { thumb.style.display = 'none'; };
+            div.appendChild(thumb);
+          }
+
+          const name = document.createElement('div');
+          name.className = 'name';
+          name.textContent = file.name;
+          div.appendChild(name);
+
+          const meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.innerHTML = `
+            <span>${this.humanFileSize(file.size)}</span>
+            <span>•</span>
+            <span>${file.type}</span>
+          `;
+          div.appendChild(meta);
+
+          const actions = document.createElement('div');
+          actions.className = 'actions';
+          
+          const dl = document.createElement('button');
+          dl.className = 'btn';
+          dl.innerHTML = `<span aria-hidden="true">⬇️</span> Download`;
+          dl.onclick = () => startDownload(file);
+          actions.appendChild(dl);
+
+          // Add save button for premium users
+          if (premiumSystem.isPremium) {
+            const save = document.createElement('button');
+            save.className = 'btn save';
+            save.innerHTML = `<span aria-hidden="true">💾</span> Save`;
+            save.onclick = () => premiumSystem.saveToLibrary(file);
+            actions.appendChild(save);
+          }
+          
+          div.appendChild(actions);
+          fileList.appendChild(div);
+        });
+      }
+
+      humanFileSize(size) {
+        if (size < 1024) return size + " B";
+        if (size < 1024 * 1024) return (size/1024).toFixed(1) + " KB";
+        if (size < 1024 * 1024 * 1024) return (size/1024/1024).toFixed(1) + " MB";
+        return (size/1024/1024/1024).toFixed(2) + " GB";
+      }
+
+      setupModal() {
+        const FOOTER_SECTIONS = {
+          about: {
+            title: "About",
+            content: `Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). We provide a simple and secure way for the Minecraft community to discover new content. All packs are carefully curated for your gameplay experience.`
+          },
+          privacy: {
+            title: "Privacy Policy", 
+            content: `Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.`
+          },
+          contact: {
+            title: "Contact",
+            content: `Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. We appreciate your feedback and will respond as soon as possible.`
+          }
+        };
+
+        const aboutBtn = document.getElementById('aboutBtn');
+        const privacyBtn = document.getElementById('privacyBtn');
+        const contactBtn = document.getElementById('contactBtn');
+        const footerModal = document.getElementById('footerModal');
+        const footerModalContent = document.getElementById('footerModalContent');
+        const footerModalBack = document.getElementById('footerModalBack');
+
+        function openFooterModal(sectionKey) {
+          const data = FOOTER_SECTIONS[sectionKey];
+          if (!data) return;
+          
+          const existingTitle = footerModalContent.querySelector('.footer-section-title');
+          const existingContent = footerModalContent.querySelector('.footer-section-content');
+          
+          if (existingTitle) existingTitle.remove();
+          if (existingContent) existingContent.remove();
+          
+          const titleDiv = document.createElement('div');
+          titleDiv.className = 'footer-section-title';
+          titleDiv.textContent = data.title;
+          titleDiv.id = 'modalTitle';
+          footerModalContent.insertBefore(titleDiv, footerModalBack);
+          
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'footer-section-content';
+          contentDiv.innerHTML = data.content;
+          footerModalContent.insertBefore(contentDiv, footerModalBack);
+          
+          footerModal.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+          
+          setTimeout(() => footerModalBack.focus(), 100);
+        }
+
+        function closeFooterModal() {
+          footerModal.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+
+        aboutBtn.onclick = () => openFooterModal('about');
+        privacyBtn.onclick = () => openFooterModal('privacy');
+        contactBtn.onclick = () => openFooterModal('contact');
+        footerModalBack.onclick = closeFooterModal;
+
+        footerModal.addEventListener('click', function(e) {
+          if (e.target === footerModal) closeFooterModal();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && footerModal.style.display === 'flex') {
+            closeFooterModal();
+          }
+        });
+      }
+
+      setupHelp() {
+        const helpModal = document.getElementById('helpModal');
+        const helpClose = document.getElementById('helpClose');
+        
+        document.getElementById('helpBtn').onclick = () => {
+          helpModal.style.display = 'flex';
+        };
+        
+        helpClose.onclick = () => {
+          helpModal.style.display = 'none';
+        };
+
+        document.getElementById('refreshBtn').onclick = () => {
+          location.reload();
+        };
+      }
     }
 
-    // Download functionality
+    // Download functionality - Fixed to always use correct extensions
     function startDownload(file) {
-      // Show UI
+      const downloadingScreen = document.getElementById('downloadingScreen');
+      const downloadFileName = document.getElementById('downloadFileName');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const downloadCancelBtn = document.getElementById('downloadCancelBtn');
+
       downloadingScreen.style.display = 'flex';
       downloadCancelBtn.style.display = 'block';
 
+      // ALWAYS use correct extension, NEVER add .txt
       let downloadName;
       if (file.name.match(/\.mcpack$/i)) {
         downloadName = file.name.replace(/(\.mcpack)?(\.txt)?$/i, '') + '.mcpack';
       } else if (file.name.match(/\.mcworld$/i)) {
         downloadName = file.name.replace(/(\.mcworld)?(\.txt)?$/i, '') + '.mcworld';
       } else {
-        downloadName = file.name;
+        // For any other file, remove .txt if present and keep original extension
+        downloadName = file.name.replace(/\.txt$/i, '');
       }
       
-      downloadFileName.textContent = `${downloadName} (${humanFileSize(file.size)})`;
+      // Double-check: Ensure we never have .txt in the final filename
+      downloadName = downloadName.replace(/\.txt$/i, '');
+      
+      downloadFileName.textContent = `${downloadName} (${fileManager.humanFileSize(file.size)})`;
       progressBar.style.width = "0";
       progressBar.setAttribute('aria-valuenow', 0);
       
@@ -1248,13 +3770,12 @@ const fileTypeSelect = document.getElementById('fileType');
       let allowClose = false;
       let canCancel = false;
       let controller = new AbortController();
-      currentDownload = controller;
+      fileManager.currentDownload = controller;
 
       progressText.textContent = "Starting download...";
 
-      // Cancel download on page leave/tab hide
       function abortDownloadIfActive() {
-        if (currentDownload && !allowClose) {
+        if (fileManager.currentDownload && !allowClose) {
           controller.abort();
         }
       }
@@ -1274,7 +3795,10 @@ const fileTypeSelect = document.getElementById('fileType');
       window.addEventListener('beforeunload', beforeUnloadHandler);
       document.addEventListener('visibilitychange', visibilityChangeHandler);
 
-      fetch(file.download_url, {signal: controller.signal})
+      // Use proxy to avoid CORS issues
+      const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+      
+      fetch(proxyUrl + file.download_url, {signal: controller.signal})
         .then(response => {
           if (!response.ok) throw new Error("Failed to download file.");
           
@@ -1285,12 +3809,11 @@ const fileTypeSelect = document.getElementById('fileType');
           function read() {
             return reader.read().then(({done, value}) => {
               if (done) {
-                // Download complete
                 window.removeEventListener('beforeunload', beforeUnloadHandler);
                 document.removeEventListener('visibilitychange', visibilityChangeHandler);
                 
                 downloadingScreen.style.display = 'none';
-                currentDownload = null;
+                fileManager.currentDownload = null;
                 
                 const blob = new Blob(chunks);
                 const url = URL.createObjectURL(blob);
@@ -1306,7 +3829,8 @@ const fileTypeSelect = document.getElementById('fileType');
                 setTimeout(() => {
                   document.body.removeChild(a);
                   URL.revokeObjectURL(url);
-                  showNotification(`Download complete: ${downloadName}`, 'success');
+                  premiumSystem.addToDownloadHistory(file.name);
+                  premiumSystem.showNotification(`Download complete: ${downloadName}`, 'success');
                 }, 100);
                 
                 return;
@@ -1319,9 +3843,8 @@ const fileTypeSelect = document.getElementById('fileType');
               progressBar.style.width = percent + "%";
               progressBar.setAttribute('aria-valuenow', percent);
               
-              progressText.textContent = `Downloaded ${humanFileSize(downloadedBytes)} of ${humanFileSize(total)} (${percent.toFixed(1)}%)`;
+              progressText.textContent = `Downloaded ${fileManager.humanFileSize(downloadedBytes)} of ${fileManager.humanFileSize(total)} (${percent.toFixed(1)}%)`;
               
-              // Allow canceling after 10% progress
               if (percent >= 10 && !allowClose) {
                 allowClose = true;
                 canCancel = true;
@@ -1339,7 +3862,7 @@ const fileTypeSelect = document.getElementById('fileType');
               downloadingScreen.style.display = 'none';
               window.removeEventListener('beforeunload', beforeUnloadHandler);
               document.removeEventListener('visibilitychange', visibilityChangeHandler);
-              currentDownload = null;
+              fileManager.currentDownload = null;
             });
           }
           
@@ -1349,106 +3872,44 @@ const fileTypeSelect = document.getElementById('fileType');
             progressText.textContent = "Download cancelled.";
           } else {
             progressText.textContent = "Error: " + err.message;
-            showNotification("Download failed: " + err.message, 'error');
+            premiumSystem.showNotification("Download failed: " + err.message, 'error');
           }
           
           downloadingScreen.style.display = 'none';
           window.removeEventListener('beforeunload', beforeUnloadHandler);
           document.removeEventListener('visibilitychange', visibilityChangeHandler);
-          currentDownload = null;
+          fileManager.currentDownload = null;
         });
 
       downloadCancelBtn.onclick = function() {
-        if (canCancel && currentDownload) {
+        if (canCancel && fileManager.currentDownload) {
           controller.abort();
           downloadCancelBtn.style.display = "none";
         }
       };
     }
 
-    // Modal functionality
-    function setupModal() {
-      function openFooterModal(sectionKey) {
-        const data = FOOTER_SECTIONS[sectionKey];
-        if (!data) return;
-        
-        // Clear previous content
-        const existingTitle = footerModalContent.querySelector('.footer-section-title');
-        const existingContent = footerModalContent.querySelector('.footer-section-content');
-        
-        if (existingTitle) existingTitle.remove();
-        if (existingContent) existingContent.remove();
-        
-        // Create title
-        const titleDiv = document.createElement('div');
-        titleDiv.className = 'footer-section-title';
-        titleDiv.textContent = data.title;
-        titleDiv.id = 'modalTitle';
-        footerModalContent.insertBefore(titleDiv, footerModalBack);
-        
-        // Create content
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'footer-section-content';
-        contentDiv.innerHTML = data.content;
-        footerModalContent.insertBefore(contentDiv, footerModalBack);
-        
-        // Show modal
-        footerModal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-        
-        // Set focus for accessibility
-        setTimeout(() => {
-          footerModalBack.focus();
-        }, 100);
-      }
+    // Initialize Application
+    let premiumSystem, fileManager;
 
-      function closeFooterModal() {
-        footerModal.style.display = 'none';
-        document.body.style.overflow = '';
-      }
-
-      aboutBtn.onclick = () => openFooterModal('about');
-      privacyBtn.onclick = () => openFooterModal('privacy');
-      contactBtn.onclick = () => openFooterModal('contact');
-      footerModalBack.onclick = closeFooterModal;
-
-      // Close modal if background is clicked or Escape key is pressed
-      footerModal.addEventListener('click', function(e) {
-        if (e.target === footerModal) closeFooterModal();
-      });
+    document.addEventListener('DOMContentLoaded', function() {
+      premiumSystem = new PremiumSystem();
+      fileManager = new FileManager();
       
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && footerModal.style.display === 'flex') {
-          closeFooterModal();
-        }
-      });
-    }
-
-    // Initialize the application
-    function init() {
-      setupSearch();
-      setupModal();
-      fetchFiles();
+      // Make functions globally available
+      window.premiumSystem = premiumSystem;
+      window.fileManager = fileManager;
+      window.startDownload = startDownload;
       
       // Clear cache on shift+click for debugging
       document.addEventListener('click', (e) => {
         if (e.shiftKey && e.button === 0) {
           localStorage.removeItem(CACHE_KEY);
-          showNotification('Cache cleared', 'success');
-          fetchFiles();
+          premiumSystem.showNotification('Cache cleared', 'success');
+          fileManager.fetchFiles();
         }
       });
-    }
-
-    // Start the application
-    document.addEventListener('DOMContentLoaded', init);
-// Help + Refresh buttons
-    document.getElementById('refreshBtn').onclick = () => location.reload();
-
-    const helpModal = document.getElementById('helpModal');
-    const helpClose = document.getElementById('helpClose');
-    document.getElementById('helpBtn').onclick = () => helpModal.style.display = 'flex';
-    helpClose.onclick = () => helpModal.style.display = 'none';
+    });
   })();
   </script>
 </body>

@@ -1,8 +1,8 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minecraft File Manager - Premium</title>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -26,9 +26,11 @@
     --transition: all 0.3s ease;
     --home-opacity: 1;
     --thumbnail-opacity: 1;
+    --global-opacity: 1;
+    --font-size: 16px;
     font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
     color: var(--text-primary);
-    font-size: 16px;
+    font-size: var(--font-size);
   }
 
   /* Base styles */
@@ -50,6 +52,9 @@
     flex-direction: column;
     min-width: 320px;
     line-height: 1.6;
+    background-attachment: fixed;
+    transition: background-position 0.1s ease;
+    opacity: var(--global-opacity);
   }
 
   /* Custom background for premium users */
@@ -99,10 +104,12 @@
   header h1 {
     margin: 0;
     font-size: 2rem;
-    background: linear-gradient(90deg, var(--accent), var(--primary));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-weight: bold;
+    color: inherit;
+    text-shadow: 
+      2px 2px 0 black,
+      4px 4px 0 black,
+      6px 6px 0 black;
   }
 
   .header-buttons {
@@ -166,6 +173,38 @@
     width: 90%;
     margin: 2rem auto;
     gap: 1.5rem;
+  }
+
+  /* Bento Grid for Large Screens */
+  @media (min-width: 1200px) {
+    .container {
+      max-width: 1400px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto 1fr;
+      grid-template-areas: 
+        "notice notice notice"
+        "categories files files"
+        "categories files files";
+      gap: 1.5rem;
+    }
+
+    .notice-box {
+      grid-area: notice;
+    }
+
+    .categories-section {
+      grid-area: categories;
+    }
+
+    .files-section {
+      grid-area: files;
+    }
+
+    .files {
+      max-height: none;
+      height: 100%;
+    }
   }
   
   /* Notice box */
@@ -291,7 +330,7 @@
     background: var(--surface);
     border: 4px solid var(--accent);
     transition: var(--transition);
-    opacity: var(--thumbnail-opacity);
+    margin-bottom: 0.5rem;
   }
   
   .thumbnail:hover {
@@ -595,7 +634,7 @@
     color: #fff;
   }
 
-  /* Theme Section */
+  /* Theme Section - NEW DESIGN */
   .theme-section {
     display: none;
   }
@@ -604,11 +643,80 @@
     display: block;
   }
 
-  .wallpaper-grid {
+  .theme-main-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .theme-main-btn {
+    background: var(--surface-light);
+    border: 2px solid var(--primary);
+    color: var(--text-primary);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: var(--transition);
+    text-align: center;
+  }
+
+  .theme-main-btn:hover {
+    background: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .theme-subpage {
+    display: none;
+  }
+
+  .theme-subpage.active {
+    display: block;
+  }
+
+  .theme-back-btn {
+    background: var(--surface-light);
+    border: 2px solid var(--primary);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+  }
+
+  .theme-back-btn:hover {
+    background: var(--primary);
+  }
+
+  .theme-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 1rem;
     margin: 2rem 0;
+  }
+
+  .theme-item {
+    background: var(--surface-light);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: var(--transition);
+    text-align: center;
+  }
+
+  .theme-item.selected {
+    border-color: var(--accent);
+  }
+
+  .theme-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
   }
 
   .wallpaper-item {
@@ -634,32 +742,6 @@
     transform: scale(1.05);
   }
 
-  .theme-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-    margin: 2rem 0;
-  }
-
-  .theme-item {
-    background: var(--surface-light);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    border: 3px solid transparent;
-    transition: var(--transition);
-    text-align: center;
-  }
-
-  .theme-item.selected {
-    border-color: var(--accent);
-  }
-
-  .theme-item:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow);
-  }
-
   .upload-area {
     border: 2px dashed var(--primary);
     border-radius: var(--border-radius);
@@ -677,6 +759,191 @@
 
   .upload-area input[type="file"] {
     display: none;
+  }
+
+  .upload-loading {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .upload-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--accent);
+    animation: spin 1s linear infinite;
+    margin-right: 0.5rem;
+  }
+
+  .custom-items-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface-light);
+    border-radius: var(--border-radius);
+  }
+
+  .custom-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .custom-item {
+    background: var(--surface);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    position: relative;
+  }
+
+  .custom-item img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+
+  .custom-item-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .custom-item-btn {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .delete-btn {
+    background: var(--danger);
+    color: white;
+  }
+
+  .surprise-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .surprise-checkbox {
+    display: none;
+  }
+
+  .surprise-checkbox-label {
+    background: var(--surface-light);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+  }
+
+  .surprise-checkbox:checked + .surprise-checkbox-label {
+    background: var(--primary);
+    border-color: var(--accent);
+  }
+
+  /* Opacity Controls */
+  .opacity-controls {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface-light);
+    border-radius: var(--border-radius);
+    text-align: center;
+  }
+
+  .opacity-control {
+    margin: 1rem 0;
+  }
+
+  .opacity-control label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .opacity-control input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--background);
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .opacity-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  .opacity-value {
+    color: var(--accent);
+    font-weight: 600;
+    margin-left: 1rem;
+  }
+
+  .reset-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  /* Font Size Controls */
+  .font-size-controls {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--surface-light);
+    border-radius: var(--border-radius);
+    text-align: center;
+  }
+
+  .font-size-control {
+    margin: 1rem 0;
+  }
+
+  .font-size-control label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .font-size-control input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--background);
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  .font-size-control input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+  }
+
+  .font-size-value {
+    color: var(--accent);
+    font-weight: 600;
+    margin-left: 1rem;
   }
 
   /* Library Section */
@@ -1209,81 +1476,6 @@
     background: var(--accent-dark);
   }
 
-  /* Opacity Controls */
-  .opacity-controls {
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background: var(--surface-light);
-    border-radius: var(--border-radius);
-  }
-
-  .opacity-control {
-    margin: 1rem 0;
-  }
-
-  .opacity-control label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-  }
-
-  .opacity-control input[type="range"] {
-    width: 100%;
-    height: 8px;
-    border-radius: 4px;
-    background: var(--background);
-    outline: none;
-    -webkit-appearance: none;
-  }
-
-  .opacity-control input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--accent);
-    cursor: pointer;
-  }
-
-  .opacity-value {
-    color: var(--accent);
-    font-weight: 600;
-    margin-left: 1rem;
-  }
-
-  /* Theme dropdowns */
-  .theme-dropdowns {
-    display: flex;
-    gap: 1rem;
-    margin: 2rem 0;
-    flex-wrap: wrap;
-  }
-
-  .theme-dropdown {
-    flex: 1;
-    min-width: 250px;
-  }
-
-  .theme-dropdown label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-secondary);
-    font-weight: 600;
-  }
-
-  .apply-btn {
-    margin-top: 1rem;
-    width: 100%;
-  }
-
-  /* Surprise section */
-  .surprise-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 2px dashed var(--primary);
-  }
-
   /* Premium verification elements (invisible) */
   .premium-verification {
     position: absolute;
@@ -1342,24 +1534,6 @@
     background: #ffed4e;
   }
 
-  /* Loading indicator for uploads */
-  .upload-loading {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    margin-top: 1rem;
-  }
-
-  .upload-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: var(--accent);
-    animation: spin 1s linear infinite;
-    margin-right: 0.5rem;
-  }
-
   /* Accessibility improvements */
   .sr-only {
     position: absolute;
@@ -1391,6 +1565,440 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+
+  /* Skeleton Loading */
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface-light) 25%, var(--surface) 50%, var(--surface-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+  }
+
+  .skeleton-thumbnail {
+    width: 200px;
+    height: 120px;
+    margin: 0 auto;
+  }
+
+  .skeleton-name {
+    width: 80%;
+    height: 1.5rem;
+    margin: 0.5rem auto;
+  }
+
+  .skeleton-meta {
+    width: 60%;
+    height: 1rem;
+    margin: 0.5rem auto;
+  }
+
+  .skeleton-actions {
+    width: 100%;
+    height: 2.5rem;
+    margin: 0.5rem auto;
+  }
+
+  @keyframes loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Categories Section */
+  .categories-section {
+    margin-bottom: 1.5rem;
+    opacity: var(--home-opacity);
+  }
+
+  .categories-carousel {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding: 0.5rem;
+    margin: 1rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) var(--surface);
+  }
+
+  .categories-carousel::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .categories-carousel::-webkit-scrollbar-track {
+    background: var(--surface);
+    border-radius: 3px;
+  }
+
+  .categories-carousel::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 3px;
+  }
+
+  .category-chip {
+    background: var(--surface-light);
+    color: var(--text-secondary);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .category-chip.active {
+    background: var(--primary);
+    color: white;
+  }
+
+  .category-chip:hover {
+    background: var(--primary-light);
+    color: white;
+  }
+
+  /* Accordion Styles */
+  .accordion {
+    width: 100%;
+    margin: 1rem 0;
+  }
+
+  .accordion-item {
+    background: var(--surface-light);
+    border-radius: var(--border-radius);
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+  }
+
+  .accordion-header {
+    background: var(--surface);
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+
+  .accordion-header:hover {
+    background: var(--primary);
+  }
+
+  .accordion-header.active {
+    background: var(--primary);
+  }
+
+  .accordion-content {
+    padding: 0 1.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+
+  .accordion-content.active {
+    padding: 1rem 1.5rem;
+    max-height: 500px;
+  }
+
+  .accordion-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .accordion-header.active .accordion-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Performance optimizations */
+  .will-change {
+    will-change: transform, opacity;
+  }
+
+  /* Hardware acceleration */
+  .hardware-accelerate {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  /* Global Opacity Styles */
+  .global-opacity-target {
+    opacity: var(--global-opacity, 1);
+  }
+
+  .global-opacity-target * {
+    opacity: 1 !important;
+  }
+
+  /* Website Outline Styles */
+  .outline-element {
+    outline: 2px solid var(--primary);
+    outline-offset: -1px;
+  }
+
+  /* Games Section */
+  .games-section {
+    margin-top: 2rem;
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  .game-item {
+    background: var(--surface-light);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .game-item:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+  }
+
+  /* Whole Website Skeleton */
+  .website-skeleton {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--background);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .skeleton-header {
+    background: var(--surface);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .skeleton-title {
+    width: 200px;
+    height: 2rem;
+    background: linear-gradient(90deg, var(--surface-light) 25%, var(--surface) 50%, var(--surface-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 8px;
+  }
+
+  .skeleton-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .skeleton-button {
+    width: 80px;
+    height: 2rem;
+    background: linear-gradient(90deg, var(--surface-light) 25%, var(--surface) 50%, var(--surface-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 6px;
+  }
+
+  .skeleton-main {
+    flex: 1;
+    padding: 1.5rem;
+    max-width: 800px;
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .skeleton-notice {
+    width: 100%;
+    height: 120px;
+    background: linear-gradient(90deg, var(--surface-light) 25%, var(--surface) 50%, var(--surface-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: var(--border-radius);
+  }
+
+  .skeleton-categories {
+    width: 100%;
+    height: 60px;
+    background: linear-gradient(90deg, var(--surface-light) 25%, var(--surface) 50%, var(--surface-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: var(--border-radius);
+  }
+
+  .skeleton-files {
+    flex: 1;
+    background: linear-gradient(90deg, var(--surface-light) 25%, var(--surface) 50%, var(--surface-light) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: var(--border-radius);
+  }
+
+  /* File Details Modal */
+  .file-details-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    padding: 1rem;
+  }
+
+  .file-details-content {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    max-width: 600px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .file-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .file-details-thumbnail {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin: 0 auto 1.5rem;
+    display: block;
+  }
+
+  .file-details-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .file-details-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .file-details-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--surface-light);
+    border-radius: 6px;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+
+  .file-details-link:hover {
+    background: var(--primary);
+    color: white;
+  }
+
+  .file-details-link-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Section Transitions */
+  .section-transition {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .section-transition.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* File with thumbnail */
+  .file-with-thumbnail {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--surface-light);
+    position: relative;
+  }
+
+  .file-with-thumbnail:last-child {
+    border-bottom: none;
+  }
+
+  .file-thumbnail-small {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--border-radius);
+    object-fit: cover;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    transition: var(--transition);
+    flex-shrink: 0;
+  }
+
+  .file-thumbnail-small:hover {
+    transform: scale(1.03);
+    border-color: var(--accent-dark);
+  }
+
+  .file-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .file-expand-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+    transition: var(--transition);
+  }
+
+  .file-expand-btn:hover {
+    color: var(--accent-dark);
+  }
+
+  .file-description-preview {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .file-description-preview.expanded {
+    max-height: 200px;
   }
   
   /* Responsive design */
@@ -1483,6 +2091,24 @@
       font-size: 0.8rem;
       padding: 0.4rem 0.8rem;
     }
+
+    .categories-carousel {
+      padding: 0.25rem;
+    }
+
+    .category-chip {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+    }
+
+    .theme-main-buttons {
+      gap: 0.75rem;
+    }
+
+    .theme-main-btn {
+      padding: 1.25rem;
+      font-size: 1.1rem;
+    }
   }
   
   @media (max-width: 480px) {
@@ -1558,10 +2184,97 @@
       font-size: 0.7rem;
       padding: 0.3rem 0.6rem;
     }
+
+    .category-chip {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.7rem;
+    }
+
+    .theme-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .theme-main-buttons {
+      gap: 0.5rem;
+    }
+
+    .theme-main-btn {
+      padding: 1rem;
+      font-size: 1rem;
+    }
+.theme-subpage {
+  display: none;
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.3s ease;
+  background: var(--surface);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+
+.theme-subpage.show-card {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  animation: fadeInCard 0.3s ease;
+}
+
+@keyframes fadeInCard {
+  from {opacity: 0; transform: translateY(40px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+.file-with-thumbnail {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.file-thumbnail-small {
+  width: 160px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.file-content {
+  align-items: center;
+}
+.mpack-title {
+  font-size: 2.3rem;
+  font-weight: 900;
+  color: transparent; /* color hidden, only shadow visible */
+  text-shadow:
+    2px 2px 0 black,
+    4px 4px 0 black,
+    6px 6px 0 black; /* thick sharp shadow */
+  letter-spacing: 1px;
+}
+
+body {
+  --dynamic-bg: var(--primary); /* fallback */
+}
   }
   </style>
 </head>
 <body>
+  <!-- Whole Website Skeleton -->
+  <div id="websiteSkeleton" class="website-skeleton">
+    <div class="skeleton-header">
+      <div class="skeleton-title"></div>
+      <div class="skeleton-buttons">
+        <div class="skeleton-button"></div>
+        <div class="skeleton-button"></div>
+        <div class="skeleton-button"></div>
+      </div>
+    </div>
+    <div class="skeleton-main">
+      <div class="skeleton-notice"></div>
+      <div class="skeleton-categories"></div>
+      <div class="skeleton-files"></div>
+    </div>
+  </div>
+
   <!-- Premium Verification Elements (Invisible) -->
   <div id="premiumVerification1" class="premium-verification"></div>
   <div id="premiumVerification2" class="premium-verification"></div>
@@ -1572,7 +2285,7 @@
   <button id="timedContactBtn" class="timed-button">Contact Support</button>
 
   <header role="banner">
-    <h1>Minecraft packs</h1>
+    <h1 class="mpack-title">M-PACK</h1>
     <div class="header-buttons">
       <button id="helpBtn" class="header-btn">❓ Help</button>
       <button id="refreshBtn" class="header-btn">🔄 Refresh</button>
@@ -1582,13 +2295,13 @@
 
   <main class="container" role="main">
     <!-- Premium Promotion Banner (shown randomly) -->
-    <div id="premiumPromo" class="premium-promo" style="display: none;">
+    <div id="premiumPromo" class="premium-promo global-opacity-target" style="display: none;">
       ✨ Upgrade to Premium for Ad-Free Experience, Custom Themes & More! Click here! ✨
     </div>
 
     <!-- Home Section -->
-    <section id="homeSection" class="home-section">
-      <div class="notice-box" aria-labelledby="important-notice">
+    <section id="homeSection" class="home-section section-transition active">
+      <div class="notice-box global-opacity-target" aria-labelledby="important-notice">
         <h2 id="important-notice">⚠️ Important Notice</h2>
         <p>Get our app: <a href="https://sifat8668.github.io/Mpacksapp/" target="_blank" rel="noopener">Mpacks app</a></p>
         <p>Files will download with correct extensions (.mcpack/.mcworld)</p>
@@ -1638,101 +2351,171 @@
           </div>
         </div>
       </div>
+
+      <!-- Categories Section -->
+      <div class="categories-section global-opacity-target">
+        <h3>Categories</h3>
+        <div class="categories-carousel" id="categoriesCarousel">
+          <!-- Categories will be dynamically added here -->
+        </div>
+      </div>
       
-      <section aria-labelledby="files-heading">
+      <section class="files-section" aria-labelledby="files-heading">
         <h2 id="files-heading" class="sr-only">Available Minecraft Packs</h2>
-        <div class="files" id="fileList" role="list" aria-label="List of Minecraft packs"></div>
+        <div class="files global-opacity-target" id="fileList" role="list" aria-label="List of Minecraft packs"></div>
       </section>
     </section>
 
-    <!-- Theme Section (Premium Only) -->
-    <section id="themeSection" class="theme-section">
-      <div class="notice-box">
+    <!-- Theme Section (Premium Only) - NEW DESIGN -->
+    <section id="themeSection" class="theme-section section-transition">
+      <div class="notice-box global-opacity-target">
         <h2>🎨 Theme Customization</h2>
         
-        <!-- Wallpaper Selection -->
-        <div class="theme-dropdowns">
-          <div class="theme-dropdown">
-            <label for="wallpaperSelect">📷 Select Wallpaper:</label>
-            <div class="custom-dropdown">
-              <button class="dropdown-button" id="wallpaperSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
-                <span class="dropdown-text">Default Wallpaper</span>
-                <span class="dropdown-arrow">▾</span>
-              </button>
-              <div class="dropdown-options" id="wallpaperOptions" role="listbox">
-                <div class="dropdown-option selected" data-value="default" role="option">Default Wallpaper</div>
-                <!-- GitHub wallpapers will be added here -->
-              </div>
-            </div>
-            <button class="btn apply-btn" id="applyWallpaper">Apply Wallpaper</button>
-            <button class="reset-btn" id="resetWallpaper">Reset to Default</button>
-            <div class="upload-loading" id="wallpaperUploadLoading">
-              <div class="upload-spinner"></div>
-              <span>Uploading wallpaper...</span>
-            </div>
+        <!-- Main Theme Buttons -->
+        <div class="theme-main-buttons">
+          <button class="theme-main-btn" id="setWallpaperBtn">📷 Set Wallpaper</button>
+          <button class="theme-main-btn" id="setThemeBtn">🎭 Set Theme</button>
+          <button class="theme-main-btn" id="setSurprisesBtn">🎁 Set Surprises</button>
+        </div>
+        
+        <!-- Opacity Controls -->
+        <div class="opacity-controls">
+          <h3>🌫️ Opacity Settings</h3>
+          <div class="opacity-control">
+            <label for="globalOpacity">Global Opacity (everything on the website):</label>
+            <input type="range" id="globalOpacity" min="0" max="100" value="100">
+            <span id="globalOpacityValue" class="opacity-value">100%</span>
           </div>
         </div>
         
-        <h3>📷 Upload Custom Wallpaper</h3>
-        <div class="upload-area" id="wallpaperUpload">
-          <input type="file" id="wallpaperFile" accept="image/*">
-          <p>📎 Click to upload custom wallpaper (PNG, JPG, GIF, etc.)</p>
-        </div>
-        <button class="btn apply-btn" id="applyCustomWallpaper">Apply Custom Wallpaper</button>
-        
-        <!-- Theme Selection -->
-        <div class="theme-dropdowns">
-          <div class="theme-dropdown">
-            <label for="themeSelect">🎭 Select Theme:</label>
-            <div class="custom-dropdown">
-              <button class="dropdown-button" id="themeSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
-                <span class="dropdown-text">Default Theme</span>
-                <span class="dropdown-arrow">▾</span>
-              </button>
-              <div class="dropdown-options" id="themeOptions" role="listbox">
-                <div class="dropdown-option selected" data-value="default" role="option">Default Theme</div>
-                <!-- GitHub themes will be added here -->
-              </div>
-            </div>
-            <button class="btn apply-btn" id="applyTheme">Apply Theme</button>
-            <button class="reset-btn" id="resetTheme">Reset to Default</button>
-            <div class="upload-loading" id="themeUploadLoading">
-              <div class="upload-spinner"></div>
-              <span>Uploading theme...</span>
-            </div>
+        <!-- Font Size Controls -->
+        <div class="font-size-controls">
+          <h3>🔤 Font Size Settings</h3>
+          <div class="font-size-control">
+            <label for="globalFontSize">Global Font Size (everything on the website):</label>
+            <input type="range" id="globalFontSize" min="12" max="24" value="16">
+            <span id="globalFontSizeValue" class="font-size-value">16px</span>
           </div>
         </div>
         
-        <h3>🎭 Upload Custom Theme</h3>
-        <div class="upload-area" id="themeUpload">
-          <input type="file" id="themeFile" accept=".css">
-          <p>📄 Click to upload custom CSS theme</p>
+        <!-- Reset Buttons -->
+        <div class="reset-buttons">
+          <button class="btn danger" id="resetWallpaperBtn">Reset Wallpaper</button>
+          <button class="btn danger" id="resetThemeBtn">Reset Theme</button>
+          <button class="btn danger" id="resetSurprisesBtn">Reset Surprises</button>
+          <button class="btn danger" id="resetFontSizeBtn">Reset Font Size</button>
         </div>
-        <button class="btn apply-btn" id="applyCustomTheme">Apply Custom Theme</button>
+      </div>
+      
+      <!-- Wallpaper Subpage -->
+      <div id="wallpaperSubpage" class="theme-subpage">
+        <button class="theme-back-btn" id="wallpaperBackBtn">← Back</button>
+        <h2>📷 Set Wallpaper</h2>
         
-        <!-- Surprise Section -->
-        <div class="surprise-section">
-          <h2>🎉 Surprise Customization</h2>
-          
-          <div class="theme-dropdowns">
-            <div class="theme-dropdown">
-              <label for="surpriseSelect">🎁 Select Surprise:</label>
-              <div class="custom-dropdown">
-                <button class="dropdown-button" id="surpriseSelectButton" type="button" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="dropdown-text">No Surprise</span>
-                  <span class="dropdown-arrow">▾</span>
-                </button>
-                <div class="dropdown-options" id="surpriseOptions" role="listbox">
-                  <div class="dropdown-option selected" data-value="none" role="option">No Surprise</div>
-                  <!-- GitHub surprises will be added here -->
-                </div>
-              </div>
-              <button class="btn apply-btn" id="applySurprise">Apply Surprise</button>
-              <button class="reset-btn" id="resetSurprise">Reset to Default</button>
-            </div>
+        <div class="theme-main-buttons">
+          <button class="theme-main-btn" id="githubWallpapersBtn">GitHub Wallpapers</button>
+          <button class="theme-main-btn" id="uploadWallpaperBtn">Upload Custom Wallpaper</button>
+          <button class="theme-main-btn" id="customWallpapersBtn">My Custom Wallpapers</button>
+        </div>
+        
+        <!-- GitHub Wallpapers -->
+        <div id="githubWallpapersSection" class="custom-items-section" style="display: none;">
+          <h3>GitHub Wallpapers</h3>
+          <div class="wallpaper-grid" id="githubWallpapersGrid">
+            <!-- GitHub wallpapers will be dynamically added here -->
           </div>
-          
-          <h3>🎁 Upload Custom Surprise</h3>
+          <button class="btn apply-btn" id="applyGithubWallpaper" style="margin-top: 1rem;">Apply Selected Wallpaper</button>
+        </div>
+        
+        <!-- Upload Custom Wallpaper -->
+        <div id="uploadWallpaperSection" class="custom-items-section" style="display: none;">
+          <h3>Upload Custom Wallpaper</h3>
+          <div class="upload-area" id="wallpaperUpload">
+            <input type="file" id="wallpaperFile" accept="image/*">
+            <p>📎 Click to upload custom wallpaper (PNG, JPG, GIF, etc.)</p>
+          </div>
+          <div class="upload-loading" id="wallpaperUploadLoading">
+            <div class="upload-spinner"></div>
+            <span>Uploading wallpaper...</span>
+          </div>
+          <button class="btn apply-btn" id="applyCustomWallpaper">Apply Custom Wallpaper</button>
+        </div>
+        
+        <!-- Custom Wallpapers Management -->
+        <div id="customWallpapersSection" class="custom-items-section" style="display: none;">
+          <h3>📁 Your Custom Wallpapers</h3>
+          <div class="custom-items-grid" id="customWallpapersGrid">
+            <!-- Custom wallpapers will be dynamically added here -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Theme Subpage -->
+      <div id="themeSubpage" class="theme-subpage">
+        <button class="theme-back-btn" id="themeBackBtn">← Back</button>
+        <h2>🎭 Set Theme</h2>
+        
+        <div class="theme-main-buttons">
+          <button class="theme-main-btn" id="githubThemesBtn">GitHub Themes</button>
+          <button class="theme-main-btn" id="uploadThemeBtn">Upload Custom Theme</button>
+          <button class="theme-main-btn" id="customThemesBtn">My Custom Themes</button>
+        </div>
+        
+        <!-- GitHub Themes -->
+        <div id="githubThemesSection" class="custom-items-section" style="display: none;">
+          <h3>GitHub Themes</h3>
+          <div class="theme-grid" id="githubThemesGrid">
+            <!-- GitHub themes will be dynamically added here -->
+          </div>
+          <button class="btn apply-btn" id="applyGithubTheme" style="margin-top: 1rem;">Apply Selected Theme</button>
+        </div>
+        
+        <!-- Upload Custom Theme -->
+        <div id="uploadThemeSection" class="custom-items-section" style="display: none;">
+          <h3>Upload Custom Theme</h3>
+          <div class="upload-area" id="themeUpload">
+            <input type="file" id="themeFile" accept=".css">
+            <p>📄 Click to upload custom CSS theme</p>
+          </div>
+          <div class="upload-loading" id="themeUploadLoading">
+            <div class="upload-spinner"></div>
+            <span>Uploading theme...</span>
+          </div>
+          <button class="btn apply-btn" id="applyCustomTheme">Apply Custom Theme</button>
+        </div>
+        
+        <!-- Custom Themes Management -->
+        <div id="customThemesSection" class="custom-items-section" style="display: none;">
+          <h3>📁 Your Custom Themes</h3>
+          <div class="custom-items-grid" id="customThemesGrid">
+            <!-- Custom themes will be dynamically added here -->
+          </div>
+        </div>
+      </div>
+      
+      <!-- Surprises Subpage -->
+      <div id="surprisesSubpage" class="theme-subpage">
+        <button class="theme-back-btn" id="surprisesBackBtn">← Back</button>
+        <h2>🎁 Set Surprises</h2>
+        
+        <div class="theme-main-buttons">
+          <button class="theme-main-btn" id="githubSurprisesBtn">GitHub Surprises</button>
+          <button class="theme-main-btn" id="uploadSurpriseBtn">Upload Custom Surprise</button>
+          <button class="theme-main-btn" id="customSurprisesBtn">My Custom Surprises</button>
+        </div>
+        
+        <!-- GitHub Surprises -->
+        <div id="githubSurprisesSection" class="custom-items-section" style="display: none;">
+          <h3>GitHub Surprises</h3>
+          <div class="surprise-selector" id="githubSurprisesSelector">
+            <!-- GitHub surprises will be dynamically added here -->
+          </div>
+          <button class="btn apply-btn" id="applyGithubSurprises" style="margin-top: 1rem;">Apply Selected Surprises</button>
+        </div>
+        
+        <!-- Upload Custom Surprise -->
+        <div id="uploadSurpriseSection" class="custom-items-section" style="display: none;">
+          <h3>Upload Custom Surprise</h3>
           <div class="upload-area" id="surpriseUpload">
             <input type="file" id="surpriseFile" accept=".css">
             <p>📄 Click to upload custom CSS surprise</p>
@@ -1740,41 +2523,52 @@
           <button class="btn apply-btn" id="applyCustomSurprise">Apply Custom Surprise</button>
         </div>
         
-        <h3>🌫️ Opacity Settings</h3>
-        <div class="opacity-controls">
-          <div class="opacity-control">
-            <label for="homeOpacity">Home Page Opacity (excluding thumbnails):</label>
-            <input type="range" id="homeOpacity" min="0" max="100" value="100">
-            <span id="homeOpacityValue" class="opacity-value">100%</span>
-          </div>
-          <div class="opacity-control">
-            <label for="thumbnailOpacity">Thumbnails Opacity:</label>
-            <input type="range" id="thumbnailOpacity" min="0" max="100" value="100">
-            <span id="thumbnailOpacityValue" class="opacity-value">100%</span>
+        <!-- Custom Surprises Management -->
+        <div id="customSurprisesSection" class="custom-items-section" style="display: none;">
+          <h3>📁 Your Custom Surprises</h3>
+          <div class="custom-items-grid" id="customSurprisesGrid">
+            <!-- Custom surprises will be dynamically added here -->
           </div>
         </div>
       </div>
     </section>
 
     <!-- Library Section (Premium Only) -->
-    <section id="librarySection" class="library-section">
-      <div class="notice-box">
+    <section id="librarySection" class="library-section section-transition">
+      <div class="notice-box global-opacity-target">
         <h2>📚 Library</h2>
         
         <div class="library-tabs">
           <button class="library-tab active" data-tab="saved">💾 Saved Packs</button>
           <button class="library-tab" data-tab="history">📜 History</button>
+          <button class="library-tab" data-tab="games">🎮 Games</button>
         </div>
         
         <div class="library-content">
           <div id="savedContent" class="tab-content active"></div>
           <div id="historyContent" class="tab-content" style="display: none;"></div>
+          <div id="gamesContent" class="tab-content" style="display: none;">
+            <div class="games-section">
+              <h3>🎮 Mini Games</h3>
+              <p>Check out these fun mini games:</p>
+              <div class="games-grid">
+                <div class="game-item" onclick="window.open('https://example.com/game1', '_blank')">
+                  <h4>Game 1</h4>
+                  <p>An exciting adventure game</p>
+                </div>
+                <div class="game-item" onclick="window.open('https://example.com/game2', '_blank')">
+                  <h4>Game 2</h4>
+                  <p>A challenging puzzle game</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Ads (Hidden for Premium Users) -->
-    <div class="ads-footer-container" aria-label="Advertisement">
+    <div class="ads-footer-container global-opacity-target" aria-label="Advertisement">
       <div class="ads-footer-content">
         <div class="ads-placeholder">
           Loading advertisement...
@@ -1782,19 +2576,36 @@
       </div>
     </div>
     
-    <div class="footer-buttons-bottom">
+    <div class="footer-buttons-bottom global-opacity-target">
       <button class="footer-btn" id="aboutBtn">About</button>
       <button class="footer-btn" id="privacyBtn">Privacy Policy</button>
       <button class="footer-btn" id="contactBtn">Contact</button>
     </div>
     
-    <div id="adsContainerBottom" aria-label="Advertisement">
+    <div id="adsContainerBottom" class="global-opacity-target" aria-label="Advertisement">
       <div class="ads-placeholder">Advertisement Space</div>
     </div>
   </main>
 
+  <!-- File Details Modal -->
+  <div id="fileDetailsModal" class="file-details-modal">
+    <div class="file-details-content global-opacity-target">
+      <div class="file-details-header">
+        <h2 id="fileDetailsTitle">File Details</h2>
+        <button id="fileDetailsClose" class="header-btn">✕ Close</button>
+      </div>
+      <img id="fileDetailsThumbnail" class="file-details-thumbnail" src="" alt="">
+      <div id="fileDetailsDescription" class="file-details-description">
+        Loading description...
+      </div>
+      <div id="fileDetailsLinks" class="file-details-links">
+        <!-- Links will be dynamically added here -->
+      </div>
+    </div>
+  </div>
+
   <!-- Bottom Navigation (Premium Only) -->
-  <nav class="bottom-nav" id="bottomNav">
+  <nav class="bottom-nav global-opacity-target" id="bottomNav">
     <button class="nav-btn active" data-section="home">🏠 Home</button>
     <button class="nav-btn" data-section="theme">🎨 Theme</button>
     <button class="nav-btn" data-section="library">📚 Library</button>
@@ -1802,7 +2613,7 @@
 
   <!-- Premium Modal -->
   <div id="premiumModal" class="premium-modal">
-    <div class="premium-content">
+    <div class="premium-content global-opacity-target">
       <div class="premium-header">
         <h2 class="premium-title">✨ Premium Upgrade</h2>
         <p class="premium-subtitle">Unlock all features for just $9.99/month</p>
@@ -1868,7 +2679,7 @@
   
   <!-- Downloading Screen -->
   <div id="downloadingScreen" role="dialog" aria-labelledby="downloadFileName" aria-modal="true">
-    <div id="downloadBar">
+    <div id="downloadBar" class="global-opacity-target">
       <div id="downloadFileName" role="heading"></div>
       <div id="progressBarContainer">
         <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -1880,14 +2691,45 @@
   
   <!-- Footer Modal -->
   <div class="footer-modal" id="footerModal" role="dialog" aria-modal="true">
-    <div class="footer-modal-content" id="footerModalContent">
-      <button class="footer-modal-back" id="footerModalBack">Back</button>
+    <div class="footer-modal-content global-opacity-target" id="footerModalContent">
+      <div class="accordion">
+        <div class="accordion-item">
+          <div class="accordion-header" data-accordion="about">
+            About
+            <span class="accordion-icon">▾</span>
+          </div>
+          <div class="accordion-content" data-accordion="about">
+            Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). We provide a simple and secure way for the Minecraft community to discover new content. All packs are carefully curated for your gameplay experience.
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <div class="accordion-header" data-accordion="privacy">
+            Privacy Policy
+            <span class="accordion-icon">▾</span>
+          </div>
+          <div class="accordion-content" data-accordion="privacy">
+            Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.
+          </div>
+        </div>
+        
+        <div class="accordion-item">
+          <div class="accordion-header" data-accordion="contact">
+            Contact
+            <span class="accordion-icon">▾</span>
+          </div>
+          <div class="accordion-content" data-accordion="contact">
+            Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. We appreciate your feedback and will respond as soon as possible.
+          </div>
+        </div>
+      </div>
+      <button class="footer-modal-back" id="footerModalBack">Close</button>
     </div>
   </div>
 
   <!-- Help Modal -->
   <div id="helpModal" class="help-modal">
-    <div class="help-content">
+    <div class="help-content global-opacity-target">
       <h2>Help</h2>
       <p>Use the search bar to find packs.<br>
       Filter by file type and sort order below the search.<br>
@@ -1992,10 +2834,11 @@
           }
         }
         
-        // Check file size (max 10MB)
-        if (file.size > 10 * 1024 * 1024) {
+        // Check file size (max 50MB for images, 5MB for CSS)
+        let maxSize = input.id === 'wallpaperFile' ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+        if (file.size > maxSize) {
           input.value = '';
-          premiumSystem.showNotification('File too large. Maximum size is 10MB.', 'error');
+          premiumSystem.showNotification(`File too large. Maximum size is ${maxSize/(1024*1024)}MB.`, 'error');
           return;
         }
       }
@@ -2023,6 +2866,7 @@
     const WALLPAPER_KEY = 'mc_custom_wallpapers';
     const SURPRISE_KEY = 'mc_custom_surprises';
     const DOWNLOAD_HISTORY_KEY = 'mc_download_history';
+    const VISIT_HISTORY_KEY = 'mc_visit_history';
     const CACHE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
     // Test credit card for premium activation
@@ -2045,9 +2889,12 @@
         this.customWallpapers = this.getCustomWallpapers();
         this.customSurprises = this.getCustomSurprises();
         this.downloadHistory = this.getDownloadHistory();
-        this.currentSurprise = null;
+        this.currentSurprises = [];
         this.surpriseTimer = null;
         this.customThemeApplied = false;
+        
+        // Record visit
+        this.recordVisit();
         
         // Load saved customizations immediately
         this.loadSavedCustomizations();
@@ -2061,9 +2908,63 @@
         this.setupLibrarySystem();
         this.showRandomPromo();
         this.setupOpacityControls();
+        this.setupFontSizeControls();
         this.setupTrendFilter();
         this.setupSurpriseSystem();
         this.setupTimedButtons();
+        this.setupCustomItemsManagement();
+        this.setupAccordion();
+        this.setupBackgroundMovement();
+        this.setupFileDetailsModal();
+        this.setupSectionTransitions();
+      }
+
+      setupBackgroundMovement() {
+        window.addEventListener('scroll', () => {
+          const scrolled = window.pageYOffset;
+          if (scrolled > 10) {
+            document.body.style.backgroundPosition = `center ${10}px`;
+          } else {
+            document.body.style.backgroundPosition = 'center top';
+          }
+        });
+      }
+
+      setupFileDetailsModal() {
+        const modal = document.getElementById('fileDetailsModal');
+        const closeBtn = document.getElementById('fileDetailsClose');
+        
+        closeBtn.addEventListener('click', () => {
+          modal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.style.display = 'none';
+          }
+        });
+      }
+
+      setupSectionTransitions() {
+        // This will be handled in the switchSection method
+      }
+
+      recordVisit() {
+        const visitHistory = JSON.parse(localStorage.getItem(VISIT_HISTORY_KEY) || '[]');
+        const now = new Date();
+        const visit = {
+          timestamp: now.toISOString(),
+          date: now.toLocaleDateString(),
+          time: now.toLocaleTimeString()
+        };
+        
+        visitHistory.unshift(visit);
+        // Keep only last 100 visits
+        if (visitHistory.length > 100) {
+          visitHistory.splice(100);
+        }
+        
+        localStorage.setItem(VISIT_HISTORY_KEY, JSON.stringify(visitHistory));
       }
 
       checkPremiumStatus() {
@@ -2269,21 +3170,108 @@
       }
 
       switchSection(section) {
+        // Hide all sections with transition
+        document.querySelectorAll('.section-transition').forEach(sec => {
+          sec.classList.remove('active');
+        });
+        
         // Update navigation
         document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelector(`[data-section="${section}"]`).classList.add('active');
 
-        // Show/hide sections
-        document.getElementById('homeSection').style.display = section === 'home' ? 'block' : 'none';
-        document.getElementById('themeSection').classList.toggle('active', section === 'theme');
-        document.getElementById('librarySection').classList.toggle('active', section === 'library');
+        // Show the target section with delay for transition
+        setTimeout(() => {
+          document.getElementById('homeSection').style.display = section === 'home' ? 'block' : 'none';
+          document.getElementById('themeSection').style.display = section === 'theme' ? 'block' : 'none';
+          document.getElementById('librarySection').style.display = section === 'library' ? 'block' : 'none';
+          
+          // Add active class for transition
+          setTimeout(() => {
+            const targetSection = document.getElementById(section + 'Section');
+            if (targetSection) {
+              targetSection.classList.add('active');
+            }
+          }, 50);
+        }, 300);
+        
+        // Reset theme subpages when switching to theme section
+        if (section === 'theme') {
+          this.resetThemeSubpages();
+        }
       }
 
-      // Theme System
+      // Theme System - NEW DESIGN
       setupThemeSystem() {
-        this.loadWallpapers();
-        this.loadThemes();
-        this.loadSurprises();
+        // Main theme buttons
+        document.getElementById('setWallpaperBtn').addEventListener('click', () => {
+          this.showThemeSubpage('wallpaperSubpage');
+        });
+        
+        document.getElementById('setThemeBtn').addEventListener('click', () => {
+          this.showThemeSubpage('themeSubpage');
+        });
+        
+        document.getElementById('setSurprisesBtn').addEventListener('click', () => {
+          this.showThemeSubpage('surprisesSubpage');
+        });
+        
+        // Wallpaper subpage buttons
+        document.getElementById('githubWallpapersBtn').addEventListener('click', () => {
+          this.showWallpaperSection('githubWallpapersSection');
+          this.loadGitHubWallpapers();
+        });
+        
+        document.getElementById('uploadWallpaperBtn').addEventListener('click', () => {
+          this.showWallpaperSection('uploadWallpaperSection');
+        });
+        
+        document.getElementById('customWallpapersBtn').addEventListener('click', () => {
+          this.showWallpaperSection('customWallpapersSection');
+          this.renderCustomWallpapers();
+        });
+        
+        // Theme subpage buttons
+        document.getElementById('githubThemesBtn').addEventListener('click', () => {
+          this.showThemeSection('githubThemesSection');
+          this.loadGitHubThemes();
+        });
+        
+        document.getElementById('uploadThemeBtn').addEventListener('click', () => {
+          this.showThemeSection('uploadThemeSection');
+        });
+        
+        document.getElementById('customThemesBtn').addEventListener('click', () => {
+          this.showThemeSection('customThemesSection');
+          this.renderCustomThemes();
+        });
+        
+        // Surprises subpage buttons
+        document.getElementById('githubSurprisesBtn').addEventListener('click', () => {
+          this.showSurpriseSection('githubSurprisesSection');
+          this.loadGitHubSurprises();
+        });
+        
+        document.getElementById('uploadSurpriseBtn').addEventListener('click', () => {
+          this.showSurpriseSection('uploadSurpriseSection');
+        });
+        
+        document.getElementById('customSurprisesBtn').addEventListener('click', () => {
+          this.showSurpriseSection('customSurprisesSection');
+          this.renderCustomSurprises();
+        });
+        
+        // Back buttons
+        document.getElementById('wallpaperBackBtn').addEventListener('click', () => {
+          this.hideThemeSubpage('wallpaperSubpage');
+        });
+        
+        document.getElementById('themeBackBtn').addEventListener('click', () => {
+          this.hideThemeSubpage('themeSubpage');
+        });
+        
+        document.getElementById('surprisesBackBtn').addEventListener('click', () => {
+          this.hideThemeSubpage('surprisesSubpage');
+        });
         
         // Wallpaper upload
         document.getElementById('wallpaperUpload').onclick = () => {
@@ -2313,52 +3301,133 @@
         });
 
         // Apply buttons
-        document.getElementById('applyWallpaper').onclick = () => this.applySelectedWallpaper();
+        document.getElementById('applyGithubWallpaper').onclick = () => this.applySelectedGitHubWallpaper();
         document.getElementById('applyCustomWallpaper').onclick = () => this.applyCustomWallpaper();
-        document.getElementById('applyTheme').onclick = () => this.applySelectedTheme();
+        document.getElementById('applyGithubTheme').onclick = () => this.applySelectedGitHubTheme();
         document.getElementById('applyCustomTheme').onclick = () => this.applyCustomTheme();
-        document.getElementById('applySurprise').onclick = () => this.applySelectedSurprise();
+        document.getElementById('applyGithubSurprises').onclick = () => this.applySelectedGitHubSurprises();
         document.getElementById('applyCustomSurprise').onclick = () => this.applyCustomSurprise();
 
         // Reset buttons
-        document.getElementById('resetWallpaper').onclick = () => this.resetWallpaper();
-        document.getElementById('resetTheme').onclick = () => this.resetTheme();
-        document.getElementById('resetSurprise').onclick = () => this.resetSurprise();
+        document.getElementById('resetWallpaperBtn').onclick = () => this.resetWallpaper();
+        document.getElementById('resetThemeBtn').onclick = () => this.resetTheme();
+        document.getElementById('resetSurprisesBtn').onclick = () => this.resetSurprises();
+        document.getElementById('resetFontSizeBtn').onclick = () => this.resetFontSize();
+      }
+
+      showThemeSubpage(subpageId) {
+        // Hide all subpages first
+        document.querySelectorAll('.theme-subpage').forEach(subpage => {
+          subpage.style.display = 'none';
+        });
+        
+        // Hide all sections within subpages
+        document.querySelectorAll('.custom-items-section').forEach(section => {
+          section.style.display = 'none';
+        });
+        
+        // Show the selected subpage
+        document.getElementById(subpageId).style.display = 'block';
+      }
+
+      hideThemeSubpage(subpageId) {
+        document.getElementById(subpageId).style.display = 'none';
+      }
+
+      resetThemeSubpages() {
+        // Hide all subpages
+        document.querySelectorAll('.theme-subpage').forEach(subpage => {
+          subpage.style.display = 'none';
+        });
+        
+        // Hide all sections within subpages
+        document.querySelectorAll('.custom-items-section').forEach(section => {
+          section.style.display = 'none';
+        });
+      }
+
+      showWallpaperSection(sectionId) {
+        // Hide all wallpaper sections
+        document.getElementById('githubWallpapersSection').style.display = 'none';
+        document.getElementById('uploadWallpaperSection').style.display = 'none';
+        document.getElementById('customWallpapersSection').style.display = 'none';
+        
+        // Show the selected section
+        document.getElementById(sectionId).style.display = 'block';
+      }
+
+      showThemeSection(sectionId) {
+        // Hide all theme sections
+        document.getElementById('githubThemesSection').style.display = 'none';
+        document.getElementById('uploadThemeSection').style.display = 'none';
+        document.getElementById('customThemesSection').style.display = 'none';
+        
+        // Show the selected section
+        document.getElementById(sectionId).style.display = 'block';
+      }
+
+      showSurpriseSection(sectionId) {
+        // Hide all surprise sections
+        document.getElementById('githubSurprisesSection').style.display = 'none';
+        document.getElementById('uploadSurpriseSection').style.display = 'none';
+        document.getElementById('customSurprisesSection').style.display = 'none';
+        
+        // Show the selected section
+        document.getElementById(sectionId).style.display = 'block';
       }
 
       setupOpacityControls() {
-        const homeOpacitySlider = document.getElementById('homeOpacity');
-        const homeOpacityValue = document.getElementById('homeOpacityValue');
-        const thumbnailOpacitySlider = document.getElementById('thumbnailOpacity');
-        const thumbnailOpacityValue = document.getElementById('thumbnailOpacityValue');
+        const globalOpacitySlider = document.getElementById('globalOpacity');
+        const globalOpacityValue = document.getElementById('globalOpacityValue');
 
         // Load saved opacity values
-        const savedHomeOpacity = localStorage.getItem('homeOpacity') || 100;
-        const savedThumbnailOpacity = localStorage.getItem('thumbnailOpacity') || 100;
+        const savedGlobalOpacity = localStorage.getItem('globalOpacity') || 100;
         
-        homeOpacitySlider.value = savedHomeOpacity;
-        homeOpacityValue.textContent = savedHomeOpacity + '%';
-        thumbnailOpacitySlider.value = savedThumbnailOpacity;
-        thumbnailOpacityValue.textContent = savedThumbnailOpacity + '%';
+        globalOpacitySlider.value = savedGlobalOpacity;
+        globalOpacityValue.textContent = savedGlobalOpacity + '%';
         
-        document.documentElement.style.setProperty('--home-opacity', savedHomeOpacity / 100);
-        document.documentElement.style.setProperty('--thumbnail-opacity', savedThumbnailOpacity / 100);
+        document.documentElement.style.setProperty('--global-opacity', savedGlobalOpacity / 100);
 
-        // Home opacity slider
-        homeOpacitySlider.addEventListener('input', (e) => {
+        // Global opacity slider
+        globalOpacitySlider.addEventListener('input', (e) => {
           const value = e.target.value;
-          homeOpacityValue.textContent = value + '%';
-          document.documentElement.style.setProperty('--home-opacity', value / 100);
-          localStorage.setItem('homeOpacity', value);
+          globalOpacityValue.textContent = value + '%';
+          document.documentElement.style.setProperty('--global-opacity', value / 100);
+          localStorage.setItem('globalOpacity', value);
         });
+      }
 
-        // Thumbnail opacity slider
-        thumbnailOpacitySlider.addEventListener('input', (e) => {
+      setupFontSizeControls() {
+        const globalFontSizeSlider = document.getElementById('globalFontSize');
+        const globalFontSizeValue = document.getElementById('globalFontSizeValue');
+
+        // Load saved font size values
+        const savedGlobalFontSize = localStorage.getItem('globalFontSize') || 16;
+        
+        globalFontSizeSlider.value = savedGlobalFontSize;
+        globalFontSizeValue.textContent = savedGlobalFontSize + 'px';
+        
+        document.documentElement.style.setProperty('--font-size', savedGlobalFontSize + 'px');
+
+        // Global font size slider
+        globalFontSizeSlider.addEventListener('input', (e) => {
           const value = e.target.value;
-          thumbnailOpacityValue.textContent = value + '%';
-          document.documentElement.style.setProperty('--thumbnail-opacity', value / 100);
-          localStorage.setItem('thumbnailOpacity', value);
+          globalFontSizeValue.textContent = value + 'px';
+          document.documentElement.style.setProperty('--font-size', value + 'px');
+          localStorage.setItem('globalFontSize', value);
         });
+      }
+
+      resetFontSize() {
+        const globalFontSizeSlider = document.getElementById('globalFontSize');
+        const globalFontSizeValue = document.getElementById('globalFontSizeValue');
+        
+        globalFontSizeSlider.value = 16;
+        globalFontSizeValue.textContent = '16px';
+        document.documentElement.style.setProperty('--font-size', '16px');
+        localStorage.setItem('globalFontSize', 16);
+        
+        this.showNotification('Font size reset to default!', 'success');
       }
 
       setupTrendFilter() {
@@ -2382,9 +3451,10 @@
       }
 
       setupSurpriseSystem() {
-        // Start surprise timer if a surprise is active
-        const activeSurprise = localStorage.getItem('active_surprise');
-        if (activeSurprise && activeSurprise !== 'none') {
+        // Start surprise timer if surprises are active
+        const activeSurprises = JSON.parse(localStorage.getItem('active_surprises') || '[]');
+        if (activeSurprises.length > 0) {
+          this.currentSurprises = activeSurprises;
           this.startSurpriseTimer();
         }
       }
@@ -2412,6 +3482,36 @@
           document.getElementById('contactBtn').click();
           this.hideTimedButton('timedContactBtn');
         };
+      }
+
+      setupCustomItemsManagement() {
+        // This will be used to render custom items in their respective grids
+      }
+
+      setupAccordion() {
+        document.querySelectorAll('.accordion-header').forEach(header => {
+          header.addEventListener('click', () => {
+            const accordionId = header.getAttribute('data-accordion');
+            const content = document.querySelector(`.accordion-content[data-accordion="${accordionId}"]`);
+            
+            // Toggle active class
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+            
+            // Close other accordions
+            document.querySelectorAll('.accordion-header').forEach(otherHeader => {
+              if (otherHeader !== header) {
+                otherHeader.classList.remove('active');
+              }
+            });
+            
+            document.querySelectorAll('.accordion-content').forEach(otherContent => {
+              if (otherContent !== content) {
+                otherContent.classList.remove('active');
+              }
+            });
+          });
+        });
       }
 
       showTimedButton(buttonId, text) {
@@ -2458,607 +3558,578 @@
         this.closeAllDropdowns();
       }
 
-      async loadWallpapers() {
-        const wallpaperOptions = document.getElementById('wallpaperOptions');
-        
-        // Add default option
-        const defaultOption = wallpaperOptions.querySelector('[data-value="default"]');
+      async loadGitHubWallpapers() {
+        const grid = document.getElementById('githubWallpapersGrid');
+        grid.innerHTML = '';
         
         // Load wallpapers from repo (1-25)
         for (let i = 1; i <= 25; i++) {
-          const wallpaperOption = document.createElement('div');
-          wallpaperOption.className = 'dropdown-option';
-          wallpaperOption.setAttribute('data-value', `wallpaper${i}`);
-          wallpaperOption.setAttribute('role', 'option');
-          wallpaperOption.textContent = `Wallpaper ${i}`;
-          wallpaperOption.onclick = () => this.selectWallpaperOption(`wallpaper${i}`);
-          wallpaperOptions.appendChild(wallpaperOption);
+          const wallpaperItem = document.createElement('div');
+          wallpaperItem.className = 'wallpaper-item';
+          wallpaperItem.setAttribute('data-value', `wallpaper${i}`);
+          
+          // Try different image formats
+          const jpgUrl = `${RAW_URL}wallpaper${i}.jpg`;
+          const pngUrl = `${RAW_URL}wallpaper${i}.png`;
+          const jpegUrl = `${RAW_URL}wallpaper${i}.jpeg`;
+          const gifUrl = `${RAW_URL}wallpaper${i}.gif`;
+          
+          wallpaperItem.innerHTML = `
+            <img src="${jpgUrl}" alt="Wallpaper ${i}" onerror="this.src='${pngUrl}'; this.onerror=function(){this.src='${jpegUrl}'; this.onerror=function(){this.src='${gifUrl}'; this.onerror=function(){this.src=''; this.alt='Image not available'}}}">
+            <div style="text-align: center; padding: 0.5rem;">Wallpaper ${i}</div>
+          `;
+          
+          wallpaperItem.addEventListener('click', () => {
+            document.querySelectorAll('.wallpaper-item').forEach(item => {
+              item.classList.remove('selected');
+            });
+            wallpaperItem.classList.add('selected');
+          });
+          
+          grid.appendChild(wallpaperItem);
         }
-
-        // Load custom wallpapers
-        this.customWallpapers.forEach((wallpaper, index) => {
-          const wallpaperOption = document.createElement('div');
-          wallpaperOption.className = 'dropdown-option';
-          wallpaperOption.setAttribute('data-value', `custom${index}`);
-          wallpaperOption.setAttribute('role', 'option');
-          wallpaperOption.textContent = `Custom: ${wallpaper.name}`;
-          wallpaperOption.onclick = () => this.selectWallpaperOption(`custom${index}`);
-          wallpaperOptions.appendChild(wallpaperOption);
-        });
-
-        // Setup dropdown functionality
-        const wallpaperButton = document.getElementById('wallpaperSelectButton');
-        wallpaperButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.toggleDropdown(wallpaperButton, wallpaperOptions);
-        });
-
-        wallpaperOptions.addEventListener('click', (e) => {
-          if (e.target.classList.contains('dropdown-option')) {
-            this.selectOption(e.target, wallpaperButton, wallpaperOptions);
-          }
-        });
       }
 
-      async loadThemes() {
-        const themeOptions = document.getElementById('themeOptions');
-        
-        // Add default option
-        const defaultOption = themeOptions.querySelector('[data-value="default"]');
+      async loadGitHubThemes() {
+        const grid = document.getElementById('githubThemesGrid');
+        grid.innerHTML = '';
         
         // Load themes from repo (1-15)
         for (let i = 1; i <= 15; i++) {
-          const themeOption = document.createElement('div');
-          themeOption.className = 'dropdown-option';
-          themeOption.setAttribute('data-value', `theme${i}`);
-          themeOption.setAttribute('role', 'option');
-          themeOption.textContent = `Theme ${i}`;
-          themeOption.onclick = () => this.selectThemeOption(`theme${i}`);
-          themeOptions.appendChild(themeOption);
+          const themeItem = document.createElement('div');
+          themeItem.className = 'theme-item';
+          themeItem.setAttribute('data-value', `theme${i}`);
+          themeItem.innerHTML = `
+            <h4>Theme ${i}</h4>
+            <p>GitHub Theme ${i}</p>
+          `;
+          
+          themeItem.addEventListener('click', () => {
+            document.querySelectorAll('.theme-item').forEach(item => {
+              item.classList.remove('selected');
+            });
+            themeItem.classList.add('selected');
+          });
+          
+          grid.appendChild(themeItem);
         }
-
-        // Load custom themes
-        this.customThemes.forEach((theme, index) => {
-          const themeOption = document.createElement('div');
-          themeOption.className = 'dropdown-option';
-          themeOption.setAttribute('data-value', `custom${index}`);
-          themeOption.setAttribute('role', 'option');
-          themeOption.textContent = `Custom: ${theme.name}`;
-          themeOption.onclick = () => this.selectThemeOption(`custom${index}`);
-          themeOptions.appendChild(themeOption);
-        });
-
-        // Setup dropdown functionality
-        const themeButton = document.getElementById('themeSelectButton');
-        themeButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.toggleDropdown(themeButton, themeOptions);
-        });
-
-        themeOptions.addEventListener('click', (e) => {
-          if (e.target.classList.contains('dropdown-option')) {
-            this.selectOption(e.target, themeButton, themeOptions);
-          }
-        });
       }
 
-      async loadSurprises() {
-        const surpriseOptions = document.getElementById('surpriseOptions');
-        
-        // Add default option
-        const defaultOption = surpriseOptions.querySelector('[data-value="none"]');
+      async loadGitHubSurprises() {
+        const selector = document.getElementById('githubSurprisesSelector');
+        selector.innerHTML = '';
         
         // Load surprises from repo (1-10)
         for (let i = 1; i <= 10; i++) {
-          const surpriseOption = document.createElement('div');
-          surpriseOption.className = 'dropdown-option';
-          surpriseOption.setAttribute('data-value', `surprise${i}`);
-          surpriseOption.setAttribute('role', 'option');
-          surpriseOption.textContent = `Surprise ${i}`;
-          surpriseOption.onclick = () => this.selectSurpriseOption(`surprise${i}`);
-          surpriseOptions.appendChild(surpriseOption);
+          const surpriseCheckbox = document.createElement('input');
+          surpriseCheckbox.type = 'checkbox';
+          surpriseCheckbox.className = 'surprise-checkbox';
+          surpriseCheckbox.id = `github-surprise-${i}`;
+          surpriseCheckbox.setAttribute('data-value', `surprise${i}`);
+          
+          const surpriseLabel = document.createElement('label');
+          surpriseLabel.className = 'surprise-checkbox-label';
+          surpriseLabel.setAttribute('for', `github-surprise-${i}`);
+          surpriseLabel.textContent = `Surprise ${i}`;
+          
+          const surpriseContainer = document.createElement('div');
+          surpriseContainer.appendChild(surpriseCheckbox);
+          surpriseContainer.appendChild(surpriseLabel);
+          
+          selector.appendChild(surpriseContainer);
         }
-
-        // Load custom surprises
-        this.customSurprises.forEach((surprise, index) => {
-          const surpriseOption = document.createElement('div');
-          surpriseOption.className = 'dropdown-option';
-          surpriseOption.setAttribute('data-value', `custom${index}`);
-          surpriseOption.setAttribute('role', 'option');
-          surpriseOption.textContent = `Custom: ${surprise.name}`;
-          surpriseOption.onclick = () => this.selectSurpriseOption(`custom${index}`);
-          surpriseOptions.appendChild(surpriseOption);
-        });
-
-        // Setup dropdown functionality
-        const surpriseButton = document.getElementById('surpriseSelectButton');
-        surpriseButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.toggleDropdown(surpriseButton, surpriseOptions);
-        });
-
-        surpriseOptions.addEventListener('click', (e) => {
-          if (e.target.classList.contains('dropdown-option')) {
-            this.selectOption(e.target, surpriseButton, surpriseOptions);
-          }
-        });
       }
 
-      selectWallpaperOption(value) {
-        this.selectedWallpaper = value;
-      }
-
-      selectThemeOption(value) {
-        this.selectedTheme = value;
-      }
-
-      selectSurpriseOption(value) {
-        this.selectedSurprise = value;
-      }
-
-      applySelectedWallpaper() {
-        if (!this.selectedWallpaper) {
-          this.showNotification('Please select a wallpaper first', 'error');
+      async applySelectedGitHubWallpaper() {
+        const selectedWallpaper = document.querySelector('.wallpaper-item.selected');
+        if (!selectedWallpaper) {
+          this.showNotification('Please select a wallpaper first!', 'error');
           return;
         }
 
-        if (this.selectedWallpaper === 'default') {
-          this.applyWallpaper(null);
-          return;
-        }
-
-        if (this.selectedWallpaper.startsWith('wallpaper')) {
-          const num = this.selectedWallpaper.replace('wallpaper', '');
-          this.applyWallpaper(`${RAW_URL}wallpaper${num}.png`);
-        } else if (this.selectedWallpaper.startsWith('custom')) {
-          const index = parseInt(this.selectedWallpaper.replace('custom', ''));
-          this.applyWallpaper(this.customWallpapers[index].url);
-        }
-      }
-
-      applyCustomWallpaper() {
-        const fileInput = document.getElementById('wallpaperFile');
-        if (!fileInput.files.length) {
-            this.showNotification('Please select a wallpaper file first', 'error');
-            return;
-        }
-
-        // Show loading indicator
-        document.getElementById('wallpaperUploadLoading').style.display = 'flex';
-
-        const file = fileInput.files[0];
-        if (!file || !file.type.startsWith('image/')) {
-            this.showNotification('Please select a valid image file', 'error');
-            document.getElementById('wallpaperUploadLoading').style.display = 'none';
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            // Apply the wallpaper immediately
-            this.applyWallpaper(e.target.result);
-            document.getElementById('wallpaperUploadLoading').style.display = 'none';
-            
-            // Add to custom wallpapers if not already there
-            const existingIndex = this.customWallpapers.findIndex(w => w.url === e.target.result);
-            if (existingIndex === -1) {
-                const wallpaper = {
-                    name: file.name,
-                    url: e.target.result,
-                    uploaded: Date.now()
-                };
-                
-                this.customWallpapers.push(wallpaper);
-                localStorage.setItem(WALLPAPER_KEY, JSON.stringify(this.customWallpapers));
-                
-                // Add to dropdown
-                this.loadWallpapers();
-            }
-            
-            this.showNotification('Custom wallpaper applied successfully!', 'success');
+        const wallpaperNumber = selectedWallpaper.getAttribute('data-value').replace('wallpaper', '');
+        
+        // Try different image formats
+        const jpgUrl = `${RAW_URL}wallpaper${wallpaperNumber}.jpg`;
+        const pngUrl = `${RAW_URL}wallpaper${wallpaperNumber}.png`;
+        const jpegUrl = `${RAW_URL}wallpaper${wallpaperNumber}.jpeg`;
+        const gifUrl = `${RAW_URL}wallpaper${wallpaperNumber}.gif`;
+        
+        // Test which format exists
+        const testImage = (url) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(url);
+            img.onerror = () => resolve(null);
+            img.src = url;
+          });
         };
         
-        reader.readAsDataURL(file);
+        let wallpaperUrl = await testImage(jpgUrl);
+        if (!wallpaperUrl) wallpaperUrl = await testImage(pngUrl);
+        if (!wallpaperUrl) wallpaperUrl = await testImage(jpegUrl);
+        if (!wallpaperUrl) wallpaperUrl = await testImage(gifUrl);
+        
+        if (!wallpaperUrl) {
+          this.showNotification('Wallpaper not found on GitHub!', 'error');
+          return;
+        }
+        
+        document.body.classList.add('custom-bg');
+        document.body.style.setProperty('--custom-bg-url', `url(${wallpaperUrl})`);
+        localStorage.setItem('selected_wallpaper', wallpaperUrl);
+        
+        this.addToHistory(`Applied GitHub wallpaper: ${selectedWallpaper.getAttribute('data-value')}`, 'theme');
+        this.showNotification(`Applied Wallpaper ${wallpaperNumber}!`, 'success');
       }
 
-      applySelectedTheme() {
-        if (!this.selectedTheme) {
-          this.showNotification('Please select a theme first', 'error');
+      async applySelectedGitHubTheme() {
+        const selectedTheme = document.querySelector('.theme-item.selected');
+        if (!selectedTheme) {
+          this.showNotification('Please select a theme first!', 'error');
           return;
         }
 
-        if (this.selectedTheme === 'default') {
-          this.applyTheme(null);
-          return;
-        }
-
-        if (this.selectedTheme.startsWith('theme')) {
-          const num = this.selectedTheme.replace('theme', '');
-          this.applyTheme(`${RAW_URL}theme${num}.css`);
-        } else if (this.selectedTheme.startsWith('custom')) {
-          const index = parseInt(this.selectedTheme.replace('custom', ''));
-          this.applyTheme(this.customThemes[index].css, true);
-        }
-      }
-
-      applyCustomTheme() {
-        const fileInput = document.getElementById('themeFile');
-        if (!fileInput.files.length) {
-          this.showNotification('Please select a theme file first', 'error');
-          return;
-        }
-
-        // Show loading indicator
-        document.getElementById('themeUploadLoading').style.display = 'flex';
-
-        this.uploadTheme(fileInput.files[0], true);
-      }
-
-      applySelectedSurprise() {
-        if (!this.selectedSurprise) {
-          this.showNotification('Please select a surprise first', 'error');
-          return;
-        }
-
-        if (this.selectedSurprise === 'none') {
-          this.applySurprise(null);
-          return;
-        }
-
-        if (this.selectedSurprise.startsWith('surprise')) {
-          const num = this.selectedSurprise.replace('surprise', '');
-          this.applySurprise(`${RAW_URL}surprise${num}.css`);
-        } else if (this.selectedSurprise.startsWith('custom')) {
-          const index = parseInt(this.selectedSurprise.replace('custom', ''));
-          this.applySurprise(this.customSurprises[index].css, true);
-        }
-      }
-
-      applyCustomSurprise() {
-        const fileInput = document.getElementById('surpriseFile');
-        if (!fileInput.files.length) {
-          this.showNotification('Please select a surprise file first', 'error');
-          return;
-        }
-
-        this.uploadSurprise(fileInput.files[0], true);
-      }
-
-      applyWallpaper(url) {
-        if (url) {
-          document.body.classList.add('custom-bg');
-          document.body.style.setProperty('--custom-bg-url', `url(${url})`);
-          localStorage.setItem('selected_wallpaper', url);
-          this.addToHistory(`Applied wallpaper`, 'wallpaper');
-          this.showNotification('Wallpaper applied successfully!', 'success');
-        } else {
-          document.body.classList.remove('custom-bg');
-          localStorage.removeItem('selected_wallpaper');
-          this.showNotification('Default wallpaper applied!', 'success');
-        }
-      }
-
-      async applyTheme(url, isCustom = false) {
-        // Remove existing custom theme
-        const existingTheme = document.getElementById('customThemeStyle');
-        if (existingTheme) {
-          existingTheme.remove();
-        }
-
-        if (url) {
-          const style = document.createElement('style');
-          style.id = 'customThemeStyle';
+        const themeNumber = selectedTheme.getAttribute('data-value').replace('theme', '');
+        const themeUrl = `${RAW_URL}theme${themeNumber}.css`;
+        
+        try {
+          const response = await fetch(themeUrl);
+          if (!response.ok) throw new Error('Theme not found');
           
-          if (isCustom) {
-            style.textContent = url; // url is actually CSS content for custom themes
-            localStorage.setItem('selected_theme', JSON.stringify({type: 'custom', css: url}));
-            this.addToHistory(`Applied custom theme`, 'theme');
-            this.customThemeApplied = true;
-          } else {
-            try {
-              const response = await fetch(url);
-              if (response.ok) {
-                const css = await response.text();
-                style.textContent = css;
-                localStorage.setItem('selected_theme', JSON.stringify({type: 'repo', url: url}));
-                this.addToHistory(`Applied theme from repository`, 'theme');
-                this.customThemeApplied = false;
-              }
-            } catch (error) {
-              console.error('Error loading theme:', error);
-              this.showNotification('Failed to load theme', 'error');
-              document.getElementById('themeUploadLoading').style.display = 'none';
-              return;
-            }
+          const css = await response.text();
+          
+          this.applyCustomTheme({css: css, name: `GitHub Theme ${themeNumber}`});
+        } catch (error) {
+          console.error('Error loading theme:', error);
+          this.showNotification('Error loading theme from GitHub', 'error');
+        }
+      }
+
+      async applySelectedGitHubSurprises() {
+        const selectedSurprises = document.querySelectorAll('.surprise-checkbox:checked');
+        if (selectedSurprises.length === 0) {
+          this.showNotification('Please select at least one surprise!', 'error');
+          return;
+        }
+        
+        if (selectedSurprises.length > 5) {
+          this.showNotification('You can only select up to 5 surprises at once!', 'error');
+          return;
+        }
+
+        const surprisePromises = Array.from(selectedSurprises).map(async (checkbox) => {
+          const surpriseNumber = checkbox.getAttribute('data-value').replace('surprise', '');
+          const surpriseUrl = `${RAW_URL}surprise${surpriseNumber}.css`;
+          
+          try {
+            const response = await fetch(surpriseUrl);
+            if (!response.ok) throw new Error('Surprise not found');
+            
+            const css = await response.text();
+            return {css: css, name: `GitHub Surprise ${surpriseNumber}`};
+          } catch (error) {
+            console.error('Error loading surprise:', error);
+            return null;
           }
-          
-          document.head.appendChild(style);
-          this.showNotification('Theme applied successfully!', 'success');
-          document.getElementById('themeUploadLoading').style.display = 'none';
-        } else {
-          localStorage.removeItem('selected_theme');
-          this.customThemeApplied = false;
-          this.showNotification('Default theme applied!', 'success');
+        });
+
+        const surprises = await Promise.all(surprisePromises);
+        const validSurprises = surprises.filter(s => s !== null);
+        
+        if (validSurprises.length === 0) {
+          this.showNotification('No valid surprises found!', 'error');
+          return;
         }
+
+        this.applyMultipleSurprises(validSurprises);
       }
 
-      async applySurprise(url, isCustom = false) {
-        // Clear existing surprise timer
-        if (this.surpriseTimer) {
-          clearTimeout(this.surpriseTimer);
-          this.surpriseTimer = null;
-        }
-
-        // Remove existing surprise
-        const existingSurprise = document.getElementById('customSurpriseStyle');
-        if (existingSurprise) {
-          existingSurprise.remove();
-        }
-
-        if (url) {
-          let cssContent = '';
-          
-          if (isCustom) {
-            cssContent = url; // url is actually CSS content for custom surprises
-            localStorage.setItem('selected_surprise', JSON.stringify({type: 'custom', css: url}));
-            this.addToHistory(`Applied custom surprise`, 'surprise');
-          } else {
-            try {
-              const response = await fetch(url);
-              if (response.ok) {
-                cssContent = await response.text();
-                localStorage.setItem('selected_surprise', JSON.stringify({type: 'repo', url: url}));
-                this.addToHistory(`Applied surprise from repository`, 'surprise');
-              }
-            } catch (error) {
-              console.error('Error loading surprise:', error);
-              this.showNotification('Failed to load surprise', 'error');
-              return;
-            }
-          }
-          
-          // Store the surprise CSS for later use
-          this.currentSurprise = cssContent;
-          localStorage.setItem('active_surprise', url);
-          
-          // Start the surprise timer
-          this.startSurpriseTimer();
-          
-          this.showNotification('Surprise applied successfully! It will trigger randomly.', 'success');
-        } else {
-          localStorage.removeItem('selected_surprise');
-          localStorage.removeItem('active_surprise');
-          this.currentSurprise = null;
-          this.showNotification('Surprise disabled!', 'success');
-        }
-      }
-
-      startSurpriseTimer() {
-        if (!this.currentSurprise) return;
+      async uploadWallpaper(file, applyAfterUpload = false) {
+        if (!file) return;
         
-        // Clear any existing timer
-        if (this.surpriseTimer) {
-          clearTimeout(this.surpriseTimer);
-        }
-        
-        // Set random interval between 10-120 minutes (converted to milliseconds)
-        const minDelay = 10 * 60 * 1000; // 10 minutes
-        const maxDelay = 120 * 60 * 1000; // 120 minutes
-        const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
-        
-        this.surpriseTimer = setTimeout(() => {
-          this.triggerSurprise();
-        }, delay);
-      }
-
-      triggerSurprise() {
-        if (!this.currentSurprise) return;
-        
-        // Create and apply surprise style
-        const surpriseStyle = document.createElement('style');
-        surpriseStyle.id = 'customSurpriseStyle';
-        surpriseStyle.textContent = this.currentSurprise;
-        document.head.appendChild(surpriseStyle);
-        
-        // Remove surprise after 5 seconds
-        setTimeout(() => {
-          const existingSurprise = document.getElementById('customSurpriseStyle');
-          if (existingSurprise) {
-            existingSurprise.remove();
-          }
-        }, 5000);
-        
-        // Schedule next surprise
-        this.startSurpriseTimer();
-      }
-
-      uploadWallpaper(file, applyImmediately = false) {
-        if (!file || !file.type.startsWith('image/')) {
-            this.showNotification('Please select a valid image file', 'error');
-            return;
-        }
-
-        // Show loading indicator
         document.getElementById('wallpaperUploadLoading').style.display = 'flex';
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
+        
+        try {
+          const reader = new FileReader();
+          reader.onload = (e) => {
             const wallpaper = {
-                name: file.name,
-                url: e.target.result,
-                uploaded: Date.now()
+              name: file.name,
+              data: e.target.result,
+              uploaded: Date.now()
             };
             
-            // Check if already exists
-            const existingIndex = this.customWallpapers.findIndex(w => w.name === file.name);
-            if (existingIndex === -1) {
-                this.customWallpapers.push(wallpaper);
-                localStorage.setItem(WALLPAPER_KEY, JSON.stringify(this.customWallpapers));
-                
-                // Add to dropdown
-                this.loadWallpapers();
-            }
+            this.customWallpapers.push(wallpaper);
+            localStorage.setItem(WALLPAPER_KEY, JSON.stringify(this.customWallpapers));
+            
+            document.getElementById('wallpaperUploadLoading').style.display = 'none';
             
             this.addToHistory(`Uploaded wallpaper: ${file.name}`, 'upload');
+            this.showNotification('Wallpaper uploaded successfully!', 'success');
             
-            // Apply immediately if requested
-            if (applyImmediately) {
-                this.applyWallpaper(wallpaper.url);
-            } else {
-                this.showNotification('Wallpaper uploaded successfully! Click "Apply Custom Wallpaper" to use it.', 'success');
-                document.getElementById('wallpaperUploadLoading').style.display = 'none';
+            // Render custom wallpapers grid
+            this.renderCustomWallpapers();
+            
+            if (applyAfterUpload) {
+              this.applyCustomWallpaper(wallpaper);
             }
-        };
-        
-        reader.readAsDataURL(file);
+          };
+          reader.readAsDataURL(file);
+        } catch (error) {
+          document.getElementById('wallpaperUploadLoading').style.display = 'none';
+          console.error('Error uploading wallpaper:', error);
+          this.showNotification('Error uploading wallpaper', 'error');
+        }
       }
 
-      uploadTheme(file, applyImmediately = false) {
-        if (!file || file.type !== 'text/css') {
-          this.showNotification('Please select a valid CSS file', 'error');
-          return;
-        }
-
-        // Show loading indicator
+      async uploadTheme(file, applyAfterUpload = false) {
+        if (!file) return;
+        
         document.getElementById('themeUploadLoading').style.display = 'flex';
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const theme = {
-            name: file.name.replace('.css', ''),
-            css: e.target.result,
-            uploaded: Date.now()
-          };
-          
-          // Check if already exists
-          const existingIndex = this.customThemes.findIndex(t => t.name === theme.name);
-          if (existingIndex === -1) {
+        
+        try {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const theme = {
+              name: file.name.replace('.css', ''),
+              css: e.target.result,
+              uploaded: Date.now()
+            };
+            
             this.customThemes.push(theme);
             localStorage.setItem(THEME_KEY, JSON.stringify(this.customThemes));
             
-            // Add to dropdown
-            this.loadThemes();
-          }
-          
-          this.addToHistory(`Uploaded theme: ${theme.name}`, 'upload');
-          
-          if (applyImmediately) {
-            this.applyTheme(theme.css, true);
-          } else {
-            this.showNotification('Theme uploaded successfully! Click "Apply Custom Theme" to use it.', 'success');
             document.getElementById('themeUploadLoading').style.display = 'none';
-          }
-        };
-        
-        reader.readAsText(file);
+            
+            this.addToHistory(`Uploaded theme: ${theme.name}`, 'upload');
+            this.showNotification('Theme uploaded successfully!', 'success');
+            
+            // Render custom themes grid
+            this.renderCustomThemes();
+            
+            if (applyAfterUpload) {
+              this.applyCustomTheme(theme);
+            }
+          };
+          reader.readAsText(file);
+        } catch (error) {
+          document.getElementById('themeUploadLoading').style.display = 'none';
+          console.error('Error uploading theme:', error);
+          this.showNotification('Error uploading theme', 'error');
+        }
       }
 
-      uploadSurprise(file, applyImmediately = false) {
-        if (!file || file.type !== 'text/css') {
-          this.showNotification('Please select a valid CSS file', 'error');
-          return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const surprise = {
-            name: file.name.replace('.css', ''),
-            css: e.target.result,
-            uploaded: Date.now()
-          };
-          
-          // Check if already exists
-          const existingIndex = this.customSurprises.findIndex(s => s.name === surprise.name);
-          if (existingIndex === -1) {
+      async uploadSurprise(file, applyAfterUpload = false) {
+        if (!file) return;
+        
+        try {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const surprise = {
+              name: file.name.replace('.css', ''),
+              css: e.target.result,
+              uploaded: Date.now()
+            };
+            
             this.customSurprises.push(surprise);
             localStorage.setItem(SURPRISE_KEY, JSON.stringify(this.customSurprises));
             
-            // Add to dropdown
-            this.loadSurprises();
-          }
-          
-          this.addToHistory(`Uploaded surprise: ${surprise.name}`, 'upload');
-          
-          if (applyImmediately) {
-            this.applySurprise(surprise.css, true);
-          } else {
-            this.showNotification('Surprise uploaded successfully! Click "Apply Custom Surprise" to use it.', 'success');
-          }
-        };
+            this.addToHistory(`Uploaded surprise: ${surprise.name}`, 'upload');
+            this.showNotification('Surprise uploaded successfully!', 'success');
+            
+            // Render custom surprises grid
+            this.renderCustomSurprises();
+            
+            if (applyAfterUpload) {
+              this.applyCustomSurprise(surprise);
+            }
+          };
+          reader.readAsText(file);
+        } catch (error) {
+          console.error('Error uploading surprise:', error);
+          this.showNotification('Error uploading surprise', 'error');
+        }
+      }
+
+      applyCustomWallpaper(wallpaper) {
+        document.body.classList.add('custom-bg');
+        document.body.style.setProperty('--custom-bg-url', `url(${wallpaper.data})`);
+        localStorage.setItem('selected_wallpaper', wallpaper.data);
         
-        reader.readAsText(file);
+        this.addToHistory(`Applied custom wallpaper: ${wallpaper.name}`, 'theme');
+        this.showNotification(`Applied ${wallpaper.name}!`, 'success');
+      }
+
+      applyCustomTheme(theme) {
+        // Remove existing custom theme
+        const existingStyle = document.getElementById('custom-theme-style');
+        if (existingStyle) {
+          existingStyle.remove();
+        }
+        
+        // Apply new custom theme
+        const style = document.createElement('style');
+        style.id = 'custom-theme-style';
+        style.textContent = theme.css;
+        document.head.appendChild(style);
+        
+        this.customThemeApplied = true;
+        localStorage.setItem('selected_theme', JSON.stringify(theme));
+        
+        this.addToHistory(`Applied theme: ${theme.name}`, 'theme');
+        this.showNotification(`Applied ${theme.name}!`, 'success');
+      }
+
+      applyCustomSurprise(surprise) {
+        // Add to current surprises if not already there
+        if (!this.currentSurprises.some(s => s.name === surprise.name)) {
+          this.currentSurprises.push(surprise);
+        }
+        
+        // Apply all current surprises
+        this.applyMultipleSurprises(this.currentSurprises);
+      }
+
+      applyMultipleSurprises(surprises) {
+        // Remove existing custom surprises
+        const existingStyle = document.getElementById('custom-surprise-style');
+        if (existingStyle) {
+          existingStyle.remove();
+        }
+        
+        // Combine all surprises into one CSS
+        const combinedCSS = surprises.map(s => s.css).join('\n');
+        
+        // Apply new combined surprise
+        const style = document.createElement('style');
+        style.id = 'custom-surprise-style';
+        style.textContent = combinedCSS;
+        document.head.appendChild(style);
+        
+        // Save current surprises
+        localStorage.setItem('active_surprises', JSON.stringify(surprises));
+        
+        // Start surprise timer
+        this.startSurpriseTimer();
+        
+        const surpriseNames = surprises.map(s => s.name).join(', ');
+        this.addToHistory(`Applied surprises: ${surpriseNames}`, 'theme');
+        this.showNotification(`Applied ${surprises.length} surprise(s)! 🎉`, 'success');
+      }
+
+      startSurpriseTimer() {
+        // Clear existing timer
+        if (this.surpriseTimer) {
+          clearTimeout(this.surpriseTimer);
+        }
+        
+        // Set new timer to reset surprises after 1 hour
+        this.surpriseTimer = setTimeout(() => {
+          this.resetSurprises();
+          this.showNotification('Surprises have ended! 🎉', 'info');
+        }, 60 * 60 * 1000); // 1 hour
       }
 
       resetWallpaper() {
-        this.applyWallpaper(null);
+        document.body.classList.remove('custom-bg');
+        document.body.style.removeProperty('--custom-bg-url');
+        localStorage.removeItem('selected_wallpaper');
+        
+        this.addToHistory('Reset wallpaper to default', 'theme');
         this.showNotification('Wallpaper reset to default!', 'success');
       }
 
       resetTheme() {
-        this.applyTheme(null);
+        const existingStyle = document.getElementById('custom-theme-style');
+        if (existingStyle) {
+          existingStyle.remove();
+        }
+        
+        this.customThemeApplied = false;
+        localStorage.removeItem('selected_theme');
+        
+        this.addToHistory('Reset theme to default', 'theme');
         this.showNotification('Theme reset to default!', 'success');
       }
 
-      resetSurprise() {
-        this.applySurprise(null);
-        this.showNotification('Surprise reset to default!', 'success');
+      resetSurprises() {
+        const existingStyle = document.getElementById('custom-surprise-style');
+        if (existingStyle) {
+          existingStyle.remove();
+        }
+        
+        this.currentSurprises = [];
+        localStorage.removeItem('active_surprises');
+        
+        // Clear timer
+        if (this.surpriseTimer) {
+          clearTimeout(this.surpriseTimer);
+          this.surpriseTimer = null;
+        }
+        
+        this.addToHistory('Reset surprises', 'theme');
+        this.showNotification('Surprises removed!', 'success');
+      }
+
+      renderCustomWallpapers() {
+        const grid = document.getElementById('customWallpapersGrid');
+        grid.innerHTML = '';
+        
+        this.customWallpapers.forEach((wallpaper, index) => {
+          const item = document.createElement('div');
+          item.className = 'custom-item';
+          item.innerHTML = `
+            <img src="${wallpaper.data}" alt="${wallpaper.name}">
+            <div>${wallpaper.name}</div>
+            <div class="custom-item-actions">
+              <button class="btn custom-item-btn apply-btn" data-index="${index}">Apply</button>
+              <button class="btn custom-item-btn delete-btn" data-index="${index}">Delete</button>
+            </div>
+          `;
+          grid.appendChild(item);
+        });
+        
+        // Add event listeners
+        grid.querySelectorAll('.apply-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = e.target.getAttribute('data-index');
+            this.applyCustomWallpaper(this.customWallpapers[index]);
+          });
+        });
+        
+        grid.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = e.target.getAttribute('data-index');
+            this.deleteCustomWallpaper(index);
+          });
+        });
+      }
+
+      renderCustomThemes() {
+        const grid = document.getElementById('customThemesGrid');
+        grid.innerHTML = '';
+        
+        this.customThemes.forEach((theme, index) => {
+          const item = document.createElement('div');
+          item.className = 'custom-item';
+          item.innerHTML = `
+            <div style="background:var(--primary);height:100px;border-radius:6px;margin-bottom:0.5rem;"></div>
+            <div>${theme.name}</div>
+            <div class="custom-item-actions">
+              <button class="btn custom-item-btn apply-btn" data-index="${index}">Apply</button>
+              <button class="btn custom-item-btn delete-btn" data-index="${index}">Delete</button>
+            </div>
+          `;
+          grid.appendChild(item);
+        });
+        
+        // Add event listeners
+        grid.querySelectorAll('.apply-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = e.target.getAttribute('data-index');
+            this.applyCustomTheme(this.customThemes[index]);
+          });
+        });
+        
+        grid.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = e.target.getAttribute('data-index');
+            this.deleteCustomTheme(index);
+          });
+        });
+      }
+
+      renderCustomSurprises() {
+        const grid = document.getElementById('customSurprisesGrid');
+        grid.innerHTML = '';
+        
+        this.customSurprises.forEach((surprise, index) => {
+          const item = document.createElement('div');
+          item.className = 'custom-item';
+          item.innerHTML = `
+            <div style="background:var(--accent);height:100px;border-radius:6px;margin-bottom:0.5rem;"></div>
+            <div>${surprise.name}</div>
+            <div class="custom-item-actions">
+              <button class="btn custom-item-btn apply-btn" data-index="${index}">Apply</button>
+              <button class="btn custom-item-btn delete-btn" data-index="${index}">Delete</button>
+            </div>
+          `;
+          grid.appendChild(item);
+        });
+        
+        // Add event listeners
+        grid.querySelectorAll('.apply-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = e.target.getAttribute('data-index');
+            this.applyCustomSurprise(this.customSurprises[index]);
+          });
+        });
+        
+        grid.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const index = e.target.getAttribute('data-index');
+            this.deleteCustomSurprise(index);
+          });
+        });
+      }
+
+      deleteCustomWallpaper(index) {
+        if (confirm('Are you sure you want to delete this wallpaper?')) {
+          this.customWallpapers.splice(index, 1);
+          localStorage.setItem(WALLPAPER_KEY, JSON.stringify(this.customWallpapers));
+          this.renderCustomWallpapers();
+          this.showNotification('Wallpaper deleted!', 'success');
+        }
+      }
+
+      deleteCustomTheme(index) {
+        if (confirm('Are you sure you want to delete this theme?')) {
+          this.customThemes.splice(index, 1);
+          localStorage.setItem(THEME_KEY, JSON.stringify(this.customThemes));
+          this.renderCustomThemes();
+          this.showNotification('Theme deleted!', 'success');
+        }
+      }
+
+      deleteCustomSurprise(index) {
+        if (confirm('Are you sure you want to delete this surprise?')) {
+          this.customSurprises.splice(index, 1);
+          localStorage.setItem(SURPRISE_KEY, JSON.stringify(this.customSurprises));
+          this.renderCustomSurprises();
+          this.showNotification('Surprise deleted!', 'success');
+        }
       }
 
       loadSavedCustomizations() {
-        // Load saved wallpaper
+        // Load wallpaper
         const savedWallpaper = localStorage.getItem('selected_wallpaper');
         if (savedWallpaper) {
           document.body.classList.add('custom-bg');
           document.body.style.setProperty('--custom-bg-url', `url(${savedWallpaper})`);
         }
 
-        // Load saved theme
+        // Load theme
         const savedTheme = localStorage.getItem('selected_theme');
         if (savedTheme) {
           try {
-            const themeData = JSON.parse(savedTheme);
-            if (themeData.type === 'custom') {
-              const style = document.createElement('style');
-              style.id = 'customThemeStyle';
-              style.textContent = themeData.css;
-              document.head.appendChild(style);
-              this.customThemeApplied = true;
-            } else if (themeData.type === 'repo') {
-              fetch(themeData.url).then(r => r.text()).then(css => {
-                const style = document.createElement('style');
-                style.id = 'customThemeStyle';
-                style.textContent = css;
-                document.head.appendChild(style);
-                this.customThemeApplied = false;
-              }).catch(console.error);
-            }
+            const theme = JSON.parse(savedTheme);
+            this.applyCustomTheme(theme);
           } catch (e) {
             console.error('Error loading saved theme:', e);
           }
         }
 
-        // Load saved surprise
-        const savedSurprise = localStorage.getItem('selected_surprise');
-        if (savedSurprise) {
-          try {
-            const surpriseData = JSON.parse(savedSurprise);
-            if (surpriseData.type === 'custom') {
-              this.currentSurprise = surpriseData.css;
-            } else if (surpriseData.type === 'repo') {
-              fetch(surpriseData.url).then(r => r.text()).then(css => {
-                this.currentSurprise = css;
-                this.startSurpriseTimer();
-              }).catch(console.error);
-            }
-          } catch (e) {
-            console.error('Error loading saved surprise:', e);
-          }
+        // Load surprises
+        const savedSurprises = JSON.parse(localStorage.getItem('active_surprises') || '[]');
+        if (savedSurprises.length > 0) {
+          this.currentSurprises = savedSurprises;
+          this.applyMultipleSurprises(savedSurprises);
         }
       }
 
       // Library System
       setupLibrarySystem() {
-        // Tab switching
+        // Library tabs
         document.querySelectorAll('.library-tab').forEach(tab => {
           tab.addEventListener('click', (e) => {
             const tabName = e.target.getAttribute('data-tab');
@@ -3066,880 +4137,968 @@
           });
         });
 
-        this.renderLibrary();
-        this.renderHistory();
+        // Render initial content
+        this.renderSavedContent();
       }
 
       switchLibraryTab(tabName) {
-        document.querySelectorAll('.library-tab').forEach(tab => tab.classList.remove('active'));
+        // Update active tab
+        document.querySelectorAll('.library-tab').forEach(tab => {
+          tab.classList.remove('active');
+        });
         document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-        
-        document.getElementById('savedContent').style.display = tabName === 'saved' ? 'block' : 'none';
-        document.getElementById('historyContent').style.display = tabName === 'history' ? 'block' : 'none';
+
+        // Show content
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.style.display = 'none';
+        });
+        document.getElementById(tabName + 'Content').style.display = 'block';
+
+        // Render content
+        switch(tabName) {
+          case 'saved':
+            this.renderSavedContent();
+            break;
+          case 'history':
+            this.renderHistoryContent();
+            break;
+          case 'games':
+            // Games content is static
+            break;
+        }
       }
 
-      saveToLibrary(file) {
-        const savedItem = {
-          ...file,
-          savedAt: Date.now()
-        };
+      renderSavedContent() {
+        const content = document.getElementById('savedContent');
         
-        // Check if already saved
-        const existingIndex = this.library.findIndex(item => item.name === file.name);
-        if (existingIndex > -1) {
-          this.showNotification('Pack already in library!', 'error');
+        if (this.library.length === 0) {
+          content.innerHTML = '<p class="status-message">No saved packs yet. Save packs from the home page to see them here.</p>';
           return;
         }
+
+        content.innerHTML = '<h3>Your Saved Packs</h3>';
         
-        this.library.push(savedItem);
+        this.library.forEach((pack, index) => {
+          const item = document.createElement('div');
+          item.className = 'saved-item';
+          item.innerHTML = `
+            <div>
+              <strong>${pack.name}</strong><br>
+              <small>${pack.type} • ${this.formatFileSize(pack.size)}</small>
+            </div>
+            <div>
+              <button class="btn" onclick="premiumSystem.downloadFromLibrary(${index})">Download</button>
+              <button class="btn danger" onclick="premiumSystem.removeFromLibrary(${index})">Remove</button>
+            </div>
+          `;
+          content.appendChild(item);
+        });
+      }
+
+      renderHistoryContent() {
+        const content = document.getElementById('historyContent');
+        
+        if (this.history.length === 0) {
+          content.innerHTML = '<p class="status-message">No history yet. Your downloads and actions will appear here.</p>';
+          return;
+        }
+
+        content.innerHTML = '<h3>Your Activity History</h3>';
+        
+        // Show recent history (last 50 items)
+        const recentHistory = this.history.slice(0, 50);
+        
+        recentHistory.forEach(item => {
+          const historyItem = document.createElement('div');
+          historyItem.className = 'history-item';
+          
+          let icon = '📄';
+          if (item.type === 'premium') icon = '✨';
+          if (item.type === 'theme') icon = '🎨';
+          if (item.type === 'upload') icon = '📤';
+          
+          historyItem.innerHTML = `
+            <div>${icon} ${item.action}</div>
+            <div class="history-timestamp">${new Date(item.timestamp).toLocaleString()}</div>
+          `;
+          content.appendChild(historyItem);
+        });
+      }
+
+      saveToLibrary(pack) {
+        // Check if already saved
+        const alreadySaved = this.library.some(savedPack => savedPack.name === pack.name);
+        if (alreadySaved) {
+          this.showNotification('Pack is already in your library!', 'warning');
+          return;
+        }
+
+        this.library.push(pack);
         localStorage.setItem(LIBRARY_KEY, JSON.stringify(this.library));
-        this.renderLibrary();
-        this.addToHistory(`Saved pack: ${file.name}`, 'save');
+        
+        this.addToHistory(`Saved pack: ${pack.name}`, 'save');
         this.showNotification('Pack saved to library!', 'success');
       }
 
-      removeFromLibrary(fileName) {
-        this.library = this.library.filter(item => item.name !== fileName);
+      removeFromLibrary(index) {
+        const pack = this.library[index];
+        this.library.splice(index, 1);
         localStorage.setItem(LIBRARY_KEY, JSON.stringify(this.library));
-        this.renderLibrary();
-        this.addToHistory(`Removed pack: ${fileName}`, 'remove');
-        this.showNotification('Pack removed from library', 'success');
-      }
-
-      renderLibrary() {
-        const savedContent = document.getElementById('savedContent');
         
-        if (this.library.length === 0) {
-          savedContent.innerHTML = '<div class="status-message">No saved packs yet. Save some packs from the home section!</div>';
-          return;
-        }
-
-        savedContent.innerHTML = this.library.map(item => `
-          <div class="saved-item">
-            <div>
-              <strong>${this.security.sanitizeHTML(item.name)}</strong><br>
-              <small>Saved ${new Date(item.savedAt).toLocaleDateString()}</small>
-            </div>
-            <div>
-              <button class="btn" onclick="premiumSystem.downloadFile('${item.download_url}', '${item.name}')">Download</button>
-              <button class="btn danger" onclick="premiumSystem.removeFromLibrary('${this.security.sanitizeHTML(item.name)}')">Remove</button>
-            </div>
-          </div>
-        `).join('');
+        this.addToHistory(`Removed pack: ${pack.name}`, 'remove');
+        this.renderSavedContent();
+        this.showNotification('Pack removed from library!', 'success');
       }
 
-      addToHistory(action, type = 'general') {
+      downloadFromLibrary(index) {
+        const pack = this.library[index];
+        this.downloadPack(pack);
+      }
+
+      addToHistory(action, type = 'download') {
         const historyItem = {
-          action,
-          type,
+          action: action,
+          type: type,
           timestamp: Date.now()
         };
         
         this.history.unshift(historyItem);
-        
-        // Keep only last 100 items
-        if (this.history.length > 100) {
-          this.history = this.history.slice(0, 100);
-        }
-        
         localStorage.setItem(HISTORY_KEY, JSON.stringify(this.history));
-        this.renderHistory();
       }
 
-      addToDownloadHistory(fileName) {
-        const downloadRecord = {
-          fileName,
+      addToDownloadHistory(pack) {
+        const downloadItem = {
+          name: pack.name,
+          type: pack.type,
+          size: pack.size,
           timestamp: Date.now()
         };
         
-        this.downloadHistory.unshift(downloadRecord);
-        
-        // Keep only last 500 items
-        if (this.downloadHistory.length > 500) {
-          this.downloadHistory = this.downloadHistory.slice(0, 500);
-        }
-        
+        this.downloadHistory.unshift(downloadItem);
+        // Keep only last 100 downloads
+        this.downloadHistory = this.downloadHistory.slice(0, 100);
         localStorage.setItem(DOWNLOAD_HISTORY_KEY, JSON.stringify(this.downloadHistory));
-      }
-
-      getTrendingFiles(timeRange) {
-        const now = Date.now();
-        let timeLimit;
-        
-        switch(timeRange) {
-          case 'today':
-            timeLimit = now - (24 * 60 * 60 * 1000);
-            break;
-          case 'week':
-            timeLimit = now - (7 * 24 * 60 * 60 * 1000);
-            break;
-          case 'month':
-            timeLimit = now - (30 * 24 * 60 * 60 * 1000);
-            break;
-          case 'year':
-            timeLimit = now - (365 * 24 * 60 * 60 * 1000);
-            break;
-          default:
-            return this.downloadHistory;
-        }
-        
-        return this.downloadHistory.filter(record => record.timestamp > timeLimit);
-      }
-
-      renderHistory() {
-        const historyContent = document.getElementById('historyContent');
-        
-        if (this.history.length === 0) {
-          historyContent.innerHTML = '<div class="status-message">No history yet.</div>';
-          return;
-        }
-
-        historyContent.innerHTML = this.history.map(item => `
-          <div class="history-item">
-            <div>${this.security.sanitizeHTML(item.action)}</div>
-            <div class="history-timestamp">${new Date(item.timestamp).toLocaleString()}</div>
-          </div>
-        `).join('');
       }
 
       getLibrary() {
         try {
-          const data = localStorage.getItem(LIBRARY_KEY);
-          return data ? JSON.parse(data) : [];
+          return JSON.parse(localStorage.getItem(LIBRARY_KEY)) || [];
         } catch (e) {
-          console.error('Error loading library:', e);
           return [];
         }
       }
 
       getHistory() {
         try {
-          const data = localStorage.getItem(HISTORY_KEY);
-          return data ? JSON.parse(data) : [];
+          return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
         } catch (e) {
-          console.error('Error loading history:', e);
-          return [];
-        }
-      }
-
-      getDownloadHistory() {
-        try {
-          const data = localStorage.getItem(DOWNLOAD_HISTORY_KEY);
-          return data ? JSON.parse(data) : [];
-        } catch (e) {
-          console.error('Error loading download history:', e);
           return [];
         }
       }
 
       getCustomThemes() {
         try {
-          const data = localStorage.getItem(THEME_KEY);
-          return data ? JSON.parse(data) : [];
+          return JSON.parse(localStorage.getItem(THEME_KEY)) || [];
         } catch (e) {
-          console.error('Error loading custom themes:', e);
           return [];
         }
       }
 
       getCustomWallpapers() {
         try {
-          const data = localStorage.getItem(WALLPAPER_KEY);
-          return data ? JSON.parse(data) : [];
+          return JSON.parse(localStorage.getItem(WALLPAPER_KEY)) || [];
         } catch (e) {
-          console.error('Error loading custom wallpapers:', e);
           return [];
         }
       }
 
       getCustomSurprises() {
         try {
-          const data = localStorage.getItem(SURPRISE_KEY);
-          return data ? JSON.parse(data) : [];
+          return JSON.parse(localStorage.getItem(SURPRISE_KEY)) || [];
         } catch (e) {
-          console.error('Error loading custom surprises:', e);
           return [];
         }
       }
 
-      downloadFile(url, name) {
-        // Use the existing download functionality
-        const file = { download_url: url, name: name };
-        startDownload(file);
-        this.addToHistory(`Downloaded: ${name}`, 'download');
-        this.addToDownloadHistory(name);
+      getDownloadHistory() {
+        try {
+          return JSON.parse(localStorage.getItem(DOWNLOAD_HISTORY_KEY)) || [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
       }
 
       showNotification(message, type = 'info') {
-        // Remove any existing notifications
-        document.querySelectorAll('[role="alert"]').forEach(el => {
-          if (el.style.position === 'fixed') el.remove();
-        });
-
+        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `status-message status-${type}`;
+        notification.className = `notification ${type}`;
+        notification.style.cssText = `
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          background: ${type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : type === 'warning' ? 'var(--warning)' : 'var(--primary)'};
+          color: ${type === 'warning' ? '#000' : '#fff'};
+          padding: 1rem 1.5rem;
+          border-radius: var(--border-radius);
+          box-shadow: var(--shadow);
+          z-index: 10002;
+          max-width: 300px;
+          word-break: break-word;
+          opacity: 0;
+          transform: translateX(100%);
+          transition: all 0.3s ease;
+        `;
         notification.textContent = message;
-        notification.setAttribute('role', 'alert');
-        notification.style.position = 'fixed';
-        notification.style.top = '100px';
-        notification.style.right = '20px';
-        notification.style.zIndex = '10001';
-        notification.style.background = type === 'error' ? 'var(--danger)' : type === 'success' ? 'var(--success)' : 'var(--primary)';
-        notification.style.color = '#fff';
-        notification.style.padding = '1rem';
-        notification.style.borderRadius = '8px';
-        notification.style.boxShadow = 'var(--shadow)';
         
         document.body.appendChild(notification);
         
+        // Animate in
         setTimeout(() => {
-          if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-          }
+          notification.style.opacity = '1';
+          notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remove after 5 seconds
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transform = 'translateX(100%)';
+          setTimeout(() => {
+            if (notification.parentNode) {
+              notification.parentNode.removeChild(notification);
+            }
+          }, 300);
         }, 5000);
+      }
+
+      downloadPack(pack) {
+        if (!this.isPremium) {
+          this.showNotification('Download tracking is a Premium feature!', 'warning');
+        }
+        
+        // Add to download history if premium
+        if (this.isPremium) {
+          this.addToDownloadHistory(pack);
+        }
+        
+        // Show downloading screen
+        const screen = document.getElementById('downloadingScreen');
+        const fileName = document.getElementById('downloadFileName');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        
+        fileName.textContent = pack.name;
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', '0');
+        progressText.textContent = 'Starting download...';
+        screen.style.display = 'flex';
+        
+        // Simulate download progress
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 15;
+          if (progress > 100) progress = 100;
+          
+          progressBar.style.width = progress + '%';
+          progressBar.setAttribute('aria-valuenow', progress);
+          progressText.textContent = `Downloading... ${Math.round(progress)}%`;
+          
+          if (progress === 100) {
+            clearInterval(interval);
+            
+            // Download the file
+            setTimeout(() => {
+              const link = document.createElement('a');
+              link.href = pack.download_url;
+              link.download = pack.name;
+              
+              // Fix for .txt extension issue - force correct extension
+              const blobPromise = fetch(pack.download_url)
+                .then(response => {
+                  if (!response.ok) throw new Error('Network response was not ok');
+                  return response.blob();
+                })
+                .then(blob => {
+                  // Create blob with correct MIME type
+                  const blobUrl = URL.createObjectURL(blob);
+                  link.href = blobUrl;
+                  
+                  // Trigger download
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  
+                  // Clean up
+                  setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+                  
+                  // Hide downloading screen
+                  screen.style.display = 'none';
+                  
+                  // Add to history if premium
+                  if (this.isPremium) {
+                    this.addToHistory(`Downloaded: ${pack.name}`);
+                  }
+                  
+                  this.showNotification(`Downloaded ${pack.name}!`, 'success');
+                })
+                .catch(error => {
+                  console.error('Download error:', error);
+                  screen.style.display = 'none';
+                  this.showNotification('Download failed. Please try again.', 'error');
+                });
+            }, 500);
+          }
+        }, 200);
+        
+        // Cancel button
+        document.getElementById('downloadCancelBtn').onclick = () => {
+          clearInterval(interval);
+          screen.style.display = 'none';
+          this.showNotification('Download cancelled', 'info');
+        };
       }
     }
 
-    // File Manager System
+    // File Manager
     class FileManager {
       constructor() {
-        this.allFiles = [];
-        this.allThumbs = {};
-        this.currentDownload = null;
-        this.currentFileType = 'all';
+        this.files = [];
+        this.filteredFiles = [];
+        this.currentFileTypeFilter = 'all';
         this.currentSortBy = 'az';
         this.currentTrendFilter = 'all';
+        this.categories = ['All', 'Texture Packs', 'Worlds', 'Skins', 'Maps', 'Addons', 'Mods'];
         
-        this.setupUI();
-        this.fetchFiles();
+        this.init();
       }
 
-      setupUI() {
-        this.setupCustomDropdowns();
-        this.setupSearch();
-        this.setupModal();
-        this.setupHelp();
+      async init() {
+        this.setupEventListeners();
+        await this.loadFiles();
+        this.renderCategories();
+        this.renderFiles();
       }
 
-      setupCustomDropdowns() {
+      setupEventListeners() {
+        // Search input
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+          this.applyFiltersAndSearch();
+        });
+
+        // File type dropdown
         const fileTypeButton = document.getElementById('fileTypeButton');
         const fileTypeOptions = document.getElementById('fileTypeOptions');
-        const sortByButton = document.getElementById('sortByButton');
-        const sortByOptions = document.getElementById('sortByOptions');
 
         fileTypeButton.addEventListener('click', (e) => {
           e.stopPropagation();
-          this.toggleDropdown(fileTypeButton, fileTypeOptions);
+          premiumSystem.toggleDropdown(fileTypeButton, fileTypeOptions);
         });
 
         fileTypeOptions.addEventListener('click', (e) => {
           if (e.target.classList.contains('dropdown-option')) {
-            this.selectOption(e.target, fileTypeButton, fileTypeOptions);
-            this.currentFileType = e.target.getAttribute('data-value');
+            premiumSystem.selectOption(e.target, fileTypeButton, fileTypeOptions);
+            this.currentFileTypeFilter = e.target.getAttribute('data-value');
             this.applyFiltersAndSearch();
           }
         });
 
+        // Sort by dropdown
+        const sortByButton = document.getElementById('sortByButton');
+        const sortByOptions = document.getElementById('sortByOptions');
+
         sortByButton.addEventListener('click', (e) => {
           e.stopPropagation();
-          this.toggleDropdown(sortByButton, sortByOptions);
+          premiumSystem.toggleDropdown(sortByButton, sortByOptions);
         });
 
         sortByOptions.addEventListener('click', (e) => {
           if (e.target.classList.contains('dropdown-option')) {
-            this.selectOption(e.target, sortByButton, sortByOptions);
+            premiumSystem.selectOption(e.target, sortByButton, sortByOptions);
             this.currentSortBy = e.target.getAttribute('data-value');
             this.applyFiltersAndSearch();
           }
         });
 
-        document.addEventListener('click', () => this.closeAllDropdowns());
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape') this.closeAllDropdowns();
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', () => {
+          premiumSystem.closeAllDropdowns();
+        });
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', () => {
+          this.refreshFiles();
+        });
+
+        // Help button
+        document.getElementById('helpBtn').addEventListener('click', () => {
+          document.getElementById('helpModal').style.display = 'flex';
+        });
+
+        document.getElementById('helpClose').addEventListener('click', () => {
+          document.getElementById('helpModal').style.display = 'none';
+        });
+
+        // Footer buttons
+        document.getElementById('aboutBtn').addEventListener('click', () => {
+          this.showFooterModal('about');
+        });
+
+        document.getElementById('privacyBtn').addEventListener('click', () => {
+          this.showFooterModal('privacy');
+        });
+
+        document.getElementById('contactBtn').addEventListener('click', () => {
+          this.showFooterModal('contact');
+        });
+
+        // Footer modal close
+        document.getElementById('footerModalBack').addEventListener('click', () => {
+          document.getElementById('footerModal').style.display = 'none';
+          document.body.style.overflow = '';
         });
       }
 
-      toggleDropdown(button, options) {
-        const isOpen = button.classList.contains('open');
-        this.closeAllDropdowns();
-        if (!isOpen) {
-          button.classList.add('open');
-          options.classList.add('open');
-          button.setAttribute('aria-expanded', 'true');
+      renderCategories() {
+        const carousel = document.getElementById('categoriesCarousel');
+        carousel.innerHTML = '';
+        
+        this.categories.forEach(category => {
+          const chip = document.createElement('button');
+          chip.className = 'category-chip';
+          chip.textContent = category;
+          chip.addEventListener('click', () => {
+            document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            this.filterByCategory(category);
+          });
+          carousel.appendChild(chip);
+        });
+        
+        // Activate "All" by default
+        if (carousel.firstChild) {
+          carousel.firstChild.classList.add('active');
         }
       }
 
-      closeAllDropdowns() {
-        document.querySelectorAll('.dropdown-button').forEach(btn => {
-          btn.classList.remove('open');
-          btn.setAttribute('aria-expanded', 'false');
-        });
-        document.querySelectorAll('.dropdown-options').forEach(options => {
-          options.classList.remove('open');
-        });
+      filterByCategory(category) {
+        // This would filter files by category
+        // For now, just log the category
+        console.log('Filtering by category:', category);
+        this.applyFiltersAndSearch();
       }
 
-      selectOption(option, button, optionsContainer) {
-        optionsContainer.querySelectorAll('.dropdown-option').forEach(opt => {
-          opt.classList.remove('selected');
-        });
-        option.classList.add('selected');
-        button.querySelector('.dropdown-text').textContent = option.textContent;
-        this.closeAllDropdowns();
+      async loadFiles() {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        
+        // Hide skeleton and show loading
+        document.getElementById('websiteSkeleton').style.display = 'none';
+        loadingOverlay.style.display = 'flex';
+        loadingText.textContent = 'Loading packs...';
+        
+        try {
+          // Check cache first
+          const cached = this.getCachedFiles();
+          if (cached) {
+            this.files = cached;
+            loadingOverlay.style.display = 'none';
+            return;
+          }
+
+          const response = await fetch(API_URL);
+          if (!response.ok) throw new Error('Failed to fetch files');
+          
+          const data = await response.json();
+          this.files = this.processFiles(data);
+          this.cacheFiles(this.files);
+          
+        } catch (error) {
+          console.error('Error loading files:', error);
+          loadingText.textContent = 'Failed to load packs. Please try again.';
+          setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+          }, 2000);
+          return;
+        }
+        
+        loadingOverlay.style.display = 'none';
       }
 
-      setupSearch() {
-        const searchInput = document.getElementById('searchInput');
-        let searchTimeout;
-        searchInput.addEventListener('input', () => {
-          clearTimeout(searchTimeout);
-          searchTimeout = setTimeout(() => this.applyFiltersAndSearch(), 300);
+      processFiles(data) {
+        const files = data
+          .filter(item => item.name.match(/\.(mcpack|mcworld)$/i))
+          .map(item => {
+            const name = item.name;
+            const type = name.split('.').pop().toLowerCase();
+            const size = item.size;
+            const download_url = item.download_url;
+            
+            // Get base name for thumbnail and description
+            const baseName = name.replace(/\.(mcpack|mcworld)$/i, '');
+            
+            return {
+              name,
+              type,
+              size,
+              download_url,
+              baseName,
+              thumbnail_url: this.getThumbnailUrl(baseName),
+              description_url: this.getDescriptionUrl(baseName)
+            };
+          });
+        
+        return files;
+      }
+
+      getThumbnailUrl(baseName) {
+        // Try different image formats
+        const extensions = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+        return extensions.map(ext => `${RAW_URL}${baseName}.${ext}`);
+      }
+
+      getDescriptionUrl(baseName) {
+        return `${RAW_URL}${baseName}.txt`;
+      }
+
+      getCachedFiles() {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+        
+        try {
+          const data = JSON.parse(cached);
+          if (Date.now() - data.timestamp < CACHE_TIMEOUT) {
+            return data.files;
+          }
+        } catch (e) {
+          console.error('Error parsing cache:', e);
+        }
+        
+        return null;
+      }
+
+      cacheFiles(files) {
+        const data = {
+          files,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      }
+
+      refreshFiles() {
+        localStorage.removeItem(CACHE_KEY);
+        this.loadFiles().then(() => {
+          this.renderFiles();
+          premiumSystem.showNotification('Files refreshed!', 'success');
         });
       }
 
       applyFiltersAndSearch() {
-        let filtered = [...this.allFiles];
-        const searchInput = document.getElementById('searchInput');
-
-        // Search
-        const query = searchInput.value.trim().toLowerCase();
-        if (query) {
-          filtered = filtered.filter(f => f.name.toLowerCase().includes(query));
-        }
-
-        // Filter by type
-        if (this.currentFileType !== 'all') {
-          filtered = filtered.filter(f => f.name.toLowerCase().endsWith('.' + this.currentFileType));
-        }
-
-        // Apply trend filter for premium users
-        if (premiumSystem.isPremium && this.currentTrendFilter !== 'all') {
-          const trendingFiles = premiumSystem.getTrendingFiles(this.currentTrendFilter);
-          const trendingFileNames = trendingFiles.map(record => record.fileName);
-          
-          // Sort by popularity (most downloaded first)
-          filtered = filtered.filter(f => trendingFileNames.includes(f.name));
-          filtered.sort((a, b) => {
-            const aCount = trendingFileNames.filter(name => name === a.name).length;
-            const bCount = trendingFileNames.filter(name => name === b.name).length;
-            return bCount - aCount;
-          });
-        } else {
-          // Regular sorting for non-premium or "all time" filter
-          switch (this.currentSortBy) {
-            case 'az':
-              filtered.sort((a,b) => a.name.localeCompare(b.name));
-              break;
-            case 'za':
-              filtered.sort((a,b) => b.name.localeCompare(a.name));
-              break;
-            case 'largest':
-              filtered.sort((a,b) => b.size - a.size);
-              break;
-            case 'smallest':
-              filtered.sort((a,b) => a.size - b.size);
-              break;
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        this.filteredFiles = this.files.filter(file => {
+          // File type filter
+          if (this.currentFileTypeFilter !== 'all' && file.type !== this.currentFileTypeFilter) {
+            return false;
           }
-        }
-
-        this.renderFiles(filtered);
+          
+          // Search filter
+          if (searchTerm && !file.name.toLowerCase().includes(searchTerm)) {
+            return false;
+          }
+          
+          return true;
+        });
+        
+        this.sortFiles();
+        this.renderFiles();
       }
 
-      async fetchAllFiles(apiUrl = API_URL, prefix = '') {
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        if (cachedData) {
+      sortFiles() {
+        switch (this.currentSortBy) {
+          case 'az':
+            this.filteredFiles.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+          case 'za':
+            this.filteredFiles.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+          case 'largest':
+            this.filteredFiles.sort((a, b) => b.size - a.size);
+            break;
+          case 'smallest':
+            this.filteredFiles.sort((a, b) => a.size - b.size);
+            break;
+        }
+      }
+
+      async renderFiles() {
+        const fileList = document.getElementById('fileList');
+        
+        if (this.filteredFiles.length === 0) {
+          fileList.innerHTML = '<p class="status-message">No packs found matching your criteria.</p>';
+          return;
+        }
+
+        fileList.innerHTML = '';
+        
+        // Show skeleton loading first
+        for (let i = 0; i < this.filteredFiles.length; i++) {
+          const file = this.filteredFiles[i];
+          
+          const fileElement = document.createElement('div');
+          fileElement.className = 'file-with-thumbnail';
+          fileElement.setAttribute('role', 'listitem');
+          
+          // Create skeleton first
+          fileElement.innerHTML = `
+            <div class="file-thumbnail-small skeleton" style="width:80px;height:80px;"></div>
+            <div class="file-content">
+              <div class="name skeleton" style="width:80%;height:1.5rem;"></div>
+              <div class="meta skeleton" style="width:60%;height:1rem;"></div>
+              <div class="actions skeleton" style="width:100%;height:2.5rem;"></div>
+            </div>
+          `;
+          
+          fileList.appendChild(fileElement);
+          
+          // Then load actual content
+          this.renderFile(file, fileElement);
+        }
+      }
+
+      async renderFile(file, fileElement) {
+        // Load thumbnail
+        let thumbnailUrl = null;
+        for (const url of file.thumbnail_url) {
           try {
-            const { data, timestamp } = JSON.parse(cachedData);
-            if (Date.now() - timestamp < CACHE_TIMEOUT) {
-              return data;
+            const exists = await this.checkImageExists(url);
+            if (exists) {
+              thumbnailUrl = url;
+              break;
             }
           } catch (e) {
-            console.error('Error parsing cache:', e);
+            // Continue to next URL
           }
         }
-
+        
+        // Load description
+        let description = null;
         try {
-          document.getElementById('loadingOverlay').style.display = 'flex';
-          document.getElementById('loadingText').textContent = "Loading packs...";
-          
-          // Use a more reliable CORS proxy
-          const proxyUrl = 'https://corsproxy.io/?';
-          const response = await fetch(proxyUrl + encodeURIComponent(apiUrl));
-          
-          if (response.status === 403 && response.headers.get('x-ratelimit-remaining') === '0') {
-            const resetTime = new Date(parseInt(response.headers.get('x-ratelimit-reset')) * 1000);
-            const timeUntilReset = Math.round((resetTime - new Date()) / 60000);
-            throw new Error(`GitHub API rate limit exceeded. Please try again in ${timeUntilReset} minutes.`);
-          }
-          
-          if (!response.ok) throw new Error(`Failed to fetch repository contents: ${response.status} ${response.statusText}`);
-          
-          const data = await response.json();
-          let files = [];
-          
-          for (const file of data) {
-            if (file.type === 'dir') {
-              const subFiles = await this.fetchAllFiles(file.url, prefix + file.name + '/');
-              files = files.concat(subFiles);
-            } else {
-              files.push({ ...file, path: prefix + file.name });
-            }
-          }
-          
-          localStorage.setItem(CACHE_KEY, JSON.stringify({
-            data: files,
-            timestamp: Date.now()
-          }));
-          
-          return files;
-        } catch (error) {
-          console.error('Error fetching files:', error);
-          // Try without proxy as fallback
-          try {
-            const response = await fetch(apiUrl);
-            if (response.ok) {
-              const data = await response.json();
-              let files = [];
-              
-              for (const file of data) {
-                if (file.type === 'dir') {
-                  const subFiles = await this.fetchAllFiles(file.url, prefix + file.name + '/');
-                  files = files.concat(subFiles);
-                } else {
-                  files.push({ ...file, path: prefix + file.name });
-                }
-              }
-              
-              localStorage.setItem(CACHE_KEY, JSON.stringify({
-                data: files,
-                timestamp: Date.now()
-              }));
-              
-              return files;
-            }
-          } catch (fallbackError) {
-            console.error('Fallback also failed:', fallbackError);
-            premiumSystem.showNotification('Failed to load packs. Please check your internet connection.', 'error');
-          }
-          return [];
-        } finally {
-          document.getElementById('loadingOverlay').style.display = 'none';
-        }
-      }
-
-      async fetchFiles() {
-        try {
-          let data = await this.fetchAllFiles();
-          
-          // If no files found, try with sample data
-          if (data.length === 0) {
-            console.log('No files found from GitHub, using sample data');
-            data = this.getSampleFiles();
-          }
-          
-          const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
-          this.allThumbs = {};
-          
-          sorted.forEach(file => {
-            if (file.name.toLowerCase().endsWith('.png')) {
-              const base = file.name.replace(/\.png$/i, '').toLowerCase();
-              this.allThumbs[base] = RAW_URL + file.path;
-            }
-          });
-
-          const mcFiles = sorted.filter(file =>
-            file.name.match(/\.mcpack$/i) || file.name.match(/\.mcworld$/i)
-          ).map(file => ({
-            name: file.name,
-            download_url: RAW_URL + file.path,
-            size: file.size,
-            thumb: this.allThumbs[file.name.replace(/\.(mcpack|mcworld)$/i,'').toLowerCase()] || null,
-            type: file.name.match(/\.mcpack$/i) ? 'resource pack' : 'world'
-          }));
-
-          this.allFiles = mcFiles;
-          this.renderFiles(mcFiles);
-        } catch (error) {
-          console.error('Error processing files:', error);
-          document.getElementById('fileList').innerHTML = `<div class="status-message status-error">${premiumSystem.security.sanitizeHTML(error.message)}</div>`;
-        }
-      }
-
-      // Sample files as fallback
-      getSampleFiles() {
-        return [
-          { name: 'Fantasy_Resource_Pack.mcpack', size: 5242880, type: 'file', path: 'Fantasy_Resource_Pack.mcpack' },
-          { name: 'Medieval_World.mcworld', size: 10485760, type: 'file', path: 'Medieval_World.mcworld' },
-          { name: 'Modern_City.mcworld', size: 15728640, type: 'file', path: 'Modern_City.mcworld' },
-          { name: 'Pixel_Art_Pack.mcpack', size: 3145728, type: 'file', path: 'Pixel_Art_Pack.mcpack' },
-          { name: 'Survival_Island.mcworld', size: 8388608, type: 'file', path: 'Survival_Island.mcworld' }
-        ];
-      }
-
-      renderFiles(filesToRender) {
-        const fileList = document.getElementById('fileList');
-        fileList.innerHTML = "";
-        
-        if (filesToRender.length === 0) {
-          fileList.innerHTML = '<div class="status-message">No .mcpack or .mcworld files found.</div>';
-          return;
+          description = await this.loadDescription(file.description_url);
+        } catch (e) {
+          // Description not available
         }
         
-        filesToRender.forEach(file => {
-          const div = document.createElement('div');
-          div.className = 'file';
-          div.setAttribute('role', 'listitem');
-
-          if (file.thumb) {
-            const thumb = document.createElement('img');
-            thumb.className = 'thumbnail';
-            thumb.src = file.thumb;
-            thumb.alt = `Thumbnail for ${file.name}`;
-            thumb.loading = 'lazy';
-            thumb.onerror = function() { thumb.style.display = 'none'; };
-            div.appendChild(thumb);
-          }
-
-          const name = document.createElement('div');
-          name.className = 'name';
-          name.textContent = file.name;
-          div.appendChild(name);
-
-          const meta = document.createElement('div');
-          meta.className = 'meta';
-          meta.innerHTML = `
-            <span>${this.humanFileSize(file.size)}</span>
-            <span>•</span>
-            <span>${file.type}</span>
-          `;
-          div.appendChild(meta);
-
-          const actions = document.createElement('div');
-          actions.className = 'actions';
-          
-          const dl = document.createElement('button');
-          dl.className = 'btn';
-          dl.innerHTML = `<span aria-hidden="true">⬇️</span> Download`;
-          dl.onclick = () => startDownload(file);
-          actions.appendChild(dl);
-
-          // Add save button for premium users
-          if (premiumSystem.isPremium) {
-            const save = document.createElement('button');
-            save.className = 'btn save';
-            save.innerHTML = `<span aria-hidden="true">💾</span> Save`;
-            save.onclick = () => premiumSystem.saveToLibrary(file);
-            actions.appendChild(save);
-          }
-          
-          div.appendChild(actions);
-          fileList.appendChild(div);
-        });
-      }
-
-      humanFileSize(size) {
-        if (size < 1024) return size + " B";
-        if (size < 1024 * 1024) return (size/1024).toFixed(1) + " KB";
-        if (size < 1024 * 1024 * 1024) return (size/1024/1024).toFixed(1) + " MB";
-        return (size/1024/1024/1024).toFixed(2) + " GB";
-      }
-
-      setupModal() {
-        const FOOTER_SECTIONS = {
-          about: {
-            title: "About",
-            content: `Welcome to Minecraft File Manager! This website allows you to easily browse, search, and download Minecraft packs (.mcpack, .mcworld). We provide a simple and secure way for the Minecraft community to discover new content. All packs are carefully curated for your gameplay experience.`
-          },
-          privacy: {
-            title: "Privacy Policy", 
-            content: `Your privacy is important to us. We do not collect personal data from users. Some non-personal information may be collected by third-party services (like Google AdSense) for analytics and advertising purposes. For details, please review the privacy policies of these respective services.`
-          },
-          contact: {
-            title: "Contact",
-            content: `Have questions, feedback, or need support? You can reach out to us via email at <a href="mailto:nursifat3026@gmail.com" class="footer-contact-link">nursifat3026@gmail.com</a>. We appreciate your feedback and will respond as soon as possible.`
-          }
-        };
-
-        const aboutBtn = document.getElementById('aboutBtn');
-        const privacyBtn = document.getElementById('privacyBtn');
-        const contactBtn = document.getElementById('contactBtn');
-        const footerModal = document.getElementById('footerModal');
-        const footerModalContent = document.getElementById('footerModalContent');
-        const footerModalBack = document.getElementById('footerModalBack');
-
-        function openFooterModal(sectionKey) {
-          const data = FOOTER_SECTIONS[sectionKey];
-          if (!data) return;
-          
-          const existingTitle = footerModalContent.querySelector('.footer-section-title');
-          const existingContent = footerModalContent.querySelector('.footer-section-content');
-          
-          if (existingTitle) existingTitle.remove();
-          if (existingContent) existingContent.remove();
-          
-          const titleDiv = document.createElement('div');
-          titleDiv.className = 'footer-section-title';
-          titleDiv.textContent = data.title;
-          titleDiv.id = 'modalTitle';
-          footerModalContent.insertBefore(titleDiv, footerModalBack);
-          
-          const contentDiv = document.createElement('div');
-          contentDiv.className = 'footer-section-content';
-          contentDiv.innerHTML = data.content;
-          footerModalContent.insertBefore(contentDiv, footerModalBack);
-          
-          footerModal.style.display = 'flex';
-          document.body.style.overflow = 'hidden';
-          
-          setTimeout(() => footerModalBack.focus(), 100);
-        }
-
-        function closeFooterModal() {
-          footerModal.style.display = 'none';
-          document.body.style.overflow = '';
-        }
-
-        aboutBtn.onclick = () => openFooterModal('about');
-        privacyBtn.onclick = () => openFooterModal('privacy');
-        contactBtn.onclick = () => openFooterModal('contact');
-        footerModalBack.onclick = closeFooterModal;
-
-        footerModal.addEventListener('click', function(e) {
-          if (e.target === footerModal) closeFooterModal();
-        });
+        // Update file element with actual content
+        fileElement.innerHTML = '';
         
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape' && footerModal.style.display === 'flex') {
-            closeFooterModal();
-          }
-        });
-      }
-
-      setupHelp() {
-        const helpModal = document.getElementById('helpModal');
-        const helpClose = document.getElementById('helpClose');
-        
-        document.getElementById('helpBtn').onclick = () => {
-          helpModal.style.display = 'flex';
-        };
-        
-        helpClose.onclick = () => {
-          helpModal.style.display = 'none';
-        };
-
-        document.getElementById('refreshBtn').onclick = () => {
-          location.reload();
-        };
-      }
-    }
-
-    // Download functionality - Fixed to always use correct extensions and prevent cancellation
-    function startDownload(file) {
-      const downloadingScreen = document.getElementById('downloadingScreen');
-      const downloadFileName = document.getElementById('downloadFileName');
-      const progressBar = document.getElementById('progressBar');
-      const progressText = document.getElementById('progressText');
-      const downloadCancelBtn = document.getElementById('downloadCancelBtn');
-
-      downloadingScreen.style.display = 'flex';
-      downloadCancelBtn.style.display = 'block';
-
-      // FIXED: Always use correct extension, never add .txt
-      let downloadName = file.name;
-      
-      // Remove any existing .txt extension and ensure correct extension
-      if (file.name.toLowerCase().endsWith('.mcpack')) {
-        downloadName = file.name.replace(/\.(mcpack|txt)$/gi, '') + '.mcpack';
-      } else if (file.name.toLowerCase().endsWith('.mcworld')) {
-        downloadName = file.name.replace(/\.(mcworld|txt)$/gi, '') + '.mcworld';
-      } else {
-        // For any other file type, remove .txt if present
-        downloadName = file.name.replace(/\.txt$/i, '');
-      }
-      
-      // Double security: Ensure we never have .txt in the final filename
-      downloadName = downloadName.replace(/\.txt$/i, '');
-      
-      downloadFileName.textContent = `${downloadName} (${fileManager.humanFileSize(file.size)})`;
-      progressBar.style.width = "0";
-      progressBar.setAttribute('aria-valuenow', 0);
-      
-      let downloadedBytes = 0;
-      let allowClose = false;
-      let canCancel = false;
-      let controller = new AbortController();
-      fileManager.currentDownload = controller;
-
-      progressText.textContent = "Starting download...";
-
-      function abortDownloadIfActive() {
-        if (fileManager.currentDownload && !allowClose) {
-          controller.abort();
-        }
-      }
-      
-      function beforeUnloadHandler(e) {
-        abortDownloadIfActive();
-        e.preventDefault();
-        e.returnValue = '';
-      }
-      
-      function visibilityChangeHandler() {
-        if (document.visibilityState === "hidden") {
-          abortDownloadIfActive();
-        }
-      }
-      
-      window.addEventListener('beforeunload', beforeUnloadHandler);
-      document.addEventListener('visibilitychange', visibilityChangeHandler);
-
-      // Use multiple reliable CORS proxies with fallback
-      const proxyUrls = [
-        'https://corsproxy.io/?',
-        'https://api.allorigins.win/raw?url=',
-        'https://cors-anywhere.herokuapp.com/'
-      ];
-      
-      let currentProxyIndex = 0;
-      
-      function tryDownloadWithProxy() {
-        if (currentProxyIndex >= proxyUrls.length) {
-          // All proxies failed
-          progressText.textContent = "Download failed: All proxies unavailable";
-          downloadingScreen.style.display = 'none';
-          window.removeEventListener('beforeunload', beforeUnloadHandler);
-          document.removeEventListener('visibilitychange', visibilityChangeHandler);
-          fileManager.currentDownload = null;
-          premiumSystem.showNotification("Download failed: Please try again later", 'error');
-          return;
-        }
-        
-        const proxyUrl = proxyUrls[currentProxyIndex];
-        
-        fetch(proxyUrl + encodeURIComponent(file.download_url), {signal: controller.signal})
-          .then(response => {
-            if (!response.ok) throw new Error("Failed to download file.");
-            
-            const total = file.size || parseInt(response.headers.get('content-length')) || 0;
-            const reader = response.body.getReader();
-            const chunks = [];
-            
-            function read() {
-              return reader.read().then(({done, value}) => {
-                if (done) {
-                  // Download completed successfully
-                  window.removeEventListener('beforeunload', beforeUnloadHandler);
-                  document.removeEventListener('visibilitychange', visibilityChangeHandler);
-                  
-                  downloadingScreen.style.display = 'none';
-                  fileManager.currentDownload = null;
-                  
-                  const blob = new Blob(chunks);
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  
-                  a.href = url;
-                  a.download = downloadName;
-                  a.style.display = 'none';
-                  
-                  document.body.appendChild(a);
-                  a.click();
-                  
-                  setTimeout(() => {
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    // Save to download history
-                    premiumSystem.addToDownloadHistory(file.name);
-                    premiumSystem.showNotification(`Download complete: ${downloadName}`, 'success');
-                  }, 100);
-                  
-                  return;
-                }
-                
-                chunks.push(value);
-                downloadedBytes += value.length;
-                
-                const percent = total > 0 ? Math.min(100, ((downloadedBytes / total) * 100)) : 0;
-                progressBar.style.width = percent + "%";
-                progressBar.setAttribute('aria-valuenow', percent);
-                
-                progressText.textContent = `Downloaded ${fileManager.humanFileSize(downloadedBytes)} of ${fileManager.humanFileSize(total)} (${percent.toFixed(1)}%)`;
-                
-                if (percent >= 10 && !allowClose) {
-                  allowClose = true;
-                  canCancel = true;
-                  progressText.textContent += "\nYou can now safely cancel the download if needed.";
-                }
-                
-                return read();
-              }).catch(err => {
-                if (controller.signal.aborted) {
-                  progressText.textContent = "Download cancelled.";
-                } else {
-                  // Try next proxy
-                  currentProxyIndex++;
-                  progressText.textContent = `Retrying with different proxy... (${currentProxyIndex + 1}/${proxyUrls.length})`;
-                  setTimeout(tryDownloadWithProxy, 1000);
-                }
-              });
-            }
-            
-            return read();
-          }).catch(err => {
-            if (err.name === 'AbortError') {
-              progressText.textContent = "Download cancelled.";
-            } else {
-              // Try next proxy
-              currentProxyIndex++;
-              progressText.textContent = `Retrying with different proxy... (${currentProxyIndex + 1}/${proxyUrls.length})`;
-              setTimeout(tryDownloadWithProxy, 1000);
-            }
-          });
-      }
-      
-      // Start download with first proxy
-      tryDownloadWithProxy();
-
-      downloadCancelBtn.onclick = function() {
-        if (canCancel && fileManager.currentDownload) {
-          controller.abort();
-          downloadCancelBtn.style.display = "none";
-          progressText.textContent = "Download cancelled by user.";
-          
-          setTimeout(() => {
-            downloadingScreen.style.display = 'none';
-            window.removeEventListener('beforeunload', beforeUnloadHandler);
-            document.removeEventListener('visibilitychange', visibilityChangeHandler);
-            fileManager.currentDownload = null;
-          }, 2000);
+        // Add thumbnail if available
+        if (thumbnailUrl) {
+          const thumbnail = document.createElement('img');
+          thumbnail.className = 'file-thumbnail-small';
+          thumbnail.src = thumbnailUrl;
+          thumbnail.alt = `${file.baseName} thumbnail`;
+          fileElement.appendChild(thumbnail);
         } else {
-          progressText.textContent = "Please wait... download cannot be cancelled yet.";
+          const placeholder = document.createElement('div');
+          placeholder.className = 'file-thumbnail-small';
+          placeholder.style.background = 'var(--surface-light)';
+          placeholder.style.display = 'flex';
+          placeholder.style.alignItems = 'center';
+          placeholder.style.justifyContent = 'center';
+          placeholder.innerHTML = '📁';
+          fileElement.appendChild(placeholder);
         }
-      };
+        
+        const fileContent = document.createElement('div');
+        fileContent.className = 'file-content';
+        
+        // File name
+        const name = document.createElement('div');
+        name.className = 'name';
+        name.textContent = file.name;
+        fileContent.appendChild(name);
+        
+        // File meta
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.innerHTML = `
+          <span>${file.type.toUpperCase()}</span>
+          <span>•</span>
+          <span>${premiumSystem.formatFileSize(file.size)}</span>
+        `;
+        fileContent.appendChild(meta);
+        
+        // Description preview (if available)
+        if (description) {
+          const expandBtn = document.createElement('button');
+          expandBtn.className = 'file-expand-btn';
+          expandBtn.innerHTML = '📝 Description <span>▾</span>';
+          expandBtn.addEventListener('click', () => {
+            const descPreview = fileContent.querySelector('.file-description-preview');
+            const isExpanded = descPreview.classList.contains('expanded');
+            
+            if (isExpanded) {
+              descPreview.classList.remove('expanded');
+              expandBtn.innerHTML = '📝 Description <span>▾</span>';
+            } else {
+              descPreview.classList.add('expanded');
+              expandBtn.innerHTML = '📝 Description <span>▴</span>';
+            }
+          });
+          fileContent.appendChild(expandBtn);
+          
+          const descPreview = document.createElement('div');
+          descPreview.className = 'file-description-preview';
+          descPreview.textContent = description.length > 150 ? description.substring(0, 150) + '...' : description;
+          fileContent.appendChild(descPreview);
+        }
+        
+        // Actions
+        const actions = document.createElement('div');
+        actions.className = 'actions';
+        
+        const downloadBtn = document.createElement('button');
+        downloadBtn.className = 'btn';
+        downloadBtn.innerHTML = '⬇️ Download';
+        downloadBtn.addEventListener('click', () => {
+          premiumSystem.downloadPack(file);
+        });
+        actions.appendChild(downloadBtn);
+        
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'btn save';
+        saveBtn.innerHTML = '💾 Save';
+        saveBtn.addEventListener('click', () => {
+          if (!premiumSystem.isPremium) {
+            premiumSystem.showNotification('Saving packs is a Premium feature!', 'warning');
+            premiumSystem.showPremiumModal();
+            return;
+          }
+          premiumSystem.saveToLibrary(file);
+        });
+        actions.appendChild(saveBtn);
+        
+        const detailsBtn = document.createElement('button');
+        detailsBtn.className = 'btn secondary';
+        detailsBtn.innerHTML = '📋 Details';
+        detailsBtn.addEventListener('click', () => {
+          this.showFileDetails(file, description, thumbnailUrl);
+        });
+        actions.appendChild(detailsBtn);
+        
+        fileContent.appendChild(actions);
+        fileElement.appendChild(fileContent);
+      }
+
+      async checkImageExists(url) {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = url;
+        });
+      }
+
+      async loadDescription(url) {
+        try {
+          const response = await fetch(url);
+          if (!response.ok) throw new Error('Not found');
+          return await response.text();
+        } catch (e) {
+          throw new Error('Description not available');
+        }
+      }
+
+      showFileDetails(file, description, thumbnailUrl) {
+        const modal = document.getElementById('fileDetailsModal');
+        const title = document.getElementById('fileDetailsTitle');
+        const thumbnail = document.getElementById('fileDetailsThumbnail');
+        const descElement = document.getElementById('fileDetailsDescription');
+        const links = document.getElementById('fileDetailsLinks');
+        
+        title.textContent = file.name;
+        
+        if (thumbnailUrl) {
+          thumbnail.src = thumbnailUrl;
+          thumbnail.style.display = 'block';
+        } else {
+          thumbnail.style.display = 'none';
+        }
+        
+        if (description) {
+          descElement.textContent = description;
+        } else {
+          descElement.textContent = 'No description available for this file.';
+        }
+        
+        // Clear previous links
+        links.innerHTML = '';
+        
+        // Add download link
+        const downloadLink = document.createElement('a');
+        downloadLink.href = file.download_url;
+        downloadLink.className = 'file-details-link';
+        downloadLink.innerHTML = `
+          <svg class="file-details-link-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+          </svg>
+          Download File
+        `;
+        downloadLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          premiumSystem.downloadPack(file);
+          modal.style.display = 'none';
+        });
+        links.appendChild(downloadLink);
+        
+        // Add view on GitHub link
+        const githubLink = document.createElement('a');
+        githubLink.href = `https://github.com/${GH_USERNAME}/${GH_REPO}/blob/main/${file.name}`;
+        githubLink.className = 'file-details-link';
+        githubLink.target = '_blank';
+        githubLink.innerHTML = `
+          <svg class="file-details-link-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          View on GitHub
+        `;
+        links.appendChild(githubLink);
+        
+        modal.style.display = 'flex';
+      }
+
+      showFooterModal(section) {
+        const modal = document.getElementById('footerModal');
+        const content = document.getElementById('footerModalContent');
+        
+        // Open all accordions to show content
+        document.querySelectorAll('.accordion-header').forEach(header => {
+          header.classList.remove('active');
+        });
+        
+        document.querySelectorAll('.accordion-content').forEach(content => {
+          content.classList.remove('active');
+        });
+        
+        // Activate the requested section
+        const targetHeader = document.querySelector(`[data-accordion="${section}"]`);
+        const targetContent = document.querySelector(`.accordion-content[data-accordion="${section}"]`);
+        
+        if (targetHeader && targetContent) {
+          targetHeader.classList.add('active');
+          targetContent.classList.add('active');
+        }
+        
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      }
     }
 
-    // Initialize systems
+    // Initialize the application
     const premiumSystem = new PremiumSystem();
     const fileManager = new FileManager();
 
-    // Global functions for onclick handlers
+    // Make available globally for HTML onclick handlers
     window.premiumSystem = premiumSystem;
-    window.startDownload = startDownload;
+    window.fileManager = fileManager;
 
     // Close dropdowns when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.custom-dropdown')) {
-        fileManager.closeAllDropdowns();
+    document.addEventListener('click', () => {
+      premiumSystem.closeAllDropdowns();
+    });
+
+    // Help modal close when clicking outside
+    window.addEventListener('click', (e) => {
+      const helpModal = document.getElementById('helpModal');
+      if (e.target === helpModal) {
+        helpModal.style.display = 'none';
       }
     });
 
-    // Prevent default for all dropdown buttons
-    document.querySelectorAll('.dropdown-button').forEach(btn => {
-      btn.addEventListener('click', (e) => e.preventDefault());
+    // Footer modal close when clicking outside
+    window.addEventListener('click', (e) => {
+      const footerModal = document.getElementById('footerModal');
+      if (e.target === footerModal) {
+        footerModal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
     });
 
-    console.log('Minecraft File Manager loaded successfully!');
+    // File details modal close when clicking outside
+    window.addEventListener('click', (e) => {
+      const fileDetailsModal = document.getElementById('fileDetailsModal');
+      if (e.target === fileDetailsModal) {
+        fileDetailsModal.style.display = 'none';
+      }
+    });
+
+    // Premium modal close when clicking outside
+    window.addEventListener('click', (e) => {
+      const premiumModal = document.getElementById('premiumModal');
+      if (e.target === premiumModal) {
+        premiumModal.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    });
+
+    console.log('Minecraft File Manager Premium initialized!');
   })();
   </script>
+<script>
+const fontSizeSlider = document.getElementById('globalFontSize');
+const fontSizeValue = document.getElementById('globalFontSizeValue');
+
+if (fontSizeSlider && fontSizeValue) {
+  fontSizeSlider.addEventListener('input', () => {
+    const newSize = fontSizeSlider.value + 'px';
+    document.documentElement.style.setProperty('--font-size', newSize);
+    fontSizeValue.textContent = newSize;
+  });
+}
+</script>
+<script>
+const wallpaperBtn = document.getElementById('setWallpaperBtn');
+const themeBtn = document.getElementById('setThemeBtn');
+const surprisesBtn = document.getElementById('setSurprisesBtn');
+
+const wallpaperSubpage = document.getElementById('wallpaperSubpage');
+const themeSubpage = document.getElementById('themeSubpage');
+const surprisesSubpage = document.getElementById('surprisesSubpage');
+
+const wallpaperBackBtn = document.getElementById('wallpaperBackBtn');
+const themeBackBtn = document.getElementById('themeBackBtn');
+const surprisesBackBtn = document.getElementById('surprisesBackBtn');
+
+function openCard(subpage) {
+  document.querySelectorAll('.theme-subpage').forEach(s => s.classList.remove('show-card'));
+  subpage.classList.add('show-card');
+  document.querySelector('.theme-main-buttons').style.display = 'none';
+}
+
+function closeCard() {
+  document.querySelectorAll('.theme-subpage').forEach(s => s.classList.remove('show-card'));
+  document.querySelector('.theme-main-buttons').style.display = 'flex';
+}
+
+wallpaperBtn.onclick = () => openCard(wallpaperSubpage);
+themeBtn.onclick = () => openCard(themeSubpage);
+surprisesBtn.onclick = () => openCard(surprisesSubpage);
+
+wallpaperBackBtn.onclick = closeCard;
+themeBackBtn.onclick = closeCard;
+surprisesBackBtn.onclick = closeCard;
+</script>
+<script>
+const bg = getComputedStyle(document.body).backgroundImage || 
+           getComputedStyle(document.body).backgroundColor;
+document.querySelector('.mpack-title').style.color = bg ? 'transparent' : 'inherit';
+</script>
 </body>
 </html>

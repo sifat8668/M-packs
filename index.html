@@ -30,7 +30,6 @@
     --font-size: 16px;
     font-family: 'Montserrat', system-ui, Segoe UI, Roboto, Arial;
     color: var(--text-primary);
-    font-size: var(--font-size);
   }
 
   /* Base styles */
@@ -39,7 +38,7 @@
   }
   
   html {
-    font-size: 100%;
+    font-size: var(--font-size);
     scroll-behavior: smooth;
   }
   
@@ -102,15 +101,18 @@
   }
   
   header h1 {
-    margin: 0;
-    font-size: 2rem;
-    font-weight: bold;
-    color: white;
-    text-shadow: 
-      2px 2px 0 black,
-      4px 4px 0 black,
-      6px 6px 0 black;
-  }
+  margin: 0;
+  font-size: 2rem;
+  font-weight: bold;
+  color: transparent;
+  background: linear-gradient(120deg, var(--surface) 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow:
+    2px 2px 0 var(--shadow-color, black),
+    4px 4px 0 var(--shadow-color, black),
+    6px 6px 0 var(--shadow-color, black);
+}
 
   .header-buttons {
     display: flex;
@@ -2904,6 +2906,7 @@ body {
         this.setupCustomItemsManagement();
         this.setupAccordion();
         this.setupBackgroundMovement();
+        this.setupDynamicTitleShadow();
         this.setupFileDetailsModal();
         this.setupSectionTransitions();
       }
@@ -2933,6 +2936,23 @@ body {
           }
         });
       }
+
+setupDynamicTitleShadow() {
+  const updateTitleShadow = () => {
+    const header = document.querySelector('header');
+    const bgColor = getComputedStyle(header).backgroundColor;
+    const rgb = bgColor.match(/\d+/g);
+    
+    if (rgb) {
+      const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
+      const shadowColor = brightness > 128 ? 'black' : 'white';
+      document.documentElement.style.setProperty('--shadow-color', shadowColor);
+    }
+  };
+  
+  updateTitleShadow();
+  setInterval(updateTitleShadow, 1000);
+}
 
       setupSectionTransitions() {
         // This will be handled in the switchSection method
@@ -4647,11 +4667,9 @@ body {
         });
 
         // Refresh button
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-          this.loadFiles();
-          premiumSystem.showNotification('Refreshing packs...', 'info');
-        });
-      }
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  window.location.reload();
+});
 
       renderCategories() {
         const carousel = document.getElementById('categoriesCarousel');
@@ -4667,22 +4685,18 @@ body {
           carousel.appendChild(chip);
         });
         
-        // Activate "All" by default
-        if (carousel.firstChild) {
-          carousel.firstChild.classList.add('active');
-        }
-      }
-
       filterByCategory(category) {
-        // Update active category
-        document.querySelectorAll('.category-chip').forEach(chip => {
-          chip.classList.remove('active');
-        });
-        event.target.classList.add('active');
-        
-        this.currentCategoryFilter = category;
-        this.applyFiltersAndSearch();
-      }
+  // Update active category
+  document.querySelectorAll('.category-chip').forEach(chip => {
+    chip.classList.remove('active');
+    if (chip.textContent === category) {
+      chip.classList.add('active');
+    }
+  });
+  
+  this.currentCategoryFilter = category;
+  this.applyFiltersAndSearch();
+}
 
       applyFiltersAndSearch() {
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();

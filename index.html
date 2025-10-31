@@ -5320,5 +5320,39 @@ document.getElementById('refreshBtn').addEventListener('click', () => {
     console.log('Minecraft File Manager initialized successfully!');
   })();
   </script>
+<!-- Terms & Privacy Agreement Modal -->
+<div id="termsModal" style="
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.9); color: white;
+  display: none; align-items: center; justify-content: center;
+  z-index: 100000; flex-direction: column; padding: 20px; text-align: center;">
+  <h2>Terms and Privacy Policy</h2>
+  <p>You must agree to our <a href="terms.html" target="_blank">Terms</a> and 
+     <a href="privacy.html" target="_blank">Privacy Policy</a> to use this website.</p>
+  <div style="margin-top: 20px;">
+    <button id="agreeBtn" style="padding:10px 20px; background:#00ff88; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">I Agree</button>
+    <button id="declineBtn" style="padding:10px 20px; background:#ff5555; border:none; border-radius:8px; font-weight:bold; margin-left:10px; cursor:pointer;">I Don't Agree</button>
+  </div>
+</div>
+<script>
+  const termsModal = document.getElementById('termsModal');
+  const agreed = localStorage.getItem('agreedToTerms');
+
+  if (!agreed) {
+    document.body.style.overflow = 'hidden';
+    termsModal.style.display = 'flex';
+  }
+
+  document.getElementById('agreeBtn').onclick = () => {
+    localStorage.setItem('agreedToTerms', 'yes');
+    termsModal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  };
+
+  document.getElementById('declineBtn').onclick = () => {
+    alert('You must agree to continue.');
+    window.location.href = 'https://www.google.com'; // or close tab
+  };
+</script>
 </body>
 </html>

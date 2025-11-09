@@ -1,0 +1,242 @@
+<button onclick="window.location.href='https://sifat8668.github.io/M-packs/'" style="background-color:black;color:white;border:none;padding:10px 20px;cursor:pointer;border-radius:5px;">Back</button>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Minecraft File Manager — Help Center</title>
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --muted:#94a3b8; --accent:#10b981;
+      --glass: rgba(255,255,255,0.03);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#061022 0%, #071428 100%);color:#e6eef6}
+    .container{max-width:980px;margin:32px auto;padding:24px;}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#0ea5a2,#60a5fa);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:22px;color:#042027}
+    h1{margin:0;font-size:20px}
+    p.lead{margin:6px 0 0;color:var(--muted);font-size:14px}
+
+    .grid{display:grid;grid-template-columns:1fr 320px;gap:18px;margin-top:18px}
+    @media (max-width:880px){.grid{grid-template-columns:1fr}.toc{order:2}}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.008));border-radius:12px;padding:18px;box-shadow:0 6px 20px rgba(2,6,23,0.6);backdrop-filter: blur(4px);border:1px solid rgba(255,255,255,0.02)}
+    .toc{position:sticky;top:20px;align-self:start}
+    .toc h3{margin:0 0 12px 0;font-size:15px}
+    .toc ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+    .toc a{color:var(--muted);text-decoration:none;font-size:14px;padding:8px;border-radius:8px;display:block}
+    .toc a:hover{background:var(--glass);color:#e6eef6}
+
+    section h2{font-size:16px;margin:6px 0 10px}
+    section p{color:var(--muted);margin:0 0 12px;font-size:14px}
+    .list{margin:0 0 12px 18px;color:var(--muted)}
+    .list li{margin:6px 0}
+    .kbd{display:inline-block;padding:6px 8px;border-radius:6px;background:#071427;border:1px solid rgba(255,255,255,0.02);font-family:monospace;font-size:13px;color:var(--muted)}
+    .download-steps{display:grid;gap:8px}
+    .step{background:rgba(255,255,255,0.01);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02)}
+    .muted{color:var(--muted);font-size:13px}
+    .pro{display:inline-block;background:linear-gradient(90deg,#f59e0b,#ef4444);color:#061022;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;margin-left:8px}
+    footer{margin-top:18px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+    /* small helpers */
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px;color:var(--muted)}
+    a.link{color:#9be7d7;text-decoration:none}
+    .warn{color:#fca5a5}
+    .section-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:560px){.section-grid{grid-template-columns:1fr}}
+    .feature{padding:10px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">M</div>
+      <div>
+        <h1>🆘 Help Center — Minecraft File Manager</h1>
+        <p class="lead">Clear steps for searching, downloading, premium features, customization, troubleshooting, and support.</p>
+      </div>
+      <div style="margin-left:auto">
+        <span class="pill">Version 1.0</span>
+        <span class="pro">Premium</span>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Main content -->
+      <main class="card" id="main-content" role="main" aria-label="Help content">
+        <!-- Searching & Finding Packs -->
+        <section id="searching">
+          <h2>🔍 Searching & Finding Packs</h2>
+          <p class="muted">Use our search and filters to find the pack you need fast.</p>
+          <ul class="list">
+            <li><strong>Search Bar</strong> — Type any keyword to find packs by name.</li>
+            <li><strong>File Type Filter</strong> — Choose <code class="kbd">.mcpack</code> or <code class="kbd">.mcworld</code> from the dropdown.</li>
+            <li><strong>Sort Options</strong> — Sort by name (A–Z or Z–A) or by file size.</li>
+            <li><strong>Categories</strong> — Browse categories like texture packs, maps, and adventure worlds.</li>
+          </ul>
+        </section>
+
+        <!-- Downloading Packs -->
+        <section id="downloading">
+          <h2>📥 Downloading Packs</h2>
+          <div class="download-steps">
+            <div class="step"><strong>1.</strong> Click the <em>⬇️ Download</em> button next to any pack.</div>
+            <div class="step"><strong>2.</strong> Check the progress bar until the download finishes.</div>
+            <div class="step"><strong>3.</strong> The file saves to your device's <em>Downloads</em> folder.</div>
+            <div class="step"><strong>4.</strong> Open Minecraft and import the pack from your downloads.</div>
+          </div>
+          <p class="muted">If the pack doesn't open, check compatibility in the pack details.</p>
+        </section>
+
+        <!-- Mobile vs Desktop -->
+        <section id="mobile-desktop">
+          <h2>📱 Mobile vs Desktop Usage</h2>
+          <ul class="list">
+            <li><strong>Mobile:</strong> Tap download and open the file with Minecraft when prompted.</li>
+            <li><strong>Desktop:</strong> Download normally and import manually to Minecraft.</li>
+            <li><strong>Cross-platform:</strong> Many packs work on both Bedrock and Java — check the pack details for compatibility.</li>
+          </ul>
+        </section>
+
+        <!-- Premium Features -->
+        <section id="premium">
+          <h2>💎 Premium Features <span class="pro">Paid</span></h2>
+          <p class="muted">Optional upgrades to improve your experience:</p>
+          <div class="section-grid">
+            <div class="feature">
+              <h3>Browsing</h3>
+              <ul class="list">
+                <li>Ad-free browsing</li>
+                <li>Advanced filters and trending lists</li>
+              </ul>
+            </div>
+            <div class="feature">
+              <h3>Personalization</h3>
+              <ul class="list">
+                <li>Save Packs to Library</li>
+                <li>Custom themes, wallpapers, and opacity controls</li>
+              </ul>
+            </div>
+            <div class="feature">
+              <h3>History & Uploads</h3>
+              <ul class="list">
+                <li>Download history with timestamps</li>
+                <li>Upload your own themes and wallpapers</li>
+              </ul>
+            </div>
+            <div class="feature">
+              <h3>Games & Extras</h3>
+              <ul class="list">
+                <li>Games section and extra content</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- Theme Customization -->
+        <section id="theme">
+          <h2>🎨 Theme Customization (Premium)</h2>
+          <ul class="list">
+            <li><strong>Wallpapers</strong> — Choose built-in or upload your own.</li>
+            <li><strong>Themes</strong> — Apply predefined color schemes or create custom CSS.</li>
+            <li><strong>Surprises</strong> — Optional animated CSS effects that trigger randomly.</li>
+            <li><strong>Font Size & Opacity</strong> — Adjust text size and transparency for readability.</li>
+          </ul>
+        </section>
+
+        <!-- Library Features -->
+        <section id="library">
+          <h2>📚 Library Features (Premium)</h2>
+          <ul class="list">
+            <li>Saved Packs — quick access to bookmarks</li>
+            <li>Download History — view past downloads with timestamps</li>
+            <li>Games Section — discover mini-games and extras</li>
+          </ul>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section id="troubleshooting">
+          <h2>🛠️ Troubleshooting</h2>
+          <ul class="list">
+            <li><strong>Downloads not working:</strong> Check internet and refresh the page.</li>
+            <li><strong>Packs not showing:</strong> Clear browser cache or press the refresh button.</li>
+            <li><strong>Import issues:</strong> Confirm the Minecraft edition/version matches the pack.</li>
+            <li><strong>Premium problems:</strong> Contact support with your account email and transaction ID.</li>
+          </ul>
+        </section>
+
+        <!-- Security & Privacy -->
+        <section id="security">
+          <h2>🔒 Security & Privacy</h2>
+          <p class="muted">We keep your safety top of mind:</p>
+          <ul class="list">
+            <li>Packs scanned and verified from trusted GitHub repos.</li>
+            <li>No personal data is collected without permission.</li>
+            <li>Secure payment processing for premium upgrades.</li>
+            <li>Regular security updates and malware checks.</li>
+          </ul>
+        </section>
+
+        <!-- Support -->
+        <section id="support">
+          <h2>📞 Getting Support</h2>
+          <p class="muted">Need help? Reach out:</p>
+          <ul class="list">
+            <li><strong>Email:</strong> <a class="link" href="mailto:nursifat3026@gmail.com">nursifat3026@gmail.com</a></li>
+            <li><strong>Refresh:</strong> Use the refresh button if content isn't loading.</li>
+            <li><strong>Mobile App:</strong> Download our app for a better mobile experience (when available).</li>
+          </ul>
+        </section>
+
+        <!-- Pro Tips -->
+        <section id="protips">
+          <h2>💡 Pro Tips</h2>
+          <ul class="list">
+            <li>Use specific keywords in search for faster results.</li>
+            <li>Check pack details first for compatibility.</li>
+            <li>Save favorites to the library to find them quickly later.</li>
+            <li>Try different categories to discover new content.</li>
+            <li>Premium users can fully customize the interface.</li>
+          </ul>
+        </section>
+
+      </main>
+
+      <!-- Table of contents / quick links -->
+      <aside class="card toc" aria-label="Help table of contents">
+        <h3>Contents</h3>
+        <ul>
+          <li><a href="#searching">🔍 Searching & Finding Packs</a></li>
+          <li><a href="#downloading">📥 Downloading Packs</a></li>
+          <li><a href="#mobile-desktop">📱 Mobile vs Desktop</a></li>
+          <li><a href="#premium">💎 Premium Features</a></li>
+          <li><a href="#theme">🎨 Theme Customization</a></li>
+          <li><a href="#library">📚 Library Features</a></li>
+          <li><a href="#troubleshooting">🛠️ Troubleshooting</a></li>
+          <li><a href="#security">🔒 Security & Privacy</a></li>
+          <li><a href="#support">📞 Getting Support</a></li>
+          <li><a href="#protips">💡 Pro Tips</a></li>
+        </ul>
+
+        <div style="margin-top:14px">
+          <button onclick="window.open('https://sifat8668.github.io/m!-packs/aboutuss/', '_blank')" style="background:black;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:16px;">about us</button>
+<button onclick="window.open('https://sifat8668.github.io/M-packs/privacypolicyy', '_blank')" style="background:black;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:16px;">privacy policy </button>
+<button onclick="window.open('https://sifat8668.github.io/M-packs/terms', '_blank')" style="background:black;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:16px;">term of service</button>
+        </div>
+      </aside>
+    </div>
+
+  <script>
+    // small UX helpers
+    document.getElementById('year').textContent = new Date().getFullYear();
+    // smooth scroll for in-page links
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{
+        e.preventDefault();
+        const t = document.querySelector(a.getAttribute('href'));
+        if(t) t.scrollIntoView({behavior:'smooth',block:'start'});
+      });
+    });
+  </script>
+</body>
+</html>
